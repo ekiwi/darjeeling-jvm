@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path=""/>
-	<classpathentry kind="lib" path="/home/niels/workspace/darjeeling/build/api/api.jar"/>
-	<classpathentry kind="lib" path="/home/niels/workspace/darjeeling/build/lib/oled/oled.jar"/>
-	<classpathentry kind="output" path=""/>
-</classpath>
