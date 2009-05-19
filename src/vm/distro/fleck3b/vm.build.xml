@@ -1,0 +1,42 @@
+<project basedir="../../../../">
+
+	<property name="infusions" value="base, darjeeling, testsuite"/>
+	<property name="nativeinfusions" value="base, darjeeling"/>
+	<property name="run" value="testsuite"/>
+
+	<import file="../../vm.build.xml"/>
+	<import file="../../vm.fos.avr.build.xml"/>
+	
+	<!-- the name of this distro -->
+	<property name="distro" value="fleck3b"/>
+	
+	<!-- the cpu and platform -->
+	<property name="cpu" value="avr"/>
+	<property name="platform" value="fos"/>
+		
+	<!-- application to embed -->
+	<property name="appname" value="BLINK_APP"/>
+
+	<!-- include stuff from /opt -->
+	<patternset id="opt">
+		<include name="darjeeling/fos/**/*.*"/>
+		<include name="radio/fos/*.*"/>
+		<include name="oled/**/*.*"/>
+		<include name="motorcar/**/*.*"/>
+	</patternset>
+			
+	<!-- infusions to embed -->
+	<property name="infusions" value="base, darjeeling, testsuite"/>
+	<property name="nativeinfusions" value="base, darjeeling"/>
+	<property name="run" value="testsuite"/>
+	
+	<!-- configuration for the compiler -->
+	<property name="mmcu" value="atmega1281"/>
+	<property name="fos_platform" value="fleck3b"/>
+	<property name="rf_channel" value="1"/>
+	<property name="nodeid" value="1"/>
+	
+	<!-- configuration for avrdude -->
+	<property name="avrdude.mmcu" value="m1281"/>
+	
+</project>

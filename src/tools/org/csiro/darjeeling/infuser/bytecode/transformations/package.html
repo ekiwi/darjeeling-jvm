@@ -1,0 +1,13 @@
+<html>
+	<body>
+		The transformations package holds a number of operations that work on CodeBlock objects that are moved out of 
+		the CodeBlock class to separate them from the model. 
+		<p>
+		The CodeBlockTransformation class is the base class for these operations. It defines a template method transform() 
+		that calls the abstract transformInternal which should be implemented by child classes. The template method
+		handles some housekeeping and perhaps in the future sanity checking.
+		<p>
+		It's important to note that most of these operations are dependent on each other, so that it's not always permitted
+		to change the order in which they are applied.
+	</body>
+</html>

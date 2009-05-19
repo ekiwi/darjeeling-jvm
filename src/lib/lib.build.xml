@@ -1,0 +1,96 @@
+<project>
+
+	<property file="darjeeling.properties"/>
+
+	<!-- input/output directories and file names, derived from the library name -->
+	<property name="source" value="${lib.base}/${lib.dir}"/>
+	<property name="classes" value="${lib.classes}/${lib.dir}"/>
+	<property name="jar" value="${lib.jars}/${lib.name}.jar"/>
+	<property name="infusion.di" value="${lib.infusions}/${lib.name}.di"/>
+	<property name="infusion.dih" value="${lib.infusions}/${lib.name}.dih"/>
+	<property name="native" value="${lib.generated}/${lib.name}_native.h"/>
+	<property name="definitions" value="${lib.generated}/${lib.name}_definitions.h"/>
+	<property name="cheader" value="${lib.generated}/${lib.name}_di.h"/>
+	<property name="cheader_avr" value="${lib.generated}/${lib.name}_avr_di.h"/>
+
+	<!-- get taskdefs for the infuser and carray tools -->
+	<import file="${basedir}/taskdefs.xml"/>
+
+	<!-- 'rebuild' target -->
+	<target name="rebuild" depends="clean, all"/>
+
+	<!-- 'all' target -->
+	<target name="all" depends="compile, infuse, carray, package"/>
+
+	<!-- compile the sources -->
+	<target name="compile">
+		<mkdir dir="${classes}"/>
+		<javac
+			srcdir="${source}"
+			destdir="${classes}"
+			bootclasspath="${lib.bootclasspath}"
+		>
+			<classpath>
+				<fileset dir="${lib.jars}">
+					<include name="**/*.jar"/>
+				</fileset>				
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- infuse the code into infusion files and produce c-includes for native methods -->
+	<target name="infuse" depends="compile">
+		<mkdir dir="${lib.infusions}"/>
+		<mkdir dir="${lib.generated}"/>
+		<infuser
+			name="${lib.name}"
+			infusionfile="${infusion.di}"
+			headerfile="${infusion.dih}"
+			definitionfile="${definitions}"
+			nativeheaderfile="${native}"
+		>
+			<!-- Include the classes -->
+			<fileset dir="${classes}" ><include name="**/*.class"/></fileset>
+			<fileset dir="${lib.infusions}"><patternset refid="lib.includes"/></fileset>
+			
+		</infuser>
+	</target>	
+
+	<!-- create a c-include from the infusion file -->
+	<target name="carray" depends="infuse">
+		<mkdir dir="${lib.generated}"/>
+		<carray
+			src="${infusion.di}"
+			dest="${cheader}"
+			arrayname="${lib.name}_di"
+			progmem="false"
+		/>
+		<carray
+			src="${infusion.di}"
+			dest="${cheader_avr}"
+			arrayname="${lib.name}_di"
+			progmem="true"
+		/>
+	</target>	
+	
+
+	<!-- package the lib into a single .jar file -->
+	<target name="package" depends="compile"> 
+		<mkdir dir="${lib.jars}"/>
+		<jar destfile="${jar}"> 
+			<fileset dir="${classes}"><include name="**/*.class"/></fileset>
+		</jar>
+	</target>
+
+
+	<!-- clean -->
+	<target name="clean">
+		<delete dir="${classes}"/>
+		<delete file="${infusion.di}"/>
+		<delete file="${infusion.dih}"/>
+		<delete file="${native}"/>
+		<delete file="${definitions}"/>
+		<delete file="${cheader}"/>
+	</target>
+
+</project>

@@ -1,0 +1,19 @@
+<project basedir="../../../">
+
+	<!-- application directory (relative to /src/lib) -->
+	<property name="lib.dir" value="radio"/>
+
+	<!-- application name and version-->
+	<property name="lib.name" value="radio"/>
+	<property name="lib.majorversion" value="0"/>
+	<property name="lib.minorversion" value="1"/>
+
+	<!-- includes -->
+	<patternset id="lib.includes">
+		<include name="base.dih"/>
+	</patternset>
+
+	<!-- the rest is included from apps.build.xml -->
+	<import file="../lib.build.xml"/>
+
+</project>

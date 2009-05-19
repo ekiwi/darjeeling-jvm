@@ -1,0 +1,310 @@
+<project>
+
+	<import file="../../taskdefs.xml"/>
+
+	<target name="all" depends="compile"/>
+
+	<target name="embeddedloader">
+		<embeddedloader
+			infusions="${infusions}"
+			nativeinfusions="${nativeinfusions}"
+			run="${run}"
+			cfile="${vm.generated}/loader.c"
+			hfile="${vm.generated}/loader.h"
+			avr="true"
+			/>
+	</target>
+
+	<target name="compile" depends="embeddedloader">
+		
+		<mkdir dir="${vm.objects}/${distro}"/>
+		<mkdir dir="${vm.executables}/${distro}"/>
+		<mkdir dir="${vm.generated}/${distro}"/>
+
+		<!-- run nesc to generate the app.c file -->
+		
+		<!--
+			nesc1 
+			-fnesc-include=deputy_nodeputy 
+			-_fnesc-gcc=avr-gcc 
+			-_fnesc-include=nesc_nx 
+			-_fnesc-include=tos 
+			-_fnesc-scheduler=TinySchedulerC,TinySchedulerC.TaskBasic,TaskBasic,TaskBasic,runTask,postTask 
+			-_Wnesc-all 
+			-_fnesc-dump=wiring 
+			-_fnesc-dump=interfaces(!abstract()) 
+			-_fnesc-dump=referenced(interfacedefs, components) 
+			-_fnesc-dumpfile=build/tnode/wiring-check.xml 
+			-_fnesc-target=avr
+			-_fnesc-no-debug 
+			-_fnesc-scheduler=TinySchedulerC,TinySchedulerC.TaskBasic,TaskBasic,TaskBasic,runTask,postTask 
+			-mmcu=atmega128 
+			-DPLATFORM_TNODE 
+			-DBOARD_NONE 
+			-DIDENT_APPNAME="BlinkAppC" 
+			-DIDENT_USERNAME="niels" 
+			-DIDENT_HOSTNAME="teletraan2" 
+			-DIDENT_USERHASH=0xbab78feaL 
+			-DIDENT_TIMESTAMP=0x49a47479L 
+			-DIDENT_UIDHASH=0xe772425aL 
+			-DNESC=130 
+			-I/usr/lib/ncc 
+			-I/home/niels/src/tinyos-2.x/tos/sensorboards/none
+			-I/home/niels/src/tinyos-2.x/tos/platforms/tnode
+			-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/cc1000
+			-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/at45db
+			-I/home/niels/src/tinyos-2.x/tos/platforms/mica2
+			-I/home/niels/src/tinyos-2.x/tos/platforms/mica
+			-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/cc1000
+			-I/home/niels/src/tinyos-2.x/tos/chips/cc1000
+			-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/at45db
+			-I/home/niels/src/tinyos-2.x/tos/platforms/mica/chips/at45db
+			-I/home/niels/src/tinyos-2.x/tos/chips/at45db
+			-I/home/niels/src/tinyos-2.x/tos/chips/atm128
+			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/adc
+			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/i2c
+			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/pins
+			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/spi
+			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/timer
+			-I/home/niels/src/tinyos-2.x/tos/lib/timer
+			-I/home/niels/src/tinyos-2.x/tos/lib/serial
+			-I/home/niels/src/tinyos-2.x/tos/lib/power
+			-I/home/niels/src/tinyos-2.x/tos/interfaces
+			-I/home/niels/src/tinyos-2.x/tos/types
+			-I/home/niels/src/tinyos-2.x/tos/system 
+			-Wall 
+			-Wshadow 
+			-finline-limit=100000 
+			BlinkAppC.nc 
+			-o build/tnode/app.c
+		-->
+		
+		<exec 
+			executable="/usr/lib/ncc/nesc1"
+			failonerror="true"
+			>
+
+			<arg value="-fnesc-include=deputy_nodeputy"/>			
+			<arg value="-fnesc-gcc=avr-gcc"/>
+
+			<arg value="-fnesc-include=nesc_nx"/>
+			<arg value="-fnesc-include=tos"/>
+				
+			<arg value="-fnesc-scheduler=TinySchedulerC,TinySchedulerC.TaskBasic,TaskBasic,TaskBasic,runTask,postTask"/>
+			<arg value="-Wnesc-all"/>
+			<arg value="-fnesc-target=avr"/>
+			<arg value="-fnesc-no-debug"/>
+			<arg value="-fsyntax-only"/>
+			<arg value="-mmcu=atmega128"/>
+			<!-- <arg value="-v"/> -->
+			
+			<arg value="-DIDENT_APPNAME=DarjeelingAppC"/>
+			<arg value="-DNESC=130"/>
+			<arg value="-I${vm.base}/platform/${platform}"/>
+			<arg value="-I/usr/lib/ncc"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/sensorboards/none"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/tnode"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/cc1000"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/at45db"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica2"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/cc1000"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/cc1000"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/at45db"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica/chips/at45db"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/at45db"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/adc"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/i2c"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/pins"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/spi"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/timer"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/lib/timer"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/lib/serial"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/lib/power"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/interfaces"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/types"/>
+			<arg value="-I/home/niels/src/tinyos-2.x/tos/system"/>
+			<arg value="-I${vm.base}"/>
+			<arg value="-I${vm.base}/cpu/${cpu}"/>
+			<arg value="-I${vm.base}/platform/${platform}"/>
+			<arg value="-I${vm.base}/distro/${distro}"/>
+			<arg value="-I${lib.generated}"/>
+			<arg value="-I${app.generated}"/>
+			
+			<!--
+			<arg value="-Wall"/>
+			<arg value="-Wshadow"/>
+			<arg value="-finline-limit=100000"/>
+			-->
+			<arg value="${vm.base}/platform/${platform}/DarjeelingAppC.nc"/>
+			<arg value="-o"/>
+			<arg value="${vm.generated}/${distro}/app.c"/>
+				
+		</exec>
+
+		<!-- compile the beast -->
+		<cc objdir="${vm.objects}/${distro}" 
+			debug="false"
+			>
+			
+			<!--
+				avr-gcc 
+
+					-_fnesc-gcc=avr-gcc 
+					-_fnesc-include=nesc_nx
+					-_fnesc-include=tos 
+					-_fnesc-scheduler=TinySchedulerC,TinySchedulerC.TaskBasic,TaskBasic,TaskBasic,runTask,postTask 
+					-_fnesc-dump=wiring 
+					-_fnesc-dump=interfaces(!abstract()) 
+					-_fnesc-dump=referenced(interfacedefs, components) 
+					-_fnesc-dumpfile=build/tnode/wiring-check.xml 
+					-_fnesc-target=avr 
+					-_fnesc-no-debug 
+					-_fnesc-scheduler=TinySchedulerC,TinySchedulerC.TaskBasic,TaskBasic,TaskBasic,runTask,postTask 
+					-_fnesc-cfile=build/tnode/app.c 
+					-_Wnesc-all
+					 
+					-I/usr/lib/ncc 
+					-DPLATFORM_TNODE 
+					-DBOARD_NONE 
+					-o build/tnode/main.exe 
+					-Os 
+					-finline-limit=100000 
+					-Wall 
+					-Wshadow 
+					-specs=/usr/lib/ncc/tdspecs 
+					 
+					-DIDENT_APPNAME="BlinkAppC" 
+					-DIDENT_USERNAME="niels" 
+					-DIDENT_HOSTNAME="teletraan2" 
+					-DIDENT_USERHASH=0xbab78feaL 
+					-DIDENT_TIMESTAMP=0x49a427e9L 
+					-DIDENT_UIDHASH=0xb725b670L 
+					-DNESC=130
+					
+					BlinkAppC.nc 
+					-lm 
+					-mmcu=atmega128 
+					-I/home/niels/src/tinyos-2.x//tos/sensorboards/none 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/tnode 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/tnode/chips/cc1000 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/tnode/chips/at45db 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/mica2 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/mica 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/mica2/chips/cc1000 
+					-I/home/niels/src/tinyos-2.x//tos/chips/cc1000 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/mica2/chips/at45db 
+					-I/home/niels/src/tinyos-2.x//tos/platforms/mica/chips/at45db 
+					-I/home/niels/src/tinyos-2.x//tos/chips/at45db 
+					-I/home/niels/src/tinyos-2.x//tos/chips/atm128 
+					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/adc 
+					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/i2c 
+					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/pins 
+					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/spi 
+					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/timer 
+					-I/home/niels/src/tinyos-2.x//tos/lib/timer 
+					-I/home/niels/src/tinyos-2.x//tos/lib/serial 
+					-I/home/niels/src/tinyos-2.x//tos/lib/power 
+					-I/home/niels/src/tinyos-2.x//tos/interfaces 
+					-I/home/niels/src/tinyos-2.x//tos/types 
+					-I/home/niels/src/tinyos-2.x//tos/system 
+			-->
+
+			<compiler classname="net.sf.antcontrib.cpptasks.gcc.cross.GccCCompiler">
+				<compilerparam value="avr" name="target"/>
+				<compilerarg value="-mmcu=atmega128"/>
+				<compilerarg value="-Os"/>
+				<compilerarg value="-Wall"/>
+				<compilerarg value="-DPLATFORM_TNODE"/>
+				<compilerarg value="-DBOARD_NONE"/>
+				<compilerarg value="-fdollars-in-identifiers"/>
+			</compiler>
+
+			<!-- include directories -->
+			<includepath>
+				<pathelement path="${lib.generated}"/>
+				<pathelement path="${app.generated}"/>
+				<pathelement path="${vm.base}"/>
+				<pathelement path="${vm.base}/cpu/${cpu}"/>
+				<pathelement path="${vm.base}/platform/${platform}"/>
+				<pathelement path="${vm.base}/distro/${distro}"/>
+
+				<pathelement path="/usr/lib/ncc"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/sensorboards/none"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/platforms/tnode"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/cc1000"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/at45db"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/cc1000"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/at45db"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/adc"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/i2c"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/pins"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/spi"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/timer"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/timer"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/serial"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/power"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/printf"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/interfaces"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/types"/>
+				<pathelement path="/home/niels/src/tinyos-2.x/tos/system"/>
+				
+			</includepath>
+			
+			<!-- input files -->
+			<fileset dir="${vm.generated}/${distro}"><include name="app.c"/></fileset>
+			<fileset dir="${vm.base}/common"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/cpu/${cpu}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/platform/${platform}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/distro/${distro}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.opt}"><patternset refid="opt"/></fileset>
+			<fileset dir="${vm.generated}"><include name="loader.c"/></fileset>
+
+		</cc>
+		
+		<cc outfile="${vm.executables}/${distro}/darjeeling.elf" 
+	        objdir="${vm.objects}/${distro}"
+	        debug="false">
+
+			<linker classname="net.sf.antcontrib.cpptasks.gcc.cross.GccLinker">
+				<linkerparam value="avr" name="target"/>
+				<linkerarg value="-Wl,--cref,-Map,darjeeling-avr.map,--section-start=.bootloader=0x1e000"/>
+				<linkerarg value="-Os"/>
+				<linkerarg value="-mmcu=atmega128"/>
+			</linker>
+
+			<fileset dir="${vm.objects}/${distro}/">
+				<include name="*.o"/>
+			</fileset>
+		</cc>
+
+	</target>
+
+	<target name="run" depends="compile">
+		
+		<!-- create srec file -->
+		<exec executable="avr-objcopy">
+			<arg value="-R"/>
+			<arg value="-S"/>
+			<arg value="--target=srec"/>
+			<arg value="${vm.executables}/${distro}/darjeeling.elf"/>
+			<arg value="${vm.executables}/${distro}/darjeeling.srec"/>
+		</exec>
+		
+		<!-- upload and run -->
+		<exec executable="uisp">
+			<arg value="-v=3"/>
+			<arg value="-dprog=ftdi"/>
+			<arg value="-dpart=ATmega128"/>
+			<arg value="--wr_fuse_e=ff"/>
+			<arg value="-dinvert=mosi,miso,sck"/>
+			<arg value="--erase"/>
+			<arg value="--upload"/>
+			<arg value="if=${vm.executables}/${distro}/darjeeling.srec"/>
+		</exec>
+		
+	</target>
+
+</project>

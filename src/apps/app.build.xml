@@ -1,0 +1,88 @@
+<project>
+
+	<property file="darjeeling.properties"/>
+
+	<!-- input/output directories and file names, derived from the apprary name -->
+	<property name="source" value="${app.base}/${app.dir}"/>
+	<property name="classes" value="${app.classes}/${app.dir}"/>
+	<property name="infusion.di" value="${app.infusions}/${app.name}.di"/>
+	<property name="infusion.dih" value="${app.infusions}/${app.name}.dih"/>
+	<property name="cheader" value="${app.generated}/${app.name}_di.h"/>
+	<property name="cheader_avr" value="${app.generated}/${app.name}_avr_di.h"/>
+	<property name="jar" value="${app.jars}/${app.name}.jar"/>
+
+	<!-- get taskdefs for the infuser and carray tools -->
+	<import file="${basedir}/taskdefs.xml"/>
+
+	<!-- 'rebuild' target -->
+	<target name="rebuild" depends="clean, all"/>
+
+	<!-- 'all' target -->
+	<target name="all" depends="compile, infuse, carray"/>
+
+	<!-- compile the sources -->
+	<target name="compile">
+		<mkdir dir="${classes}"/>
+		<javac
+			srcdir="${source}"
+			destdir="${classes}"
+			bootclasspath="${app.bootclasspath}"
+			debug="true"
+		>
+			<classpath>
+				<fileset dir="${lib.jars}">
+					<include name="**/*.jar"/>
+				</fileset>				
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- infuse the code into infusion files and produce c-includes for native methods -->
+	<target name="infuse" depends="compile">
+		<mkdir dir="${app.infusions}"/>
+		<mkdir dir="${app.generated}"/>
+		<infuser
+			name="${app.name}"
+			infusionfile="${infusion.di}"
+			headerfile="${infusion.dih}"
+		>
+			<!-- Include the classes -->
+			<fileset dir="${classes}" ><include name="**/*.class"/></fileset>
+			<fileset dir="${lib.infusions}"><patternset refid="app.includes"/></fileset>
+		</infuser>
+	</target>	
+
+	<!-- create a c-include from the infusion file -->
+	<target name="carray" depends="infuse">
+		<mkdir dir="${app.generated}"/>
+		<carray
+			src="${infusion.di}"
+			dest="${cheader}"
+			arrayname="${app.name}_di"
+			progmem="false"
+		/>
+		<carray
+			src="${infusion.di}"
+			dest="${cheader_avr}"
+			arrayname="${app.name}_di"
+			progmem="true"
+		/>
+	</target>	
+
+	<!-- package the lib into a single .jar file -->
+	<target name="package" depends="compile"> 
+		<mkdir dir="${lib.jars}"/>
+		<jar destfile="${jar}"> 
+			<fileset dir="${classes}"><include name="**/*.class"/></fileset>
+		</jar>
+	</target>
+
+	<!-- clean -->
+	<target name="clean">
+		<delete dir="${classes}"/>
+		<delete file="${infusion.di}"/>
+		<delete file="${infusion.dih}"/>
+		<delete file="${cheader}"/>
+	</target>
+
+</project>

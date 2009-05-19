@@ -1,0 +1,180 @@
+<project>
+
+	<import file="../../taskdefs.xml"/>
+
+	<target name="all" depends="compile"/>
+
+	<target name="embeddedloader">
+		<embeddedloader
+			infusions="${infusions}"
+			nativeinfusions="${nativeinfusions}"
+			run="${run}"
+			cfile="${vm.generated}/loader.c"
+			hfile="${vm.generated}/loader.h"
+			/>
+	</target>
+	
+	<target name="compile" depends="embeddedloader">
+		<mkdir dir="${vm.objects}/${distro}"/>
+		<mkdir dir="${vm.executables}/${distro}"/>
+		
+		<!-- create .co file -->
+		<cc 
+			name="gcc"
+			objdir="${vm.objects}/${distro}"
+		>
+		
+			<compiler classname="net.sf.antcontrib.cpptasks.gcc.cross.GccCCompiler">
+				<compilerparam value="msp430" name="target"/>
+				<compilerarg value="-Wall"/>
+				<compilerarg value="-mmcu=msp430x1611"/>
+				<compilerarg value="-Os"/>
+				<!-- <compilerarg value="-mstrict-align"/> -->
+				<compilerarg value="-c"/>
+				<compilerarg value="-o"/>
+				<compilerarg value="main.co"/>
+				<compilerarg value="-DCONTIKI_TARGET=sky"/>
+				<compilerarg value="-DAUTOSTART_ENABLE"/>
+			</compiler>
+
+			<!-- include directories -->
+			<includepath>
+				<pathelement path="${env.CONTIKI}/cpu/msp430/"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/dev"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/apps"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/net"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/loader"/> 
+				<pathelement path="${env.CONTIKI}/core/dev"/> 
+				<pathelement path="${env.CONTIKI}/core/lib"/> 
+				<pathelement path="${env.CONTIKI}/core/net"/> 
+				<pathelement path="${env.CONTIKI}/core/net/mac"/> 
+				<pathelement path="${env.CONTIKI}/core/net/rime"/> 
+				<pathelement path="${env.CONTIKI}/core/sys"/> 
+				<pathelement path="${env.CONTIKI}/core/cfs"/> 
+				<pathelement path="${env.CONTIKI}/core/ctk"/>
+				<pathelement path="${env.CONTIKI}/core/lib/ctk"/> 
+				<pathelement path="${env.CONTIKI}/core/loader"/> 
+				<pathelement path="${env.CONTIKI}/core/"/>
+				<pathelement path="${lib.generated}"/>
+				<pathelement path="${app.generated}"/>
+				<pathelement path="${vm.base}"/>
+				<pathelement path="${vm.base}/cpu/${cpu}"/>
+				<pathelement path="${vm.base}/platform/${platform}"/>
+				<pathelement path="${vm.base}/distro/${distro}"/>
+			</includepath>
+			
+			<fileset dir="${vm.base}/platform/${platform}">
+				<include name="main.c"/>
+			</fileset>
+		
+		</cc>
+
+		<cc 
+			name="gcc"
+			objdir="${vm.objects}/${distro}"
+		>
+			<compiler classname="net.sf.antcontrib.cpptasks.gcc.cross.GccCCompiler">
+				<compilerparam value="msp430" name="target"/>
+				<compilerarg value="-Wall"/>
+				<compilerarg value="-mmcu=msp430x1611"/>
+				<compilerarg value="-Os"/>
+				<compilerarg value="-c"/>
+				<compilerarg value="-DAUTOSTART_ENABLE"/>
+				<compilerarg value="-DCONTIKI_TARGET=sky"/>
+			</compiler>
+
+			<!-- include directories -->
+			<includepath>
+				<pathelement path="${env.CONTIKI}/cpu/msp430/"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/dev"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/apps"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/net"/> 
+				<pathelement path="${env.CONTIKI}/platform/sky/loader"/> 
+				<pathelement path="${env.CONTIKI}/core/dev"/> 
+				<pathelement path="${env.CONTIKI}/core/lib"/> 
+				<pathelement path="${env.CONTIKI}/core/net"/> 
+				<pathelement path="${env.CONTIKI}/core/net/mac"/> 
+				<pathelement path="${env.CONTIKI}/core/net/rime"/> 
+				<pathelement path="${env.CONTIKI}/core/sys"/> 
+				<pathelement path="${env.CONTIKI}/core/cfs"/> 
+				<pathelement path="${env.CONTIKI}/core/ctk"/>
+				<pathelement path="${env.CONTIKI}/core/lib/ctk"/> 
+				<pathelement path="${env.CONTIKI}/core/loader"/> 
+				<pathelement path="${env.CONTIKI}/core/"/>
+				<pathelement path="${lib.generated}"/>
+				<pathelement path="${app.generated}"/>
+				<pathelement path="${vm.base}"/>
+				<pathelement path="${vm.base}/cpu/${cpu}"/>
+				<pathelement path="${vm.base}/platform/${platform}"/>
+				<pathelement path="${vm.base}/distro/${distro}"/>
+			</includepath>
+			
+			<fileset dir="${env.CONTIKI}/platform/sky/"><include name="contiki-sky-main.c"/></fileset>
+			<fileset dir="${vm.base}/common"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/cpu/${cpu}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/platform/${platform}"><exclude name="main.c"/><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/distro/${distro}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.opt}"><patternset refid="opt"/></fileset>
+			<fileset dir="${vm.generated}"><include name="loader.c"/></fileset>
+		
+		</cc>
+
+		<cc outfile="${vm.executables}/${distro}/darjeeling.elf" 
+			objdir="${vm.objects}/${distro}"
+			debug="false"
+			>
+
+			<linker classname="net.sf.antcontrib.cpptasks.gcc.cross.GccLinker">
+				<linkerparam value="msp430" name="target"/>
+				<linkerarg value="-Wl"/>
+				<linkerarg value="-mmcu=msp430x1611"/>
+			</linker>
+
+			<libset libs="c"/>
+			<fileset dir="${vm.objects}/${distro}/"><include name="*.o"/><include name="*.co"/></fileset>
+			<fileset dir="${lib}/"><include name="contiki-sky.a"/></fileset>
+		</cc>
+		
+	</target>
+
+	<target name="run" depends="compile">
+		
+		<!-- create srec file -->
+		<exec executable="msp430-objcopy">
+			<arg value="-R"/>
+			<arg value="-S"/>
+			<arg value="--target=ihex"/>
+			<arg value="${vm.executables}/${distro}/darjeeling.elf"/>
+			<arg value="${vm.executables}/${distro}/darjeeling.ihex"/>
+		</exec>
+		
+		<property name="msp430-port" value="/dev/ttyUSB0"/>
+
+		<!-- erase -->
+		<exec executable="msp430-bsl">
+			<arg line="--telosb"/>
+			<arg line="-c ${msp430-port}"/>
+			<arg line="-e"/>
+		</exec>
+		
+		<!-- program -->
+		<exec executable="msp430-bsl">
+			<arg line="--telosb"/>
+			<arg line="-c ${msp430-port}"/>
+			<arg line="-I"/>
+			<arg line="-p ${vm.executables}/${distro}/darjeeling.ihex"/>
+		</exec>
+		
+		<!-- reset -->
+		<exec executable="msp430-bsl">
+			<arg line="--telosb"/>
+			<arg line="-c ${msp430-port}"/>
+			<arg line="-r"/>
+		</exec>
+		
+		
+	</target>
+
+</project>

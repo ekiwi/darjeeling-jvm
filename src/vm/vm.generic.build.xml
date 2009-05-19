@@ -1,0 +1,43 @@
+<!-- compile targets for generic GCC builds -->
+<project>
+	
+	<target name="all" depends="compile"/>
+		
+	<target name="compile">
+		<mkdir dir="${vm.objects}/${distro}"/>
+		<mkdir dir="${vm.executables}/${distro}"/>
+		<cc outfile="${vm.executables}/${distro}/darjeeling"
+			name="gcc"
+			objdir="${vm.objects}/${distro}"
+		>
+			<compiler>
+				<compilerarg value="-gdwarf-2"/>
+				<compilerarg value="-g3"/>
+				<compilerarg value="-Wall"/>
+			</compiler>
+			
+			<!-- include directories -->
+			<includepath>
+				<pathelement path="${lib.generated}"/>
+				<pathelement path="${app.generated}"/>
+				<pathelement path="${vm.base}"/>
+				<pathelement path="${vm.base}/cpu/${cpu}"/>
+				<pathelement path="${vm.base}/platform/${platform}"/>
+				<pathelement path="${vm.base}/distro/${distro}"/>
+			</includepath>
+			
+			<!-- input files -->
+			<fileset dir="${vm.base}/common"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/cpu/${cpu}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/platform/${platform}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.base}/distro/${distro}"><include name="**/*.c"/></fileset>
+			<fileset dir="${vm.opt}"><patternset refid="opt"/></fileset>
+		
+		</cc>
+	</target>
+
+	<target name="run" depends="compile">
+		<exec executable="${vm.executables}/${distro}/darjeeling"/>
+	</target>
+
+</project>

@@ -1,0 +1,24 @@
+<project basedir="../../../../">
+
+	<import file="../../vm.build.xml"/>
+	
+	<!-- the name of this distro -->
+	<property name="distro" value="gameboy_advance"/>
+	
+	<!-- the cpu and platform -->
+	<property name="cpu" value="arm"/>
+	<property name="platform" value="gameboy_advance"/>
+	
+	<!-- Include stuff from opt -->
+	<patternset id="opt">
+		<exclude name="**/*.*"/>
+	</patternset>
+	
+	<!-- infusions to embed -->
+	<property name="infusions" value="base, darjeeling, testsuite"/>
+	<property name="nativeinfusions" value="base, darjeeling"/>
+	<property name="run" value="testsuite"/>
+
+	<import file="../../vm.gba.arm.build.xml"/>
+	
+</project>

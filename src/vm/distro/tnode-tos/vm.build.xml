@@ -1,0 +1,25 @@
+<project basedir="../../../../">
+
+	<import file="../../vm.build.xml"/>
+	
+	<!-- the name of this distro -->
+	<property name="distro" value="tnode-tos"/>
+	
+	<!-- the cpu and platform -->
+	<property name="cpu" value="avr"/>
+	<property name="platform" value="tos"/>
+	
+	<!-- Include stuff from opt -->
+	<patternset id="opt">
+		<include name="darjeeling/tos/*.*"/>
+		<include name="radio/tos/*.*"/>
+	</patternset>
+	
+	<!-- infusions to embed -->
+	<property name="infusions" value="base, darjeeling, blink"/>
+	<property name="nativeinfusions" value="base, darjeeling"/>
+	<property name="run" value="blink"/>
+
+	<import file="../../vm.tos.tnode.build.xml"/>
+	
+</project>

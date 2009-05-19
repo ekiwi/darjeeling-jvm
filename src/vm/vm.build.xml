@@ -1,0 +1,20 @@
+<project>
+	
+	<property file="darjeeling.properties"/>
+	<import file="../../taskdefs.xml"/>
+
+	<!-- clean -->
+	<target name="clean">
+		<delete dir="${vm.objects}/${distro}"/>
+		<delete dir="${vm.executables}/${distro}"/>
+	</target>
+	
+	<!-- documentation -->
+	<target name="doc">
+		<mkdir dir="${vm.doc}"/>
+		<exec dir="${vm.base}" executable="doxygen">
+			<arg line="vm.dox"/>
+		</exec> 
+	</target>
+
+</project>

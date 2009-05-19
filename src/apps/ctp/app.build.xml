@@ -1,0 +1,21 @@
+<project basedir="../../../" default="carray">
+
+	<!-- application directory (relative to /src/app) -->
+	<property name="app.dir" value="ctp"/>
+
+	<!-- application name and version-->
+	<property name="app.name" value="ctp"/>
+	<property name="app.majorversion" value="0"/>
+	<property name="app.minorversion" value="1"/>
+
+	<!-- the rest is included from apps.build.xml -->
+	<import file="../app.build.xml"/>
+
+	<!-- includes -->
+	<patternset id="app.includes">
+		<include name="base.dih"/>
+		<include name="darjeeling.dih"/>
+		<include name="radio.dih"/>
+	</patternset>
+
+</project>

@@ -1,0 +1,36 @@
+<project basedir="../../../../">
+
+	<import file="../../vm.build.xml"/>
+	
+	<!-- the name of this distro -->
+	<property name="distro" value="fleck3"/>
+	
+	<!-- the cpu and platform -->
+	<property name="cpu" value="avr"/>
+	<property name="platform" value="fos"/>
+	
+	<!-- Include stuff from opt -->
+	<patternset id="opt">
+		<include name="darjeeling/fos/**/*.*"/>
+		<include name="radio/fos/*.*"/>
+		<include name="oled/*.*"/>
+		<include name="motorcar/*.*"/>
+	</patternset>
+	
+	<!-- infusions to embed -->
+	<property name="infusions" value="base, darjeeling, testsuite"/>
+	<property name="nativeinfusions" value="base, darjeeling"/>
+	<property name="run" value="testsuite"/>
+
+	<!-- configuration for the compiler -->
+	<property name="mmcu" value="atmega128"/>
+	<property name="fos_platform" value="fleck3"/>
+	<property name="rf_channel" value="1"/>
+	<property name="nodeid" value="1"/>
+	
+	<!-- configuration for avrdude -->
+	<property name="avrdude.mmcu" value="m128"/>
+
+	<import file="../../vm.fos.avr.build.xml"/>
+	
+</project>

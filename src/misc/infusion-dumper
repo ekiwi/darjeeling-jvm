@@ -1,0 +1,240 @@
+#!/usr/bin/env python
+
+
+HEADER=0
+CLASSLIST=1
+METHODIMPLLIST=2
+STATICFIELDLIST=3
+METHODDEFLIST=4
+INFUSIONLIST=5
+STRINGTABLE=6
+CLASSDEF=7
+METHODIMPL=8
+INFUSION=9
+METHODDEF=10
+METHOD=11 
+FIELDDEF=12
+
+element_type_names = { 
+HEADER          : "HEADER", 
+CLASSLIST       : "CLASSLIST", 
+METHODIMPLLIST  : "METHODIMPLLIST", 
+STATICFIELDLIST : "STATICFIELDLIST", 
+METHODDEFLIST   : "METHODDEFLIST", 
+INFUSIONLIST    : "INFUSIONLIST", 
+STRINGTABLE     : "STRINGTABLE", 
+CLASSDEF        : "CLASSDEF", 
+METHODIMPL      : "METHODIMPL", 
+INFUSION        : "INFUSION", 
+METHODDEF       : "METHODDEF", 
+METHOD          : "METHOD", 
+FIELDDEF        : "FIELDDEF",
+}
+
+
+######################################################################
+
+indent_level=0
+
+def indent_print(s):
+    global indent_level
+    print "    "*indent_level + s
+
+def indent_enter():
+    global indent_level
+    print "    "*indent_level + "{"
+    indent_level+=1
+
+def indent_exit():
+    global indent_level
+    indent_level-=1
+    print "    "*indent_level + "}"
+
+
+
+######################################################################
+
+import struct
+
+def read_byte(stream):
+    (result,) = struct.unpack("B" ,stream.read(1))
+    return result
+
+def read_short(stream):
+    (result,)=struct.unpack("H", stream.read(2))
+    return result
+
+def read_string(stream):
+    result=""
+    while 1:
+        (achar,)=struct.unpack("c" ,stream.read(1))
+        if achar != '\0':
+            result=result+achar
+        else:
+            break
+    return result
+
+
+######################################################################
+
+
+def parse_header(stream):
+
+    major=read_byte(stream);
+    minor=read_byte(stream);
+    entrypoint =read_byte(stream)
+    name=read_string(stream)
+
+    indent_print("name: "+name)
+    indent_print("version: "+`major`+"."+`minor`)
+    indent_print("entrypoint: "+`entrypoint`)
+    
+def parse_classdef(stream):
+    indent_print("Reference-typed fields: %d" % read_byte(stream))
+    indent_print("Non-reference fieldsize: %d" % read_byte(stream))
+
+    superclass_localId_infusionId=read_byte(stream);
+    superclass_localId_entityId=read_byte(stream);
+
+    indent_print("Superclass localId: (%d.%d)" % (superclass_localId_infusionId,superclass_localId_entityId))
+    
+    nr_interfaces = read_byte(stream)
+    indent_print("Nr interfaces implemented: %d" % nr_interfaces)
+    interfaces=""
+    for i in range(nr_interfaces):
+        interfaces+="(%d.%d), " % (read_byte(stream),read_byte(stream))
+    indent_print("Interface localIds: "+interfaces)
+
+    nr_methods = read_byte(stream)
+    indent_print("Nr methods: %d" % nr_methods)
+    methods=""
+    for i in range(nr_methods):
+        methods+="def(%d.%d)->impl(%d.%d), " % (read_byte(stream),read_byte(stream),read_byte(stream),read_byte(stream))
+    indent_print("Method localIds: "+methods)
+
+
+def parse_methoddeflist(stream):
+    nr_methoddefs = read_byte(stream);
+    indent_print("Number of method definitions: %d" % nr_methoddefs)
+    for i in range(nr_methoddefs):
+        indent_print("Number of arguments: %d" % read_byte(stream))
+
+
+def parse_methodimpl(stream):
+    indent_print("Number of arguments: %d" % read_byte(stream))
+    indent_print("Number of reference-typed local variables: %d" % read_byte(stream))
+    indent_print("Non-reference local variables size: %d" % read_byte(stream))
+    indent_print("Maximum stack depth: %d" % read_byte(stream))
+    is_native=read_byte(stream)
+    if is_native:
+        indent_print("This method is native")
+        read_short(stream)# ready dummy code size
+        read_byte(stream)# read dummy exception table size
+    else:
+        body_size=read_short(stream);
+        
+        body=""
+        for i in range(body_size):
+            body += "%02X " % read_byte(stream)
+        indent_print("Method body (size %d): " % body_size +body);
+
+        exception_table_size=read_byte(stream);
+        for i in range(exception_table_size):
+            indent_print("(%d,%d) from %d to %d => %d" % 
+            (read_byte(stream),read_byte(stream),
+             read_short(stream),read_short(stream),read_short(stream)) )
+
+def parse_staticfieldlist(stream):
+    indent_print("number of reference-typed static fields: %d" % read_byte(stream))
+    indent_print("number of byte-typed static fields: %d" % read_byte(stream))
+    indent_print("number of short-typed static fields: %d" % read_byte(stream))
+    indent_print("number of int-typed static fields: %d" % read_byte(stream))
+
+def parse_stringtable(stream):
+
+    base=stream.tell()-1
+
+    # It would  be nicer if  it was a  simple byte here (we  could use
+    # parse_parentelement)
+    nr_children=read_short(stream)
+    
+    # read children offsets
+    children_offsets={}
+    for i in range(nr_children):
+        children_offsets[i]=read_short(stream) + base
+
+    for i in range(nr_children):
+        stream.seek(children_offsets[i])
+        length=read_short(stream)
+        string=stream.read(length)
+        indent_print("string (%d): %s" % (length,repr(string)[1:-1]))
+    
+def parse_infusion(stream):
+    indent_print("name: "+read_string(stream))
+
+def parse_parentelement(stream, children_type=-1):
+    
+    #indent_print( "parsing list @0x%04X" % stream.tell())
+
+    base = 0 if stream.tell() == 0 else stream.tell() -1
+
+    # Strange inconsistency ???
+    if children_type == INFUSION:
+        base=base+1
+    
+    #indent_print( "base is 0x%04X" % base )
+
+    nr_children=read_byte(stream)
+    
+    # read children offsets
+    children_offsets={}
+    for i in range(nr_children):
+        children_offsets[i]=read_short(stream) + base
+
+    # indent_print(`nr_children`+" children:"+ ", ".join([("0x%04X" % x) for x in children_offsets.values()]));
+
+    # for each children, call the right parser
+    for i in range(nr_children):
+        stream.seek(children_offsets[i])
+        if(children_type == -1):
+            element_type=read_byte(stream)
+        else:
+            element_type=children_type
+        indent_print("%s @0x%04X " % (element_type_names[element_type], children_offsets[i]) )
+        indent_enter()
+        
+        if element_type==HEADER:
+            parse_header(stream)
+        elif element_type==CLASSLIST:
+            parse_parentelement(stream,CLASSDEF)
+        elif element_type==CLASSDEF:
+            parse_classdef(stream)
+        elif element_type==METHODDEFLIST:
+            parse_methoddeflist(stream)
+        elif element_type==METHODIMPLLIST:
+            parse_parentelement(stream,METHODIMPL)
+        elif element_type==METHODIMPL:
+            parse_methodimpl(stream)
+        elif element_type==STATICFIELDLIST:
+            parse_staticfieldlist(stream)
+        elif element_type==STRINGTABLE:
+            parse_stringtable(stream)
+        elif element_type==INFUSIONLIST:
+            parse_parentelement(stream,INFUSION)
+        elif element_type==INFUSION:
+            parse_infusion(stream)
+        else:
+            raise Exception, "Unexpected element !"
+            
+        indent_exit()
+
+
+
+if __name__ == '__main__':
+    import getopt, sys
+    options, arguments = getopt.getopt(sys.argv[1:], '')
+    for option, value in options:
+        pass
+    for argument in arguments:
+        infusion_file = open(argument,'rb');
+        parse_parentelement(infusion_file)

@@ -1,0 +1,132 @@
+# Onboard
+BATTERY_VOLTAGE                 2
+BATTERY_CURRENT                 2
+SOLAR_VOLTAGE                   2
+SOLAR_CURRENT                   2
+ONBOARD_TEMP                    2
+
+# Soil properties
+MOISTURE_GYP_1                  2
+MOISTURE_GYP_2                  2
+MOISTURE_GYP_3                  2
+MOISTURE_GYP_4                  2
+MOISTURE_GYP_5                  2
+SOIL_TEMP                       2
+
+MOISTURE_ECHO_1                 2
+MOISTURE_ECHO_2                 2
+MOISTURE_ECHO_3                 2
+MOISTURE_ECHO_4                 2
+MOISTURE_ECHO_5                 2
+MOISTURE_ECHO_6                 2
+MOISTURE_ECHO_7                 2
+MOISTURE_ECHO_8                 2
+
+# Water quality
+WATER_PH                        2
+WATER_REDOX                     2
+WATER_TEMP                      2
+WATER_EC                        2
+
+# Microcliamte
+AD595_TEMP                      2
+DS1626_TEMP                     2
+HUMIDITY_TEMP                   2
+HUMIDITY                        2
+
+LIGHT_INTENSITY_PAR             2
+
+# Misc
+IR_RANGE                        2
+PIR_COUNT                       2
+
+# GPS
+GPS_LAT                         2
+GPS_LONG                        2
+GPS_HEIGHT_ABOVE_ELLIPSOID      2
+GPS_TIME_OF_WEEK                2
+GPS_WEEK                        2
+GPS_NUM_SATELLITES              2
+GPS_HORZ_ACCURACY               2
+GPS_VERT_ACCURACY               2
+GPS_DOP                         2
+GPS_SIGNAL_STRENGTH             2
+GPS_SIGNAL_QUALITY              2
+GPS_HMSL                        2
+
+# IMU
+ACC_X                   2
+ACC_Y                   2
+ACC_Z                   2
+MAG_X                   2
+MAG_Y                   2
+MAG_Z                   2
+GYRO_X                  2
+GYRO_Y                  2
+GYRO_Z                  2
+
+# Cow experiment
+LOAD_CELL                       2
+TAG_READER                      2
+ZAP_DURATION                    2
+ZAP_INTENSITY                   2
+
+# Underwater
+PRESSURE                        2
+
+JUMBO                   { int16 one, uint8 two}
+# Radio performance
+MAC_RX_COUNT                2
+MAC_TX_COUNT                2
+MAC_RX_DROP_COUNT           2
+MAC_TX_ERR_COUNT            2
+MAC_TX_DELAY_MEAN           2
+MAC_TX_DELAY_MAX            2
+MAC_TIMEOUT_COUNT           2
+MAC_ACK_TIMEOUT_COUNT       2
+MAC_ACK_ERR_COUNT           2
+
+# Network performance
+NW_TX_QFULL_COUNT           2
+NW_RX_QFULL_COUNT           2
+NW_WORK_QFULL_COUNT         2
+NW_RETRY_COUNT              2
+NW_TX_DROP_COUNT            2
+NW_SYNC_LOST_COUNT          2
+NW_PKT_FORWARD_COUNT        2
+
+# Multi-sensor boards
+SOIL_MONITORING_BOARD           2
+GREEN_HOUSE_BOARD               2
+WATER_QUALITY_BOARD             2
+MOISTURE_GYP_SENSORS            2
+IMU_BOARD                       2
+ACCELEROMETERS                  2
+MAGNETOMETERS                   2
+GYROS                           2
+NETWORK_STATS                   2
+PROGRAM_ID                      2
+VIRTUAL_SENSOR                  2
+
+# Wind speed
+WIND_SPEED                      2
+WIND_DIRECTION                  2
+
+LEAF_WETNESS                    2
+# Time
+TIME                            4
+
+#Wens Engineering Data
+WEN_NODEID                  2
+WEN_STATS1                  2
+WEN_STATS2                  2
+WEN_STATS3                  2
+WEN_BIGSEQ                  4
+WEN_ACKSENDS                2
+WEN_TXQUAL                  1
+WEN_RXQUAL                  1
+WEN_HOPCOUNT                1
+WEN_NEXTHOP                 2
+RESET_COUNT                 1
+LPL_SLEEPS                  4
+LPL_SLEEPS_ABORTED          4
