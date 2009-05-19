@@ -1,38 +1,25 @@
 /*
- *   
+ *	Math.java
+ * 
+ *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ * 
+ *	This file is part of Darjeeling.
+ * 
+ *	Darjeeling is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
  *
- * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
+ *	Darjeeling is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
  * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version
- * 2 only, as published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License version 2 for more details (a copy is
- * included at /legal/license.txt).
- * 
- * You should have received a copy of the GNU General Public License
- * version 2 along with this work; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA
- * 
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa
- * Clara, CA 95054 or visit www.sun.com if you need additional
- * information or have any questions.
+ *	You should have received a copy of the GNU General Public License
+ *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package java.lang;
-
-/**
- * The class <code>Math</code> contains methods for performing basic
- * numeric operations.
- *
- * @version 1.48, 12/04/99 (CLDC 1.0, Spring 2000)
- * @since   1.3
- */
 
 public final strictfp class Math {
 
