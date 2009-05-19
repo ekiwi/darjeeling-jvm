@@ -1,3 +1,23 @@
+/*
+ *	javax_lang_Darjeeling.c
+ *
+ *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *
+ *	This file is part of Darjeeling.
+ *
+ *	Darjeeling is free software: you can redistribute it and/or modify
+ *	it under the terms of the GNU General Public License as published by
+ *	the Free Software Foundation, either version 3 of the License, or
+ *	(at your option) any later version.
+ *
+ *	Darjeeling is distributed in the hope that it will be useful,
+ *	but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *	GNU General Public License for more details.
+ *
+ *	You should have received a copy of the GNU General Public License
+ *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -195,7 +215,7 @@ void javax_darjeeling_Darjeeling_java_lang_Thread_getThread_short()
 void javax_darjeeling_Darjeeling_short_getEcho_short()
 {
     static uint8_t initd = 0;
-    
+
     // lazy initialization
     if (initd == 0) {
         fos_echo_init();
@@ -254,7 +274,7 @@ void javax_darjeeling_Darjeeling_short_getTemperature()
 void javax_darjeeling_Darjeeling_int_getPulseCounter()
 {
     static uint8_t initd = 0;
-    
+
     // lazy initialization
     if (initd == 0) {
         fos_pulsecounter_init();
