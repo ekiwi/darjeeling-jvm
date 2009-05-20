@@ -1,24 +1,3 @@
-/*
- *	heap.h
- *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
- *
- *	This file is part of Darjeeling.
- *
- *	Darjeeling is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	Darjeeling is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #ifndef __heap_h
 #define __heap_h
 
@@ -55,7 +34,6 @@ enum chunk_id
 };
 
 typedef struct _heap_chunk heap_chunk;
-typedef struct _stack_chunk stack_chunk;
 
 /**
  *
@@ -76,13 +54,7 @@ struct _heap_chunk
 #ifdef ALIGN_16
 	uint8_t PADDING;
 #endif
-};
-
-struct _stack_chunk
-{
-	uint16_t size;
-};
-
+}
 #ifdef PACK_STRUCTS
 __attribute__ ((__packed__))
 #endif
@@ -100,8 +72,6 @@ ref_t dj_mem_popCompactionUpdateStack();
 
 int dj_mem_countChunks(runtime_id_t id);
 void dj_mem_gc();
-void dj_mem_gcHeap();
-void dj_mem_gcStack();
 
 void * dj_mem_getPointer();
 

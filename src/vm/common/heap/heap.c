@@ -1,31 +1,10 @@
-/*
- *	heap.c
- *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
- *
- *	This file is part of Darjeeling.
- *
- *	Darjeeling is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	Darjeeling is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 /**
  * \defgroup heap Heap management
  * \ingroup heap
  * @{
  * \page heap_description
  *
- * Darjeeling manages its own heap including garbage collection. Java objects and internal objects (threads, stack frames,
+ * Darjeeling manages its own heap using garbage collection. Java objects and internal objects (threads, stack frames,
  * infusions etc) are mixed. Each heap element (chunk) carries a byte that indicates its type. Some type numbers are
  * reserved for internal objects or arrays, the other numbers are used for Class ID's.
  *
@@ -115,69 +94,6 @@ void dj_mem_init(void *mem_pointer, uint16_t mem_size)
 
 }
 
-static inline void dj_mem_ensureSize(uint16_t size)
-{
-	// if there's not enough space compact the stack first
-	if (right_pointer-left_pointer<size)
-	{
-        DEBUG_LOG("dj_mem_alloc: not enough free space, triggering stack compaction\n");
-		dj_mem_gcStack();
-	}
-
-	// if there's still not enough space, collect & compact the heap
-	if (right_pointer-left_pointer<size)
-	{
-        DEBUG_LOG("dj_mem_alloc: not enough free space, triggering a collection\n");
-		dj_mem_gcHeap();
-	}
-}
-
-static inline void * dj_mem_allocHeap(uint16_t size, uint16_t id)
-{
-	heap_chunk *ret;
-
-	// we need to accommodate for a chunk header
-	size += sizeof(heap_chunk);
-
-	// Trigger compaction if needed
-	dj_mem_ensureSize(size);
-
-	// If still not enough memory, return null
-	if (right_pointer-left_pointer<size) return NULL;
-
-	// allocate by pointer bumping
-	ret = (heap_chunk*)left_pointer;
-	ret->size = size;
-	ret->id = id;
-
-	left_pointer += size;
-
-	return (void*)ret + sizeof(heap_chunk);
-}
-
-static inline void * dj_mem_allocStack(uint16_t size, uint16_t id)
-{
-	heap_chunk *ret;
-
-	// we need to accommodate for a chunk header
-	size += sizeof(heap_chunk);
-
-	// Trigger compaction if needed
-	dj_mem_ensureSize(size);
-
-	// If still not enough memory, return null
-	if (right_pointer-left_pointer<size) return NULL;
-
-	// allocate by pointer bumping
-	right_pointer -= size;
-
-	ret = (heap_chunk*)right_pointer;
-	ret->size = size;
-	ret->id = id;
-
-	return (void*)ret + sizeof(heap_chunk);
-}
-
 /**
  * Allocates <emph>size</emph> bytes.
  * @param size size in bytes
@@ -185,17 +101,37 @@ static inline void * dj_mem_allocStack(uint16_t size, uint16_t id)
  */
 void * dj_mem_alloc(uint16_t size, uint16_t id)
 {
+	heap_chunk *ret;
+
 	// if ALIGN_16 is defined (for MSP430 platform) make sure the size of the
 	// new chunk is a multiple of 2
 #ifdef ALIGN_16
 	if (size&1) size++;
 #endif
 
-	if (id==CHUNKID_FRAME)
-		return dj_mem_allocHeap(size, id);
-	else
-		return dj_mem_allocHeap(size, id);
+	// we need to accommodate for a chunk header
+	size += sizeof(heap_chunk);
 
+	if (right_pointer-left_pointer<size)
+	{
+		// not enough memory
+        DEBUG_LOG("dj_mem_alloc: not enough free space, triggering a collection\n");
+		dj_mem_gc();
+	}
+
+	if (right_pointer-left_pointer<size)
+	{
+		// still not enough memory, return null
+        return nullref;
+	}
+
+	ret = (heap_chunk*)left_pointer;
+	ret->size = size;
+	ret->id = id;
+
+	left_pointer += size;
+
+	return (void*)ret + sizeof(heap_chunk);
 }
 
 /**
@@ -292,7 +228,9 @@ void dj_mem_shiftRuntimeIDs(runtime_id_t start, uint16_t range)
 		loc += chunk->size;
 	}
 
+
 }
+
 
 /**
  * Implements the marking phase using stop-the-world tri-color marking
@@ -533,7 +471,7 @@ void dj_mem_compact()
 
 }
 
-void dj_mem_gcHeap()
+void dj_mem_gc()
 {
 	dj_vm *vm = dj_exec_getVM();
 
@@ -550,30 +488,47 @@ void dj_mem_gcHeap()
 
 }
 
-void dj_mem_gcStack()
-{
-	/*
-	mem_chunk * chunk;
-
-	dj_vm * vm = dj_exec_getVM();
-	void * loc = heap_base + heap_size;
-
-	while (loc>right_pointer)
-	{
-		chunk = (heap_chunk*)loc;
-
-		chunk->
-
-		loc += chunk->size;
-	}
-	*/
-}
-
-void dj_mem_gc()
-{
-	dj_mem_gcStack();
-	dj_mem_gcHeap();
-}
+//void dj_mem_thread_dump()
+//{
+//
+//	dj_vm *vm = dj_exec_getVM();
+//	if (vm==NULL)
+//		return;
+//
+//	int i, threadTotal, grandTotal;
+//	int nrThreads = dj_vm_countThreads(vm);
+//	dj_thread *thread;
+//	dj_frame *frame;
+//
+//	time++;
+//	grandTotal = 0;
+//
+//	int threads[16];
+//	for (i=0; i<16; i++)
+//		threads[i] = 0;
+//
+//	if (nrThreads>0)
+//	{
+//		for (i=0; i<nrThreads; i++)
+//		{
+//			thread = dj_vm_getThread(vm, i);
+//			threadTotal = dj_mem_get_chunk_size(thread) - 10;
+//
+//			for (frame=thread->frameStack; frame!=NULL; frame=frame->parent)
+//				threadTotal += dj_mem_get_chunk_size(frame) - 4;
+//
+//			threads[thread->id] = threadTotal;
+//			grandTotal += threadTotal;
+//		}
+//		printf("%d %d %d %d %d\n",
+//				time,
+//				threads[1],
+//				threads[2],
+//				threads[3],
+//				grandTotal);
+//	}
+//
+//}
 
 #ifdef DARJEELING_DEBUG
 void dj_mem_dump()
