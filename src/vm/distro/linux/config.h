@@ -21,7 +21,7 @@
 #ifndef __config_h
 #define __config_h
 
-#define MEMSIZE 2048
+#define MEMSIZE 4096
 #define RUNSIZE 128
 
 #define PACK_STRUCTS
