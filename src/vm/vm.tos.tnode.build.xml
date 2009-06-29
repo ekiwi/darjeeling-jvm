@@ -49,29 +49,29 @@
 			-DIDENT_UIDHASH=0xe772425aL 
 			-DNESC=130 
 			-I/usr/lib/ncc 
-			-I/home/niels/src/tinyos-2.x/tos/sensorboards/none
-			-I/home/niels/src/tinyos-2.x/tos/platforms/tnode
-			-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/cc1000
-			-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/at45db
-			-I/home/niels/src/tinyos-2.x/tos/platforms/mica2
-			-I/home/niels/src/tinyos-2.x/tos/platforms/mica
-			-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/cc1000
-			-I/home/niels/src/tinyos-2.x/tos/chips/cc1000
-			-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/at45db
-			-I/home/niels/src/tinyos-2.x/tos/platforms/mica/chips/at45db
-			-I/home/niels/src/tinyos-2.x/tos/chips/at45db
-			-I/home/niels/src/tinyos-2.x/tos/chips/atm128
-			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/adc
-			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/i2c
-			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/pins
-			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/spi
-			-I/home/niels/src/tinyos-2.x/tos/chips/atm128/timer
-			-I/home/niels/src/tinyos-2.x/tos/lib/timer
-			-I/home/niels/src/tinyos-2.x/tos/lib/serial
-			-I/home/niels/src/tinyos-2.x/tos/lib/power
-			-I/home/niels/src/tinyos-2.x/tos/interfaces
-			-I/home/niels/src/tinyos-2.x/tos/types
-			-I/home/niels/src/tinyos-2.x/tos/system 
+			-I${tinyos.path}/tos/sensorboards/none
+			-I${tinyos.path}/tos/platforms/tnode
+			-I${tinyos.path}/tos/platforms/tnode/chips/cc1000
+			-I${tinyos.path}/tos/platforms/tnode/chips/at45db
+			-I${tinyos.path}/tos/platforms/mica2
+			-I${tinyos.path}/tos/platforms/mica
+			-I${tinyos.path}/tos/platforms/mica2/chips/cc1000
+			-I${tinyos.path}/tos/chips/cc1000
+			-I${tinyos.path}/tos/platforms/mica2/chips/at45db
+			-I${tinyos.path}/tos/platforms/mica/chips/at45db
+			-I${tinyos.path}/tos/chips/at45db
+			-I${tinyos.path}/tos/chips/atm128
+			-I${tinyos.path}/tos/chips/atm128/adc
+			-I${tinyos.path}/tos/chips/atm128/i2c
+			-I${tinyos.path}/tos/chips/atm128/pins
+			-I${tinyos.path}/tos/chips/atm128/spi
+			-I${tinyos.path}/tos/chips/atm128/timer
+			-I${tinyos.path}/tos/lib/timer
+			-I${tinyos.path}/tos/lib/serial
+			-I${tinyos.path}/tos/lib/power
+			-I${tinyos.path}/tos/interfaces
+			-I${tinyos.path}/tos/types
+			-I${tinyos.path}/tos/system 
 			-Wall 
 			-Wshadow 
 			-finline-limit=100000 
@@ -102,29 +102,29 @@
 			<arg value="-DNESC=130"/>
 			<arg value="-I${vm.base}/platform/${platform}"/>
 			<arg value="-I/usr/lib/ncc"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/sensorboards/none"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/tnode"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/cc1000"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/at45db"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica2"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/cc1000"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/cc1000"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica2/chips/at45db"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/platforms/mica/chips/at45db"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/at45db"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/adc"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/i2c"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/pins"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/spi"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/chips/atm128/timer"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/lib/timer"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/lib/serial"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/lib/power"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/interfaces"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/types"/>
-			<arg value="-I/home/niels/src/tinyos-2.x/tos/system"/>
+			<arg value="-I${tinyos.path}/tos/sensorboards/none"/>
+			<arg value="-I${tinyos.path}/tos/platforms/tnode"/>
+			<arg value="-I${tinyos.path}/tos/platforms/tnode/chips/cc1000"/>
+			<arg value="-I${tinyos.path}/tos/platforms/tnode/chips/at45db"/>
+			<arg value="-I${tinyos.path}/tos/platforms/mica2"/>
+			<arg value="-I${tinyos.path}/tos/platforms/mica"/>
+			<arg value="-I${tinyos.path}/tos/platforms/mica2/chips/cc1000"/>
+			<arg value="-I${tinyos.path}/tos/chips/cc1000"/>
+			<arg value="-I${tinyos.path}/tos/platforms/mica2/chips/at45db"/>
+			<arg value="-I${tinyos.path}/tos/platforms/mica/chips/at45db"/>
+			<arg value="-I${tinyos.path}/tos/chips/at45db"/>
+			<arg value="-I${tinyos.path}/tos/chips/atm128"/>
+			<arg value="-I${tinyos.path}/tos/chips/atm128/adc"/>
+			<arg value="-I${tinyos.path}/tos/chips/atm128/i2c"/>
+			<arg value="-I${tinyos.path}/tos/chips/atm128/pins"/>
+			<arg value="-I${tinyos.path}/tos/chips/atm128/spi"/>
+			<arg value="-I${tinyos.path}/tos/chips/atm128/timer"/>
+			<arg value="-I${tinyos.path}/tos/lib/timer"/>
+			<arg value="-I${tinyos.path}/tos/lib/serial"/>
+			<arg value="-I${tinyos.path}/tos/lib/power"/>
+			<arg value="-I${tinyos.path}/tos/interfaces"/>
+			<arg value="-I${tinyos.path}/tos/types"/>
+			<arg value="-I${tinyos.path}/tos/system"/>
 			<arg value="-I${vm.base}"/>
 			<arg value="-I${vm.base}/cpu/${cpu}"/>
 			<arg value="-I${vm.base}/platform/${platform}"/>
@@ -186,29 +186,29 @@
 					BlinkAppC.nc 
 					-lm 
 					-mmcu=atmega128 
-					-I/home/niels/src/tinyos-2.x//tos/sensorboards/none 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/tnode 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/tnode/chips/cc1000 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/tnode/chips/at45db 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/mica2 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/mica 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/mica2/chips/cc1000 
-					-I/home/niels/src/tinyos-2.x//tos/chips/cc1000 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/mica2/chips/at45db 
-					-I/home/niels/src/tinyos-2.x//tos/platforms/mica/chips/at45db 
-					-I/home/niels/src/tinyos-2.x//tos/chips/at45db 
-					-I/home/niels/src/tinyos-2.x//tos/chips/atm128 
-					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/adc 
-					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/i2c 
-					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/pins 
-					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/spi 
-					-I/home/niels/src/tinyos-2.x//tos/chips/atm128/timer 
-					-I/home/niels/src/tinyos-2.x//tos/lib/timer 
-					-I/home/niels/src/tinyos-2.x//tos/lib/serial 
-					-I/home/niels/src/tinyos-2.x//tos/lib/power 
-					-I/home/niels/src/tinyos-2.x//tos/interfaces 
-					-I/home/niels/src/tinyos-2.x//tos/types 
-					-I/home/niels/src/tinyos-2.x//tos/system 
+					-I${tinyos.path}//tos/sensorboards/none 
+					-I${tinyos.path}//tos/platforms/tnode 
+					-I${tinyos.path}//tos/platforms/tnode/chips/cc1000 
+					-I${tinyos.path}//tos/platforms/tnode/chips/at45db 
+					-I${tinyos.path}//tos/platforms/mica2 
+					-I${tinyos.path}//tos/platforms/mica 
+					-I${tinyos.path}//tos/platforms/mica2/chips/cc1000 
+					-I${tinyos.path}//tos/chips/cc1000 
+					-I${tinyos.path}//tos/platforms/mica2/chips/at45db 
+					-I${tinyos.path}//tos/platforms/mica/chips/at45db 
+					-I${tinyos.path}//tos/chips/at45db 
+					-I${tinyos.path}//tos/chips/atm128 
+					-I${tinyos.path}//tos/chips/atm128/adc 
+					-I${tinyos.path}//tos/chips/atm128/i2c 
+					-I${tinyos.path}//tos/chips/atm128/pins 
+					-I${tinyos.path}//tos/chips/atm128/spi 
+					-I${tinyos.path}//tos/chips/atm128/timer 
+					-I${tinyos.path}//tos/lib/timer 
+					-I${tinyos.path}//tos/lib/serial 
+					-I${tinyos.path}//tos/lib/power 
+					-I${tinyos.path}//tos/interfaces 
+					-I${tinyos.path}//tos/types 
+					-I${tinyos.path}//tos/system 
 			-->
 
 			<compiler classname="net.sf.antcontrib.cpptasks.gcc.cross.GccCCompiler">
@@ -231,25 +231,25 @@
 				<pathelement path="${vm.base}/distro/${distro}"/>
 
 				<pathelement path="/usr/lib/ncc"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/sensorboards/none"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/platforms/tnode"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/cc1000"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/platforms/tnode/chips/at45db"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/cc1000"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/at45db"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/adc"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/i2c"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/pins"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/spi"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/chips/atm128/timer"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/timer"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/serial"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/power"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/lib/printf"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/interfaces"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/types"/>
-				<pathelement path="/home/niels/src/tinyos-2.x/tos/system"/>
+				<pathelement path="/${tinyos.path}/tos/sensorboards/none"/>
+				<pathelement path="/${tinyos.path}/tos/platforms/tnode"/>
+				<pathelement path="/${tinyos.path}/tos/platforms/tnode/chips/cc1000"/>
+				<pathelement path="/${tinyos.path}/tos/platforms/tnode/chips/at45db"/>
+				<pathelement path="/${tinyos.path}/tos/chips/cc1000"/>
+				<pathelement path="/${tinyos.path}/tos/chips/at45db"/>
+				<pathelement path="/${tinyos.path}/tos/chips/atm128"/>
+				<pathelement path="/${tinyos.path}/tos/chips/atm128/adc"/>
+				<pathelement path="/${tinyos.path}/tos/chips/atm128/i2c"/>
+				<pathelement path="/${tinyos.path}/tos/chips/atm128/pins"/>
+				<pathelement path="/${tinyos.path}/tos/chips/atm128/spi"/>
+				<pathelement path="/${tinyos.path}/tos/chips/atm128/timer"/>
+				<pathelement path="/${tinyos.path}/tos/lib/timer"/>
+				<pathelement path="/${tinyos.path}/tos/lib/serial"/>
+				<pathelement path="/${tinyos.path}/tos/lib/power"/>
+				<pathelement path="/${tinyos.path}/tos/lib/printf"/>
+				<pathelement path="/${tinyos.path}/tos/interfaces"/>
+				<pathelement path="/${tinyos.path}/tos/types"/>
+				<pathelement path="/${tinyos.path}/tos/system"/>
 				
 			</includepath>
 			
