@@ -95,7 +95,7 @@ static inline void GETFIELD_I()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
-		pushInt( *((int32_t*)((int)object+index)) );
+		pushInt( *((int32_t*)((size_t)object+index)) );
 	}
 
 }
@@ -110,7 +110,7 @@ static inline void GETFIELD_B()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
-		pushShort( *((int8_t*)((int)object+index)) );
+		pushShort( *((int8_t*)((size_t)object+index)) );
 	}
 
 }
@@ -130,7 +130,7 @@ static inline void GETFIELD_S()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
-		pushShort( *((int16_t*)((int)object+index)) );
+		pushShort( *((int16_t*)((size_t)object+index)) );
 	}
 
 }

@@ -76,7 +76,7 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 
 	// allocate memory for the static fields and set the
 	// pointers
-	staticFields = (void*)((int)ret + sizeof(dj_infusion));
+	staticFields = (void*)((size_t)ret + sizeof(dj_infusion));
 	ret->staticReferenceFields = (ref_t*)staticFields;
 	staticFields += dj_di_staticFieldInfo_getNrRefs(staticFieldInfo) * sizeof(ref_t);
 	ret->staticByteFields = (uint8_t*)staticFields;
@@ -86,11 +86,11 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 	ret->staticIntFields = (uint32_t*)staticFields;
 
 	// init static fields to 0
-	memset((void*)((int)ret + sizeof(dj_infusion)), 0, staticFieldsSize);
+	memset((void*)((size_t)ret + sizeof(dj_infusion)), 0, staticFieldsSize);
 
 	// set the referenced infusions pointer
 	ret->nr_referenced_infusions = nrImportedInfusions;
-	ret->referencedInfusions = (dj_infusion**)((int)ret + sizeof(dj_infusion) + staticFieldsSize);
+	ret->referencedInfusions = (dj_infusion**)((size_t)ret + sizeof(dj_infusion) + staticFieldsSize);
 
 	return ret;
 }

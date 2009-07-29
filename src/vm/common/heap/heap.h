@@ -95,22 +95,22 @@ static inline void * dj_mem_getData(heap_chunk * chunk)
 
 static inline runtime_id_t dj_mem_getChunkId(void *ptr)
 {
-	return ((heap_chunk*)((int)ptr-sizeof(heap_chunk)))->id;
+	return ((heap_chunk*)((size_t)ptr-sizeof(heap_chunk)))->id;
 }
 
 static inline void dj_mem_setChunkId(void *ptr, uint8_t id)
 {
-	((heap_chunk*)((int)ptr-sizeof(heap_chunk)))->id = id;
+	((heap_chunk*)((size_t)ptr-sizeof(heap_chunk)))->id = id;
 }
 
 static inline uint16_t dj_mem_getChunkSize(void *ptr)
 {
-	return ((heap_chunk*)((int)ptr-sizeof(heap_chunk)))->size;
+	return ((heap_chunk*)((size_t)ptr-sizeof(heap_chunk)))->size;
 }
 
 static inline uint16_t dj_mem_getChunkShift(void *ptr)
 {
-	return ((heap_chunk*)((int)ptr-sizeof(heap_chunk)))->shift;
+	return ((heap_chunk*)((size_t)ptr-sizeof(heap_chunk)))->shift;
 }
 
 static inline void * dj_mem_getUpdatedPointer(void * ptr)

@@ -211,5 +211,5 @@ void javax_darjeeling_Darjeeling_int_getPulseCounter()
 void javax_darjeeling_Darjeeling_void_setExpansionPower_short()
 {
 	// pop byte argument off the stack
-	int32_t arg = dj_exec_stackPopInt();
+	dj_exec_stackPopInt();
 }
