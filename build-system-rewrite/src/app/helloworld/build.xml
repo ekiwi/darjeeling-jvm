@@ -1,0 +1,13 @@
+<project default="all">
+
+
+	<!-- set the name of the library -->
+	<property name="name" value="helloworld"/>
+	
+	<!-- list of libraries this library depends on -->
+	<property name="lib-depends" value="base, darjeeling"/>
+	
+	<!-- include the library build template -->
+	<import file="../app.xml"/>
+	
+</project>

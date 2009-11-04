@@ -1,0 +1,31 @@
+<project default="all">
+
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling"/>
+	<property name="apps" value="blink"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="contiki"/>
+	<property name="architecture" value="msp430"/>
+	<property name="configuration" value="contiki-sky"/>
+
+	<!-- Contiki stuff -->
+	<property name="contiki-cpu" value="msp430"/>
+	<property name="contiki-platform" value="sky"/>
+	
+	<!-- Architecture specific stuff -->
+	<property name="mcu" value="msp430x1611"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	
+	<!-- Repack everything that's in the build dir into a single .a file -->
+	<target name="link">
+		<platform-link outputfile="${executable}">
+			<link-elements>
+				<fileset includes="contiki-sky-main.o contiki-sky.a ${outputfile}" dir="."/>
+			</link-elements>
+		</platform-link>
+	</target>
+	
+</project>

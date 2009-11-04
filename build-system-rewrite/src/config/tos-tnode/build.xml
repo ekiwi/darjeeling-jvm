@@ -1,0 +1,57 @@
+<project name="tinyos" default="all">
+
+	
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling"/>
+	<property name="apps" value="blink"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="tinyos"/>
+	<property name="architecture" value="avr"/>
+	<property name="configuration" value="tos-tnode"/>
+	
+	<!-- Architecture specific stuff -->
+	<property name="mcu" value="atmega128"/>
+	<property name="TOS_MCU" value="atmega128"/>
+	<property name="TOS_PLATFORM" value="TNODE"/>
+	<property name="TOS_GCC" value="avr-gcc"/>
+	<property name="TOS_TARGET" value="avr"/>
+	<property name="TOS_CHIP" value="atm128"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	<!-- 
+		Use the following target in order to flash your 
+		program on the tnode. Otherwise, if you type ant alone
+		in the command-line  you will get the binary file
+		which you can flash to the node yourself
+		
+		In order to be able to compile and flash the program on tnodes,
+		you have to install tinyos-2.x from TUDelft svn repository which 
+		supports tinyos on tnodes,
+		then you have to install nescc and edit env.sh to your appropriate
+		'nesc1' folder and nesc include lib files which contains nesc_nx.h 
+	-->
+	<target name="program-the-node" depends="all">
+		<exec executable="avr-objcopy">
+			<arg value="-R"/>
+			<arg value="-S"/>
+			<arg value="--target=srec"/>
+			<arg value="darjeeling.elf"/>
+			<arg value="darjeeling.srec"/>
+		</exec>	
+		<!-- upload and run -->
+		<exec executable="uisp">
+			<arg value="-v=3"/>
+			<arg value="-dprog=ftdi"/>
+			<arg value="-dpart=ATmega128"/>
+			<arg value="--wr_fuse_e=ff"/>
+			<arg value="-dinvert=mosi,miso,sck"/>
+			<arg value="--erase"/>
+			<arg value="--upload"/>
+			<arg value="if=darjeeling.srec"/>
+		</exec>		
+	</target>
+	
+	
+</project>

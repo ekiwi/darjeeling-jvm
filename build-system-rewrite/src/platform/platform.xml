@@ -1,0 +1,78 @@
+<project name="platform" default="all">
+
+	<target name="precompile"/>
+	<!-- Get the directory where platform.xml is located -->
+	<dirname property="platformpath" file="${ant.file.platform}"/>
+	<dirname property="platformtargetpath" file="${ant.file}"/>
+
+	<!-- Default architecture and configuration are 'native' -->
+	<property name="architecture" value="native"/>
+	<property name="configuration" value="native"/>
+
+	<import file="${platformpath}/../taskdefs.xml"/>
+	
+	<!-- Import the toolchain for the given architecture-->
+	<import file="${platformtargetpath}/platform.xml"/>
+	<import file="${platformpath}/../architecture/${architecture}/compiler.xml"/>
+	<!-- 
+		TODO: resolve this, this is to avoid recomputing cc-include-paths in this file 
+		if there is a way that we can import a property from another ant file,
+		this can be replaced	
+	-->
+	<import file="${platformpath}/../lib/lib.xml"/>
+	<!-- source directory -->
+	<property name="src" value="${platformtargetpath}/c"/>
+	<property name="objectfiles" value="${platformtargetpath}/build/${configuration}/o"/>
+	<property name="afile" value="${platformtargetpath}/build/${configuration}/platform.a"/>
+
+	<target name="all" depends="compile-c, ar"/>
+	
+	<!-- compile the java sources -->
+	<target name="compile-c" depends="precompile">
+		<platform-compile objectfiles="${objectfiles}">
+			<compile-elements>
+
+				<defineset refid="platform-defines"/>
+				
+				<!-- include directories -->
+				<includepath>
+					<pathelement path="${platformpath}/../architecture/${architecture}/c"/>
+					<pathelement path="${platformpath}/../config/${configuration}/c"/>
+					<pathelement path="${platformpath}/../vm/c"/>
+					<path refid="platform-includes"/>
+					<path><filelist files="${cc-include-paths}" dir="/"/></path>
+				</includepath>
+		
+				<!-- input files -->
+				<fileset dir="${src}">
+					<include name="**/*.c"/>
+				</fileset>
+				<fileset dir="${build}">
+					<include name="**/*.c"/>
+				</fileset>
+				
+			</compile-elements>
+		</platform-compile>
+	</target>
+	
+	<!-- create library -->
+	<target name="ar" depends="compile-c">
+		
+	    <pathconvert property="objectfilestring" pathsep=" ">
+		<path>
+		    <fileset dir="${objectfiles}" includes="**/*.o"/>
+		</path>
+	    </pathconvert>
+	    	
+	    <exec executable="ar">
+	    	<arg line="rcs ${afile} ${objectfilestring}"/>
+	    </exec>
+	
+	</target>
+	
+	<!-- clean target -->
+	<target name="clean">
+		<delete dir="build"/>	
+	</target>
+		
+</project>

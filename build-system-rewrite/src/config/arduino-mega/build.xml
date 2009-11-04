@@ -1,0 +1,19 @@
+<project default="all">
+
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling"/>
+
+	<!-- Compile these applications -->
+	<property name="apps" value="testsuite"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="arduino"/>
+	<property name="architecture" value="avr"/>
+	<property name="configuration" value="arduino-mega"/>
+
+	<property name="mcu" value="atmega1280"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	
+</project>

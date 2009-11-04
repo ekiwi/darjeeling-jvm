@@ -1,0 +1,18 @@
+<project default="all">
+
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling"/>
+	<property name="apps" value="testsuite, blink"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="contiki"/>
+	<property name="architecture" value="native"/>
+	<property name="configuration" value="contiki-native"/>
+
+	<property name="contiki-cpu" value="native"/>
+	<property name="contiki-platform" value="native"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	
+</project>

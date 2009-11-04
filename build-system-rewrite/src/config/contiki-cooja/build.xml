@@ -1,0 +1,34 @@
+<project default="all">
+	<!--
+	NOTICE : do not forget to create a contiki-cooja in your system
+	and to copy it to src/platform/contiki/lib/ This is needed 
+	because you are going to use contiki libraries
+	-->
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling, radio"/>
+	<property name="apps" value="ctp"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="contiki"/>
+	<property name="architecture" value="simulator"/>
+	<property name="configuration" value="contiki-cooja"/>
+
+	<property name="contiki-cpu" value="native"/>
+	<property name="contiki-platform" value="cooja"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	<!-- It performs both cooja- and normal-clean targets-->
+	<target name="extra-clean" depends="clean, cooja-clean" />
+	<!--
+	Cooja clean, cleans the object files which are created
+	by Cooja simulator
+	-->
+	<target name="cooja-clean">
+		<exec executable="rm">
+			<arg value="c/obj_cooja/"/>
+			<arg value="-rf"/>
+		</exec>
+	</target>
+	
+</project>

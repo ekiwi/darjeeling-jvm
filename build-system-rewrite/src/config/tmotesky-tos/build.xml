@@ -1,0 +1,30 @@
+<project default="all">
+
+	<property name="configuration" value="tmotesky-tos"/>
+	
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling"/>
+	<property name="apps" value="blink"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="tinyos"/>
+	<property name="architecture" value="msp430"/>
+	
+	<!-- Architecture specific stuff -->
+	<property name="mcu" value="msp430x1611"/>
+	<property name="TOS_MCU" value="msp430x1611"/>
+	<property name="TOS_PLATFORM" value="TELOSB"/>
+	<property name="TOS_GCC" value="msp430-cc"/>
+	<property name="TOS_TARGET" value="msp430"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	
+	<target name="test">
+		<subant target="compile-ncc" inheritall="true">
+			<fileset includes="build.xml" dir="../../platform/${platform}"/>
+		</subant>
+	</target>
+	
+	
+</project>

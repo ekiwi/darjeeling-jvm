@@ -1,0 +1,74 @@
+<project name="compiler">
+
+	<dirname property="compilerpath" file="${ant.file.compiler}"/>
+	
+	<import file="${compilerpath}/../../taskdefs.xml"/>
+
+	<!-- Compile C code using GCC -->
+	<macrodef name="platform-compile">
+		<attribute name="objectfiles"/>
+		<element name="compiler-args" optional="true"/>
+		<element name="compile-elements"/>
+		<sequential>
+			<mkdir dir="@{objectfiles}"/>
+			<cc
+				name="gcc"
+				objdir="@{objectfiles}"
+				>
+				<compiler>
+					<compilerarg value="-gdwarf-2"/>
+					<compilerarg value="-g3"/>
+					<compilerarg value="-Wall"/>
+					<compilerarg value="-std=c99"/>
+					<compiler-args/>
+				</compiler>
+				
+				<compile-elements/>
+			</cc>
+		</sequential>
+	</macrodef>
+
+	<!-- Link C code using GCC -->
+	<macrodef name="platform-link">
+		<attribute name="outputfile"/>
+		<element name="link-elements"/>
+		<sequential>
+			<cc
+				name="gcc"
+				outfile="@{outputfile}"
+				>
+				<linker/>
+				
+				<link-elements/>
+			</cc>
+		</sequential>
+	</macrodef>
+	
+	<!-- Link C code using GCC -->
+	<macrodef name="platform-objcopy">
+		<attribute name="inputfile"/>
+		<attribute name="outputfile"/>
+		<sequential>
+			<!-- compile the binary file to a .c file -->
+			<carray
+				src="@{inputfile}"
+				dest="temp.c"
+				arrayname="di_archive"
+				progmem="false"
+			/>
+			<!-- compile -->
+			<cc
+				name="gcc"
+				objdir="."
+				>
+				<fileset includes="temp.c" dir="."/>
+			</cc>
+			<exec executable="mv">
+				<arg line="temp.o @{outputfile}"/>
+			</exec>
+			<!-- clean up temp file -->
+			<!-- <delete file="temp.c"/> -->
+		</sequential>
+	</macrodef>
+
+</project>
