@@ -2,7 +2,12 @@
 
 	
 	<!-- include native code for libraries -->
-	<property name="libs" value="base, darjeeling"/>
+	<!-- 
+		NOTE : if you remove radio, please make sure to comment
+		#define WITH_RADIO
+		in ../../src/platform/tinyos/c/tosconfig.h
+	 -->
+	<property name="libs" value="base, darjeeling, radio"/>
 	<property name="apps" value="blink"/>
 
 	<!-- Platform and architecture selection -->
