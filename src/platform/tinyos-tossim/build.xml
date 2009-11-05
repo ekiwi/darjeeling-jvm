@@ -121,6 +121,7 @@
 			<arg value="-I{env.PYTHON_LIBS}"/>
 			<arg value="-I${env.TOSDIR}/lib/tossim"/>		
 		</exec>	
+		<copy file="${env.TOSDIR}/lib/tossim/TOSSIM.py" todir="."/>
 		<!-- for now linking is here -->		
 
 		
