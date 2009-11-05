@@ -19,6 +19,8 @@
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "array.h"
 #include "execution.h"
@@ -32,5 +34,6 @@ void javax_fleck_Leds_void_setLed_int_boolean()
 	char * tempStr = malloc(25);
 	sprintf(tempStr, on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
 	tossim_printf(tempStr);
+	free(tempStr);
 	
 }
