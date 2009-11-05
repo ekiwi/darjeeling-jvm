@@ -4,6 +4,8 @@
 	
 	<import file="${compilerpath}/../../taskdefs.xml"/>
 
+	<!--TODO: solve this additional build mapping-->
+	<property name="simbuild" value="${compilerpath}/../../platform/tinyos-tossim/build"/>
 	<!-- Compile C code using GCC -->
 	<macrodef name="platform-compile">
 		<attribute name="objectfiles"/>
@@ -39,10 +41,10 @@
 			<exec executable="g++">
 				<arg value="-shared"/>
 				<arg value="-fPIC"/>
-				<arg value="${build}/micaz/pytossim.o"/>
-				<arg value="${build}/micaz/sim.o"/>
-				<arg value="${build}/micaz/tossim.o"/>
-				<arg value="${build}/micaz/c-support.o"/>
+				<arg value="${simbuild}/micaz/pytossim.o"/>
+				<arg value="${simbuild}/micaz/sim.o"/>
+				<arg value="${simbuild}/micaz/tossim.o"/>
+				<arg value="${simbuild}/micaz/c-support.o"/>
 				<arg value="-lstdc++"/>
 				<arg value="darjeeling.a"/>
 				<arg value="-o"/>

@@ -8,7 +8,7 @@
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="tinyos-tossim"/>
 	<property name="architecture" value="tossim"/>
-	<property name="configuration" value="tos-tnode"/>
+	<property name="configuration" value="tos-tossim"/>
 	
 	<!-- Architecture specific stuff -->
 	<property name="mcu" value="atmega128"/>
