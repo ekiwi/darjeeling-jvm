@@ -1,9 +1,19 @@
-<project name="tinyos" default="all">
-
+<project name="tinyos" default="run">
+	<!--
+		in order to run tossim you have to first export 
+		PYTHON_LIBS
+		you can do that by editing env.sh appropriately to your computer setting
+		and then by typing
+									. env.sh
+		in the command line
+		then by calling
+									 ant run
+		you will be able to see the program running in TOSSIM									
+	-->
 	
 	<!-- include native code for libraries -->
 	<property name="libs" value="base, darjeeling"/>
-	<property name="apps" value="blink"/>
+	<property name="apps" value="testsuite"/>
 
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="tinyos-tossim"/>
@@ -21,10 +31,10 @@
 	<!-- Import the rest from config.xml (magic) -->
 	<import file="../config.xml"/>
 	
-	<target name="test">
-		<subant target="unpack" inheritall="true">
-			<fileset includes="config.xml" dir="../"/>
-		</subant>
+	<target name="run" depends="all">
+		<exec executable="python">
+			<arg value="tester.py"/>
+		</exec>
 	</target>
 	
 	
