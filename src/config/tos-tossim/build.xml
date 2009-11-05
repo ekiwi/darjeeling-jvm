@@ -1,0 +1,31 @@
+<project name="tinyos" default="all">
+
+	
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling"/>
+	<property name="apps" value="blink"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="tinyos-tossim"/>
+	<property name="architecture" value="tossim"/>
+	<property name="configuration" value="tos-tnode"/>
+	
+	<!-- Architecture specific stuff -->
+	<property name="mcu" value="atmega128"/>
+	<property name="TOS_MCU" value="atmega128"/>
+	<property name="TOS_PLATFORM" value="TOSSIM"/>
+	<property name="TOS_GCC" value="avr-gcc"/>
+	<property name="TOS_TARGET" value="avr"/>
+	<property name="TOS_CHIP" value="atm128"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	
+	<target name="test">
+		<subant target="unpack" inheritall="true">
+			<fileset includes="config.xml" dir="../"/>
+		</subant>
+	</target>
+	
+	
+</project>

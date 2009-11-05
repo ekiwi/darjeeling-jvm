@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="gcc 4.3.3 x86_64-linux-gnu -c">
+      <target file="temp.o" lastModified="124c51915f0">
+         <source file="temp.c" lastModified="124c5191208"/>
+      </target>
+   </processor>
+</history>

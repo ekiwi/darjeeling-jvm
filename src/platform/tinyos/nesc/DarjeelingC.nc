@@ -26,8 +26,8 @@ module DarjeelingC
 		interface Receive as RadioReceive;
 		interface Packet as RadioPacket;
 		interface PacketAcknowledgements;
-#endif
 		interface CC1000Control as CC1000;
+#endif
 
 #ifdef TOS_SERIAL
 		interface StdControl as UartControl;

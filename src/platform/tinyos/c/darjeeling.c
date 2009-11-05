@@ -22,6 +22,7 @@ extern unsigned char di_archive_data[];
 extern size_t di_archive_size;
 static unsigned char mem[HEAPSIZE];
 static dj_vm *vm;
+char * ref_t_base_address;
 
 //extern int16_t TOS_NODE_ID;
 
@@ -30,6 +31,7 @@ void dj_init()
 
 	// initialise memory manager
 	dj_mem_init(mem, HEAPSIZE);
+    ref_t_base_address = (char*)mem - 42;
 
 	// initialise timer
 	dj_timer_init();
@@ -43,8 +45,8 @@ void dj_init()
 	// load the embedded infusions
 
 	dj_named_native_handler handlers[] = {
-			{ PSTR("base"), &base_native_handler },
-			{ PSTR("darjeeling"), &darjeeling_native_handler }
+			{ "base", &base_native_handler },
+			{ "darjeeling", &darjeeling_native_handler }
 #ifdef WITH_RADIO
 			,{ PSTR("radio"), &radio_native_handler }
 #endif
@@ -54,7 +56,7 @@ void dj_init()
 
 	dj_vm_loadInfusionArchive(vm,
 			(dj_di_pointer)di_archive_data,
-			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, 3);	// load the embedded infusions
+			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, length);	// load the embedded infusions
 
 	// pre-allocate an OutOfMemoryError object
 	dj_object *obj = dj_vm_createSysLibObject(vm, BASE_CDEF_java_lang_OutOfMemoryError);
