@@ -22,7 +22,6 @@ extern unsigned char di_archive_data[];
 extern size_t di_archive_size;
 static unsigned char mem[HEAPSIZE];
 static dj_vm *vm;
-char * ref_t_base_address;
 
 //extern int16_t TOS_NODE_ID;
 
@@ -31,7 +30,6 @@ void dj_init()
 
 	// initialise memory manager
 	dj_mem_init(mem, HEAPSIZE);
-    ref_t_base_address = (char*)mem - 42;
 
 	// initialise timer
 	dj_timer_init();
