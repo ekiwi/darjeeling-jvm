@@ -28,6 +28,8 @@
 #include "execution.h"
 #include "heap.h"
 #include "djtimer.h"
+#include "tosconfig.h"
+#include "nesc.h"
 
 // void javax.darjeeling.Darjeeling.assertTrue(int, boolean)
 void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
@@ -35,10 +37,12 @@ void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 	// pop argument from the stack
 	int32_t value = dj_exec_stackPopShort();
 	int32_t id = dj_exec_stackPopInt();
+
 	if (value==0)
-		dbg("DEBUG", "%c[31mASSERT[%3d] FAILED%c[0m\n", 0x1b, (int)id, 0x1b);
+		tossim_printf(2, "[31mASSERT FAILED[0m\n", "");
 	else
-		dbg("DEBUG", "%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
+		tossim_printf(2, "[32mASSERT PASSED[0m\n", "");
+
 }
 
 // void javax.darjeeling.Darjeeling.gc()
@@ -51,13 +55,13 @@ void javax_darjeeling_Darjeeling_void_gc()
 void javax_darjeeling_Darjeeling_void_print_java_lang_String()
 {
 	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
-	dbg("DEBUG","%s", str);
+	tossim_printf(2, "%s", str);
 }
 
 // void javax.darjeeling.Darjeeling.print(int)
 void javax_darjeeling_Darjeeling_void_print_int()
 {
-	dbg("DEBUG","%d", dj_exec_stackPopInt());
+	tossim_printf(2, "%d", dj_exec_stackPopInt());
 }
 
 

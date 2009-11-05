@@ -23,13 +23,13 @@
 #include "array.h"
 #include "execution.h"
 #include "jlib_base.h"
-
+#include "nesc.h"
 // void javax.fleck.Leds.setLed(int, boolean)
 void javax_fleck_Leds_void_setLed_int_boolean()
 {
 	unsigned char on = dj_exec_stackPopShort();
 	unsigned int nr = dj_exec_stackPopInt();
 
-	dbg("DEBUG",on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
+	tossim_printf(3, on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
 	
 }

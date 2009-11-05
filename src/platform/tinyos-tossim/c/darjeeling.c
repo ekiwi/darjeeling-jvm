@@ -79,7 +79,6 @@ uint32_t dj_run()
 
 void notify_radio_receive();
 void notify_radio_sendDone();
-void notify_serial_sendDone();
 
 void dj_notifyRadioReceive()
 {
@@ -95,7 +94,3 @@ void dj_notifyRadioSendDone()
 #endif
 }
 
-void dj_notifySerialSendDone()
-{
-	notify_serial_sendDone();
-}

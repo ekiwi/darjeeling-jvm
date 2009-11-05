@@ -1,6 +1,7 @@
 #include "Timer.h"
 
 #include <stdarg.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 #include "darjeeling.h"
@@ -11,7 +12,6 @@
 #include "dj_tos_message.h"
 
 #include "tosconfig.h"
-
 module DarjeelingC
 {
 	uses
@@ -29,11 +29,6 @@ module DarjeelingC
 		interface CC1000Control as CC1000;
 #endif
 
-#ifdef TOS_SERIAL
-		interface StdControl as UartControl;
-		interface UartByte;
-		interface UartStream;
-#endif
 #ifdef WITH_RADIO
 		interface LowPowerListening;
 #endif
@@ -52,29 +47,15 @@ implementation
 	bool radioLocked, ackPending;
 	bool wasAcked;
 
-	int nesc_printf(char * msg) @C() @spontaneous()
+	int tossim_printf(int size, ...) @C() @spontaneous()
 	{
-#ifdef TOS_SERIAL
-		if (call UartStream.send(msg, strlen(msg)) == SUCCESS)
-			return 0;
-#endif
-
-#ifndef TOS_SERIAL
-		// notify the VM
-		dj_notifySerialSendDone();
-#endif
-	}
-
-	void nesc_setLed(int nr, int on) @C() @spontaneous()
-	{
-#ifdef TOS_LEDS
-		if (nr==0&&on==0) call Leds.led0Off();
-		if (nr==0&&on==1) call Leds.led0On();
-		if (nr==1&&on==0) call Leds.led1Off();
-		if (nr==1&&on==1) call Leds.led1On();
-		if (nr==2&&on==0) call Leds.led2Off();
-		if (nr==2&&on==1) call Leds.led2On();
-#endif
+		va_list ap;
+		int i;
+		va_start(ap,size);
+		for(i=0;i<size;i++)
+		dbg("DEBUG",va_arg(ap,char*));
+		va_end(ap);
+		return 1;
 	}
 
 	uint32_t nesc_getTime() @C() @spontaneous()

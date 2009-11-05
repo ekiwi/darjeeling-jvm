@@ -7,6 +7,5 @@ void dj_init();
 uint32_t dj_run();
 void dj_notifyRadioSendDone();
 void dj_notifyRadioReceive();
-void dj_notifySerialSendDone();
 
 #endif

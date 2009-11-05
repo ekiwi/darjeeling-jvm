@@ -42,7 +42,6 @@
 			executable="${env.NCC}"
 			>
 			<!--failonerror="true"-->
-			<arg value="-v"/>
 			<arg value="-c"/>
 			<arg value="-shared"/>
 			<arg value="-fPIC"/>
@@ -121,7 +120,7 @@
 			<arg value="-I{env.PYTHON_LIBS}"/>
 			<arg value="-I${env.TOSDIR}/lib/tossim"/>		
 		</exec>	
-		<copy file="${env.TOSDIR}/lib/tossim/TOSSIM.py" todir="."/>
+		<copy file="${env.TOSDIR}/lib/tossim/TOSSIM.py" todir="${basedir}"/>
 		<!-- for now linking is here -->		
 
 		
