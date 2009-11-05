@@ -1,6 +1,5 @@
 #include "Timer.h"
 
-#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -47,14 +46,9 @@ implementation
 	bool radioLocked, ackPending;
 	bool wasAcked;
 
-	int tossim_printf(int size, ...) @C() @spontaneous()
+	int tossim_printf(char * string ) @C() @spontaneous()
 	{
-		va_list ap;
-		int i;
-		va_start(ap,size);
-		for(i=0;i<size;i++)
-		dbg("DEBUG",va_arg(ap,char*));
-		va_end(ap);
+		dbg("DEBUG", string);
 		return 1;
 	}
 

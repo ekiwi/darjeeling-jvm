@@ -29,7 +29,8 @@ void javax_fleck_Leds_void_setLed_int_boolean()
 {
 	unsigned char on = dj_exec_stackPopShort();
 	unsigned int nr = dj_exec_stackPopInt();
-
-	tossim_printf(3, on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
+	char * tempStr = malloc(25);
+	sprintf(tempStr, on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
+	tossim_printf(tempStr);
 	
 }

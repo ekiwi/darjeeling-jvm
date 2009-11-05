@@ -38,10 +38,10 @@ void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 	int32_t value = dj_exec_stackPopShort();
 	int32_t id = dj_exec_stackPopInt();
 
-	if (value==0)
+/*	if (value==0)
 		tossim_printf(2, "[31mASSERT FAILED[0m\n", "");
 	else
-		tossim_printf(2, "[32mASSERT PASSED[0m\n", "");
+		tossim_printf(2, "[32mASSERT PASSED[0m\n", "");*/
 
 }
 
@@ -55,13 +55,15 @@ void javax_darjeeling_Darjeeling_void_gc()
 void javax_darjeeling_Darjeeling_void_print_java_lang_String()
 {
 	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
-	tossim_printf(2, "%s", str);
+	tossim_printf(str);
 }
 
 // void javax.darjeeling.Darjeeling.print(int)
 void javax_darjeeling_Darjeeling_void_print_int()
 {
-	tossim_printf(2, "%d", dj_exec_stackPopInt());
+	char * tempStr = malloc(6);
+	sprintf(tempStr, "%d", dj_exec_stackPopInt());
+	tossim_printf(tempStr);
 }
 
 
