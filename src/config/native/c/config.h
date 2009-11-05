@@ -21,7 +21,10 @@
 #ifndef __config_h
 #define __config_h
 
+// Allocate 4k heap for the VM
 #define MEMSIZE 4096
+
+// 'Time slices' are 128 instructions
 #define RUNSIZE 128
 
 #define PACK_STRUCTS
@@ -29,7 +32,7 @@
 
 /* Please see common/debug.h */
 
-#define DARJEELING_DEBUG
+// #define DARJEELING_DEBUG
 // #define DARJEELING_DEBUG_TRACE
 // #define DARJEELING_DEBUG_CHECK_HEAP_SANITY
 // #define DARJEELING_DEBUG_PERFILE
