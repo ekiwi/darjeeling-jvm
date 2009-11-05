@@ -4,7 +4,7 @@
 	otherwise, the consequence is that you will not see have the platform.a created by
 	this build system
 -->
-<project default="all">
+<project default="tossim-create">
 
 	<!-- pull in environment variables -->	
 	<dirname property="tinyosbuildpath" file="${ant.file}"/>
@@ -24,20 +24,7 @@
 	<!-- TinyOS tos dir -->
 	<property name="tos" value="${env.TOSDIR}"/>
 
-	<switch value="${TOS_PLATFORM}">
-	  <case value="MICA2">
-		<property name="TOS_INCLUDES" value="sensorboards/none platforms/tnode platforms/tnode/chips/cc1000 platforms/tnode/chips/at45db platforms/mica2 platforms/mica platforms/mica2/chips/cc1000 chips/cc1000 platforms/mica2/chips/at45db platforms/mica/chips/at45db chips/at45db chips/atm128 chips/atm128/adc chips/atm128/i2c chips/atm128/pins chips/atm128/spi chips/atm128/timer lib/timer lib/serial lib/power interfaces types system"/>
-	  </case>
-	  <case value="TELOSB">
-		<property name="TOS_INCLUDES" value="sensorboards/ platforms/telosb platforms/telosb platforms/telosb/chips/stm25p platforms/telosa platforms/telosa/chips/cc2420 platforms/telosa/chips/s1087 platforms/telosa/chips/s10871 platforms/telosa/chips/sht11 chips/cc2420 chips/cc2420/alarm chips/cc2420/control chips/cc2420/csma chips/cc2420/interfaces chips/cc2420/link chips/cc2420/lowpan chips/cc2420/lpl chips/cc2420/packet chips/cc2420/receive chips/cc2420/spi chips/cc2420/transmit chips/cc2420/unique chips/msp430 chips/msp430/adc12 chips/msp430/dma chips/msp430/pins chips/msp430/timer chips/msp430/usart chips/msp430/sensors chips/stm25p chips/sht11 lib/timer lib/serial lib/adc lib/power interfaces types system"/>
-	  </case>
-	  <case value="TNODE">
-		<property name="TOS_INCLUDES" value="sensorboards/none platforms/tnode platforms/tnode/chips/cc1000 platforms/tnode/chips/at45db platforms/mica2 platforms/mica platforms/mica2/chips/cc1000 chips/cc1000 platforms/mica2/chips/at45db platforms/mica/chips/at45db chips/at45db chips/atm128 chips/atm128/adc chips/atm128/i2c chips/atm128/pins chips/atm128/spi chips/atm128/timer lib/printf lib/timer lib/serial lib/power interfaces types system"/>
-	  </case>
-	  <default>
-	    <echo message="The value of property TOS_PLATFORM is not set correctly; mica2, telosb, tnode" />
-	  </default>
-	</switch>
+	<property name="TOS_INCLUDES" value="lib/printf lib/timer lib/serial lib/power interfaces types system"/>
 	
 	<pathconvert property="tosincludepaths" pathsep=" ">
 		<filelist dir="/" files="${TOS_INCLUDES}"/>
@@ -48,46 +35,94 @@
 	<import file="../platform.xml"/>
 				
 	<target name="precompile">
-		<mkdir dir="${build}"/>
+		<mkdir dir="${build}/micaz"/>
+		
 	
 		<exec
-			executable="${env.NESC1}"
-			failonerror="true"
+			executable="${env.NCC}"
 			>
-			<arg value="-fnesc-include=deputy_nodeputy"/>
-
-			<arg value="-fnesc-gcc=${TOS_GCC}"/>
-			<arg value="-fnesc-include=nesc_nx"/>
-			<arg value="-fnesc-include=tos"/>
-			<arg value="-fnesc-scheduler=TinySchedulerC,TinySchedulerC.TaskBasic,TaskBasic,TaskBasic,runTask,postTask"/>
-
+			<!--failonerror="true"-->
+			<arg value="-v"/>
+			<arg value="-c"/>
+			<arg value="-shared"/>
+			<arg value="-fPIC"/>
+			<arg value="-o"/>
+			<arg value="${build}/micaz/sim.o"/>
+			<arg value="-g"/>
+			<arg value="-O0"/>
+			<arg value="-tossim"/>
+			<arg value="-fnesc-nido-tosnodes=1000"/>
+			<arg value="-fnesc-simulate"/>
+			<arg value="-fnesc-nido-motenumber=sim_node()"/>
+			<arg value=""/>
+			<arg value=""/>
+			<arg value="-v"/>
+			<arg value="-finline-limit=100000"/>
+			<arg value="-Wall"/>
+			<arg value="-Wshadow"/>
 			<arg value="-Wnesc-all"/>
-			<arg value="-fnesc-target=${TOS_TARGET}"/>
-			<arg value="-fnesc-no-debug"/>
-			<arg value="-fsyntax-only"/>
 			<arg value="-fnesc-separator=__"/>
-
-
-			
-			<arg value="-mmcu=${TOS_MCU}"/>
-			<!--arg value="-DPLATFORM_${TOS_PLATFORM}"/-->
-			<arg value="-DDEFINED_TOS_AM_GROUP=0x22"/>
-			<arg value="-DIDENT_APPNAME=DarjeelingAppC"/>
-			<!-- version of nescc -->
-			<arg value="-DNESC=130"/>
-
-			<arg value="-I${env.NESC_LIB}"/>
+			<arg value="-target=micaz"/>
+			<arg value="-fnesc-cfile=${build}/micaz/app.c"/>
+			<arg value="-board=micasb"/>
+			<arg value="-DIDENT_APPNAME=&quot;DarjeelingAppC&quot;"/>
+			<arg value="-Wno-nesc-data-race"/>
+			<arg value="${nesc-src}/DarjeelingAppC.nc"/>
+			<arg value="-fnesc-dump=components"/>
+			<arg value="-fnesc-dump=variables"/>
+			<arg value="-fnesc-dump=constants"/>
+			<arg value="-fnesc-dump=typedefs"/>
+			<arg value="-fnesc-dump=interfacedefs"/>
+			<arg value="-fnesc-dump=tags"/>
+			<arg value="-fnesc-dumpfile=app.xml"/>
 			<arg value="-I${tinyos-c-src}"/>
 			<arg value="-I${nesc-src}"/>
-
-			<arg line="${tosincludepaths}"/>
-			<arg value="${nesc-src}/DarjeelingAppC.nc"/>
-			
-			<arg value="-o"/>
-			<arg value="${build}/app.c"/>
-			
-
 		</exec>
-	
+		</target>
+	<target name="tossim-create" depends="all">
+		<exec executable="g++">
+			<arg value="-c"/>
+			<arg value=""/>
+			<arg value="-shared"/>
+			<arg value="-fPIC"/>
+			<arg value="-o"/>
+			<arg value="${build}/micaz/pytossim.o"/>
+			<arg value="-g"/>
+			<arg value="-O0"/>
+			<arg value="-DIDENT_APPNAME=&quot;DarjeelingAppC&quot;"/>
+			<arg value="${env.TOSDIR}/lib/tossim/tossim_wrap.cxx"/>
+			<arg value="-I${env.PYTHON_LIBS}"/>
+			<arg value="-I${env.TOSDIR}/lib/tossim"/>
+			<arg value="-DHAVE_CONFIG_H"/>
+		</exec>		
+		<exec executable="g++">
+			<arg value="-c"/>
+			<arg value="-shared"/>
+			<arg value="-fPIC"/>
+			<arg value="-o"/>
+			<arg value="${build}/micaz/tossim.o"/>
+			<arg value="-g"/>
+			<arg value="-O0"/>
+			<arg value="-DIDENT_APPNAME=&quot;DarjeelingAppC&quot;"/>
+			<arg value="${env.TOSDIR}/lib/tossim/tossim.c"/>
+			<arg value="-I{env.PYTHON_LIBS}"/>
+			<arg value="-I${env.TOSDIR}/lib/tossim"/>
+		</exec>		
+		<exec executable="g++">
+			<arg value="-c"/>
+			<arg value="-shared"/>
+			<arg value="-fPIC"/>
+			<arg value="-o"/>
+			<arg value="${build}/micaz/c-support.o"/>
+			<arg value="-g"/>
+			<arg value="-O0"/>
+			<arg value="-DIDENT_APPNAME=&quot;DarjeelingAppC&quot;"/>
+			<arg value="${env.TOSDIR}/lib/tossim/hashtable.c"/>
+			<arg value="-I{env.PYTHON_LIBS}"/>
+			<arg value="-I${env.TOSDIR}/lib/tossim"/>		
+		</exec>	
+		<!-- for now linking is here -->		
+
+		
 	</target>
 </project>
