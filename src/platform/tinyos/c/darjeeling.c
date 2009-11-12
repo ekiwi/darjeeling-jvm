@@ -67,8 +67,8 @@ uint32_t dj_run()
 	// find thread to schedule
 	dj_vm_schedule(vm);
 
-	if (vm->currentThread!=NULL)
-		if (vm->currentThread->status==THREADSTATUS_RUNNING)
+	if (dj_exec_getCurrentThread()!=NULL)
+		if (dj_exec_getCurrentThread()->status==THREADSTATUS_RUNNING)
 			dj_exec_run(RUNSIZE);
 
 	return dj_vm_getVMSleepTime(vm);
