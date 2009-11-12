@@ -24,7 +24,7 @@
 	<!-- TinyOS tos dir -->
 	<property name="tos" value="${env.TOSDIR}"/>
 
-	<property name="TOS_INCLUDES" value="lib/printf lib/timer lib/serial lib/power interfaces types system"/>
+	<property name="TOS_INCLUDES" value="chips/cc2420/ lib/printf lib/timer lib/serial lib/power interfaces types system"/>
 	
 	<pathconvert property="tosincludepaths" pathsep=" ">
 		<filelist dir="/" files="${TOS_INCLUDES}"/>

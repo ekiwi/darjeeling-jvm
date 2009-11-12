@@ -23,17 +23,48 @@
 
 // define heap size
 #define RUNSIZE 32
-#define HEAPSIZE 2048
+#define HEAPSIZE 4096
 
 // define wether to pack structs (this is fine on all AVR targets)
 #define PACK_STRUCTS
 
 /* Please see common/debug.h */
+
 //#define DARJEELING_DEBUG
 //#define DARJEELING_DEBUG_TRACE
 //#define DARJEELING_DEBUG_CHECK_HEAP_SANITY
 //#define DARJEELING_DEBUG_PERFILE
-#define DARJEELING_PRINTF tossim_printf
+#ifndef __TEXT_BUF__
+#define __TEXT_BUF__
+#include <stdio.h>
+char *textBuf;
+#endif
+//#define DARJEELING_PRINTF(...)
+
+#define DARJEELING_PRINTF(...) textBuf = dj_mem_alloc(100, CHUNKID_REFARRAY);\
+							if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
+							tossim_printf(textBuf);\
+							dj_mem_free(textBuf);}
+
 #define DARJEELING_PGMSPACE_MACRO
 
+
+
+#define MAZANIN_IS_DEBUGGING 0
+#if MAZANIN_IS_DEBUGGING
+#ifndef __TEXT_BUF__
+#define __TEXT_BUF__
+#include <stdio.h>
+char *textBuf;
+#endif
+#define MAZANIN_DEBUG(...)  textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
+							if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
+							tossim_printf(textBuf);\
+							dj_mem_free(textBuf);}
+#define MAZANIN_DEBUG_PREFIX
+#define MAZANIN_DEBUG_POSTFIX tossim_printf("\n")
+//#define MAZANIN_DEBUG(...) printf(__VA_ARGS__)
+#else
+#define MAZANIN_DEBUG(...)
+#endif
 #endif

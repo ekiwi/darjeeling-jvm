@@ -1,4 +1,4 @@
-<project name="tinyos" default="run">
+<project name="tinyos" default="all">
 	<!--
 		in order to run tossim you have to first export 
 		PYTHON_LIBS
@@ -8,7 +8,10 @@
 		in the command line
 		then by calling
 									 ant run
-		you will be able to see the program running in TOSSIM									
+		you will be able to see the program running in Tossim\
+		
+		NOTE: in the testsuite if the no. of Threads exceeds 7,
+		testsuite stops, this could be a shortcoming in Tossim 									
 	-->
 	
 	<!-- include native code for libraries -->

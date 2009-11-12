@@ -11,6 +11,7 @@
 #include "dj_tos_message.h"
 
 #include "tosconfig.h"
+#include "AM.h"
 module DarjeelingC
 {
 	uses
@@ -18,17 +19,11 @@ module DarjeelingC
 		interface Boot;
 		interface Leds;
 		interface Timer<TMilli> as Timer;
-
 #ifdef WITH_RADIO
-		interface SplitControl as RadioControl;
-		interface AMSend as RadioSend;
-		interface Receive as RadioReceive;
-		interface Packet as RadioPacket;
-		interface PacketAcknowledgements;
-		interface CC1000Control as CC1000;
-#endif
-
-#ifdef WITH_RADIO
+	    interface Receive;
+	    interface AMSend;
+	    interface SplitControl as AMControl;
+	    interface Packet;
 		interface LowPowerListening;
 #endif
 	}
@@ -37,10 +32,10 @@ module DarjeelingC
 implementation
 {
 
-	#define bufferSize 4
-
+	#define bufferSize 10
+	char bufferIsLocked = 0;
 	message_t radioPacket;
-	tos_message_t messageBuffer[bufferSize];
+	radio_count_msg_t messageBuffer[bufferSize];
 	int bufferPos = 0;
 
 	bool radioLocked, ackPending;
@@ -68,28 +63,33 @@ implementation
 	int nesc_send(const char * message, int16_t receiverId, uint16_t length) @C() @spontaneous()
 	{
 #ifdef WITH_RADIO
-		tos_message_t * tosmessage;
+		radio_count_msg_t * tosmessage;
 
 		// check for lock
 		if (radioLocked) return -1;
 
-		// get a pointer to the payload
-		tosmessage = (tos_message_t*)call RadioPacket.getPayload(&radioPacket, (uint8_t)sizeof(tos_message_t));
+		// get a pointer to the payload (data part of radioPacket)
+		tosmessage = (radio_count_msg_t*)call Packet.getPayload(&radioPacket, NULL);
 
 		// data is NULL if length>max payload
 		if (tosmessage == NULL) return -2;
 
 		// copy data into the radioPacket
 		memcpy(tosmessage->payload, message, length);
+		tosmessage->length = length;
+
 
 		// if not broadcast, request ack
+/*	
+TODO : put back ack if needed
 		if (receiverId==0xffff)
 			ackPending = FALSE;
 		else
 			ackPending = (call PacketAcknowledgements.requestAck(&radioPacket) == SUCCESS);
+*/
 
 		// send radioPacket
-		if (call RadioSend.send(receiverId, &radioPacket, sizeof(tos_message_t)) == SUCCESS)
+		if (call AMSend.send(AM_BROADCAST_ADDR, &radioPacket, sizeof(radio_count_msg_t)) == SUCCESS)
 		{
 			radioLocked = TRUE;
 			return 0;
@@ -104,20 +104,28 @@ implementation
 	{
 		if (bufferPos>0)
 		{
-			return sizeof(tos_message_t);
+			return (messageBuffer[bufferPos -1].length);
 		}
 		else
 			return 0;
 	}
-
+	void nesc_setBufferIsLocked(char lock){
+		bufferIsLocked = lock;
+	}
 	void * nesc_popMessageBuffer() @C() @spontaneous()
 	{
 		int len;
+		
+		int i;
+		nx_uint8_t payload;
 		if (bufferPos>0)
 		{
 			len = nesc_peekMessageLength();
 			bufferPos--;
-			return (void *)(messageBuffer[bufferPos].payload);
+			payload = (messageBuffer[bufferPos].payload);
+			bufferIsLocked = 0;
+
+			return (void *) (messageBuffer[bufferPos].payload);
 		}
 		else
 			return NULL;
@@ -150,11 +158,8 @@ implementation
 	event void Boot.booted()
 	{
 		dj_init();
-#ifdef TOS_SERIAL
-		call UartControl.start();
-#endif
 #ifdef WITH_RADIO
-		call RadioControl.start();
+	    call AMControl.start();
 #else
 //if radio is not included nothing will invoke run(). this means that darjeeling will do nothing
 		post run();
@@ -163,78 +168,52 @@ implementation
 	}
 
 #ifdef WITH_RADIO
-	event void RadioControl.startDone(error_t error)
-	{
-		// set the RF power to 1 - our test bed is very dense :)
-//		call CC1000.setRFPower(1);
-//		call CC1000.setRFPower(2U);
-		call LowPowerListening.setLocalSleepInterval(85);
-		
+
+
+	event void AMControl.startDone(error_t err) {
 		post run();
 	}
 
-	event void RadioControl.stopDone(error_t error)
-	{
+	event void AMControl.stopDone(error_t err) {
+    	// do nothing
 	}
 
-	event message_t* RadioReceive.receive(message_t * message, void * payload, uint8_t len)
+	event message_t* Receive.receive(message_t * message, void * payload, uint8_t length)
 	{
 		// push message into the buffer
 		if (bufferPos<bufferSize)
 		{
-			messageBuffer[bufferPos] = *((tos_message_t*)payload);
-			bufferPos++;
-		}
+//			while (bufferIsLocked);
+			memcpy(&messageBuffer[bufferPos],  payload,  sizeof(radio_count_msg_t));
 
+/*			messageBuffer[bufferPos] = *((radio_count_msg_t*)payload);*/
+//			dbg("DEBUG", "Received packet of length %hhu.\n", messageBuffer[bufferPos].length);
+			bufferPos++;
+//			bufferIsLocked = 1;
+		}
 		// notify the JVM
 		dj_notifyRadioReceive();
-		post run();
+//		post run();
 
 		return message;
 	}
 
-	event void RadioSend.sendDone(message_t* bufPtr, error_t error)
+	event void AMSend.sendDone(message_t* bufPtr, error_t error)
 	{
 	    if (&radioPacket == bufPtr)
 	    {
 		radioLocked = FALSE;
 
 		// record whether the last message was acknowledged
-		if (ackPending)
+/*		if (ackPending)
 			wasAcked = call PacketAcknowledgements.wasAcked(&radioPacket);
+*/
 
 		dj_notifyRadioSendDone();
-		post run();
+//		post run();
 	    }
 
 	}
 #endif
-#ifdef TOS_SERIAL
-	/**
-	 * Uart 'send done' event. Signals that the last serial write command completed succesfully. The VM has to be notified
-	 * so that it may unblock the thread waiting for this to complete.
-	 */
-	async event void UartStream.sendDone( uint8_t* buf, uint16_t len, error_t error )
-	{
-
-		// notify the VM
-		dj_notifySerialSendDone();
-
-		// wake up the VM if it was sleeping
-		post run();
-	}
-
-	async event void UartStream.receivedByte( uint8_t byte )
-	{
-		// not implemented
-	}
-
-	async event void UartStream.receiveDone( uint8_t* buf, uint16_t len, error_t error )
-	{
-		// not implemented
-	}
-
-#endif
-
 }
 

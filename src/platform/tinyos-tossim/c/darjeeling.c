@@ -28,7 +28,6 @@ char * ref_t_base_address;
 
 void dj_init()
 {
-
 	// initialise memory manager
 	dj_mem_init(mem, HEAPSIZE);
     ref_t_base_address = (char*)mem - 42;
@@ -38,6 +37,10 @@ void dj_init()
 
 	// create a new VM
 	vm = dj_vm_create();
+	if (vm == nullref){
+		//fail with a unknown type exception
+    	dj_panic(-1);
+	}
 
 	// tell the execution engine to use the newly created VM instance
 	dj_exec_setVM(vm);
@@ -48,20 +51,20 @@ void dj_init()
 			{ "base", &base_native_handler },
 			{ "darjeeling", &darjeeling_native_handler }
 #ifdef WITH_RADIO
-			,{ PSTR("radio"), &radio_native_handler }
+			,{ "radio", &radio_native_handler }
 #endif
 		};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
-
 	dj_vm_loadInfusionArchive(vm,
 			(dj_di_pointer)di_archive_data,
 			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, length);	// load the embedded infusions
 
+	DARJEELING_PRINTF("%d infusions loaded\n", dj_vm_countInfusions(vm));
+
 	// pre-allocate an OutOfMemoryError object
 	dj_object *obj = dj_vm_createSysLibObject(vm, BASE_CDEF_java_lang_OutOfMemoryError);
 	dj_mem_setPanicExceptionObject(obj);
-
 }
 
 uint32_t dj_run()
@@ -69,10 +72,10 @@ uint32_t dj_run()
 	// find thread to schedule
 	dj_vm_schedule(vm);
 
-	if (vm->currentThread!=NULL)
-		if (vm->currentThread->status==THREADSTATUS_RUNNING)
+	if (dj_exec_getCurrentThread()!=NULL)
+		if (dj_exec_getCurrentThread()->status==THREADSTATUS_RUNNING){
 			dj_exec_run(RUNSIZE);
-
+		}
 	return dj_vm_getVMSleepTime(vm);
 
 }

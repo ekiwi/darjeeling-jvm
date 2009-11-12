@@ -7,15 +7,14 @@ configuration DarjeelingAppC
 implementation
 {
 	components MainC, DarjeelingC;
-
 #ifdef TOS_LEDS
 	components LedsC;
 #endif
 
 #ifdef WITH_RADIO
-	components ActiveMessageC as Radio;
-	components CC1000ControlP as CC1000;
-	components CC1000CsmaRadioC;
+	components new AMSenderC(AM_RADIO_COUNT_MSG);
+	components new AMReceiverC(AM_RADIO_COUNT_MSG);
+	components ActiveMessageC;
 #endif
 	components new TimerMilliC();
 
@@ -26,14 +25,10 @@ implementation
 	DarjeelingC.Timer -> TimerMilliC;
 
 #ifdef WITH_RADIO
-	DarjeelingC.RadioReceive -> Radio.Receive[DJ_TOS_MESSAGE];
-	DarjeelingC.RadioSend -> Radio.AMSend[DJ_TOS_MESSAGE];
-	DarjeelingC.RadioPacket -> Radio;
-	DarjeelingC.RadioControl -> Radio;
-	DarjeelingC.PacketAcknowledgements -> Radio;
-
-	DarjeelingC.CC1000 -> CC1000;
-	DarjeelingC.LowPowerListening -> CC1000CsmaRadioC;
+	DarjeelingC.Receive -> AMReceiverC;
+	DarjeelingC.AMSend -> AMSenderC;
+	DarjeelingC.AMControl -> ActiveMessageC;
+	DarjeelingC.Packet -> AMSenderC;
 #endif
 
 }
