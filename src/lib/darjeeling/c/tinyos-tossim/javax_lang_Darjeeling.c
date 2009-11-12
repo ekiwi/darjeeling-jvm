@@ -38,13 +38,16 @@ void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 	int32_t value = dj_exec_stackPopShort();
 	int32_t id = dj_exec_stackPopInt();
 
-	char * tempStr = malloc(30);
-	if (value==0)
-		sprintf(tempStr, "%c[31mASSERT[%3d] FAILED%c[0m\n", 0x1b, (int)id, 0x1b);
-	else
-		sprintf(tempStr, "%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
-	tossim_printf(tempStr);
-	free (tempStr);
+
+	char tempStr[35];
+	if (tempStr != NULL){
+		if (value==0)
+			snprintf(tempStr, 35, "%c[31mASSERT[%3d] FAILED%c[0m\n", 0x1b, (int)id, 0x1b);
+		else
+			snprintf(tempStr, 35, "%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
+		tossim_printf(tempStr);
+		dj_mem_free (tempStr);
+	}
 }
 
 // void javax.darjeeling.Darjeeling.gc()
@@ -63,10 +66,10 @@ void javax_darjeeling_Darjeeling_void_print_java_lang_String()
 // void javax.darjeeling.Darjeeling.print(int)
 void javax_darjeeling_Darjeeling_void_print_int()
 {
-	char * tempStr = malloc(6);
-	sprintf(tempStr, "%d", dj_exec_stackPopInt());
+	char tempStr[6];
+	snprintf(tempStr, 6, "%d", dj_exec_stackPopInt());
 	tossim_printf(tempStr);
-	free (tempStr);
+	dj_mem_free (tempStr);
 }
 
 

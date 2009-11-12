@@ -25,15 +25,17 @@
 #include "array.h"
 #include "execution.h"
 #include "jlib_base.h"
+#include "heap.h"
+#include "types.h"
 #include "nesc.h"
 // void javax.fleck.Leds.setLed(int, boolean)
 void javax_fleck_Leds_void_setLed_int_boolean()
 {
 	unsigned char on = dj_exec_stackPopShort();
 	unsigned int nr = dj_exec_stackPopInt();
-	char * tempStr = malloc(25);
-	sprintf(tempStr, on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
+	char * tempStr = dj_mem_alloc(25, CHUNKID_REFARRAY);
+	snprintf(tempStr, 25, on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
 	tossim_printf(tempStr);
-	free(tempStr);
+	dj_mem_free(tempStr);
 	
 }
