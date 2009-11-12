@@ -132,7 +132,7 @@ void * dj_mem_alloc(uint16_t size, uint16_t id)
 
 	left_pointer += size;
 
-	return (void*)ret + sizeof(heap_chunk);
+	return (void*)(ret + 1);
 }
 
 /**
@@ -304,12 +304,12 @@ static inline void dj_mem_mark()
 		loc += chunk->size;
 	}
 
-	DEBUG_LOG("mark root set\n");
+	DEBUG_LOG("\tmark root set\n");
 
 	// mark the root set (set all elements in the root set to 'gray')
 	dj_vm_markRootSet(vm);
 
-	DEBUG_LOG("mark reference stack\n");
+	DEBUG_LOG("\tmark reference stack\n");
 
 	// mark the reference stack and the panic exception object
 	for (i=0; i<refStackPointer; i++) dj_mem_setRefGrayIfWhite(refStack[i]);
@@ -321,7 +321,7 @@ static inline void dj_mem_mark()
 	int nrGray;
 	do
 	{
-		DEBUG_LOG("iteration\n");
+		DEBUG_LOG("\titeration\n");
 
 		// move over the chunks and visit all the gray objects
 		nrGray=0;

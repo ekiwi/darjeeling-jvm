@@ -425,18 +425,6 @@ void dj_vm_loadInfusionArchive(dj_vm * vm, dj_di_pointer archive_start, dj_di_po
 			pos++;
 		}
 
-/*		printf("[%c%c%c%c%c%c%c%c] %d\n",
-				dj_di_getU8(archive_start+0),
-				dj_di_getU8(archive_start+1),
-				dj_di_getU8(archive_start+2),
-				dj_di_getU8(archive_start+3),
-				dj_di_getU8(archive_start+4),
-				dj_di_getU8(archive_start+5),
-				dj_di_getU8(archive_start+6),
-				dj_di_getU8(archive_start+7),
-				size
-				);*/
-
 		// if filename starts with '/' skip this entry, since it's part of a
 		// GNU extension on the common AR format
 		if (dj_di_getU8(archive_start)!='/')
@@ -448,7 +436,10 @@ void dj_vm_loadInfusionArchive(dj_vm * vm, dj_di_pointer archive_start, dj_di_po
 			else
 				infusion = dj_vm_loadInfusion(vm, archive_start + AR_EHEADER_SIZE);
 
-			// check if native handler is associated with this infusion
+			DARJEELING_PRINTF("[%s.di] %d\n",
+					(char *) dj_di_header_getInfusionName(infusion->header),
+					size
+					);
 			for (i=0; i<numHandlers; i++)
 				if (dj_di_strEquals(dj_di_header_getInfusionName(infusion->header), native_handlers[i].name))
 					infusion->native_handler = native_handlers[i].handler;
@@ -713,7 +704,7 @@ dj_thread * dj_vm_getThreadById(dj_vm * vm, int id)
 		finger = finger->next;
 	}
 
-	return finger;
+	return NULL;
 }
 
 
@@ -848,7 +839,7 @@ void dj_vm_markRootSet(dj_vm *vm)
 	dj_infusion * infusion;
 	dj_monitor_block * monitorBlock;
 
-	DEBUG_LOG("mark threads");
+	DEBUG_LOG("\t\tmark threads\n");
 
 	// Mark threads
 	thread = vm->threads;
@@ -858,7 +849,7 @@ void dj_vm_markRootSet(dj_vm *vm)
 		thread = thread->next;
 	}
 
-	DEBUG_LOG("mark infusions");
+	DEBUG_LOG("\t\tmark infusions\n");
 
     // Mark infusions
 	infusion = vm->infusions;
@@ -868,7 +859,7 @@ void dj_vm_markRootSet(dj_vm *vm)
 		infusion = infusion->next;
 	}
 
-	DEBUG_LOG("mark monitors");
+	DEBUG_LOG("\t\tmark monitors\n");
 
 	// Mark monitor blocks
 	monitorBlock = vm->monitors;

@@ -149,7 +149,7 @@ static inline void MONITORENTER()
 		return;
 	}
 
-    DEBUG_ENTER_NEST_LOG("MONITORENTER() thread:%d, object%p\n", currentThread->id, REF_TO_VOIDP(objRef));
+    DEBUG_ENTER_NEST_LOG("MONITORENTER() thread:%d, object%p\n", dj_exec_getCurrentThread()->id, REF_TO_VOIDP(objRef));
 
     dj_mem_pushCompactionUpdateStack(objRef);
 
@@ -173,10 +173,10 @@ static inline void MONITORENTER()
         DEBUG_LOG("Entering monitor %p\n",monitor);
 		// we can enter the monitor, huzzaa
 		monitor->count = 1;
-		monitor->owner = currentThread;
+		monitor->owner = dj_exec_getCurrentThread();
 
 	} else {
-		if (monitor->owner==currentThread)
+		if (monitor->owner==dj_exec_getCurrentThread())
 		{
             DEBUG_LOG("Reentering monitor %p. count is now %d\n",monitor,monitor->count+1);
 
@@ -185,8 +185,8 @@ static inline void MONITORENTER()
 		{
 
 			// we can't enter, so just block
-			currentThread->status = THREADSTATUS_BLOCKED_FOR_MONITOR;
-			currentThread->monitorObject = obj;
+			dj_exec_getCurrentThread()->status = THREADSTATUS_BLOCKED_FOR_MONITOR;
+			dj_exec_getCurrentThread()->monitorObject = obj;
 			monitor->waiting_threads++;
             DEBUG_LOG("monitor is already held by someone. let's block\n");
 
@@ -221,7 +221,7 @@ static inline void MONITOREXIT()
 		return;
 	}
 
-	DEBUG_ENTER_NEST_LOG("MONITOREXIT() thread:%d, object:%p\n", currentThread->id, obj);
+	DEBUG_ENTER_NEST_LOG("MONITOREXIT() thread:%d, object:%p\n", dj_exec_getCurrentThread()->id, obj);
 
     // find the monitor associated with the object
 	monitor = dj_vm_getMonitor(dj_exec_getVM(), obj);
