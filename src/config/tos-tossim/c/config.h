@@ -41,26 +41,34 @@ char *textBuf;
 #endif
 //#define DARJEELING_PRINTF(...)
 
-#define DARJEELING_PRINTF(...) textBuf = dj_mem_alloc(100, CHUNKID_REFARRAY);\
+#define DARJEELING_PRINTF(...) textBuf = malloc(100);\
 							if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
 							tossim_printf(textBuf);\
-							dj_mem_free(textBuf);}
+							free(textBuf);}
 
 #define DARJEELING_PGMSPACE_MACRO
 
 
 
-#define MAZANIN_IS_DEBUGGING 0
+#define MAZANIN_IS_DEBUGGING 1
 #if MAZANIN_IS_DEBUGGING
 #ifndef __TEXT_BUF__
 #define __TEXT_BUF__
 #include <stdio.h>
 char *textBuf;
 #endif
+#define MAZANIN_ASSEMBLY_DEBUG(...)
+/*textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
+
+ if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
+							tossim_printf(textBuf);\
+							dj_mem_free(textBuf);}*/
+
 #define MAZANIN_DEBUG(...)  textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
 							if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
 							tossim_printf(textBuf);\
 							dj_mem_free(textBuf);}
+
 #define MAZANIN_DEBUG_PREFIX
 #define MAZANIN_DEBUG_POSTFIX tossim_printf("\n")
 //#define MAZANIN_DEBUG(...) printf(__VA_ARGS__)
