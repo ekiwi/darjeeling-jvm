@@ -22,6 +22,9 @@ void dj_panic(int32_t panictype)
 		case DJ_PANIC_UNCAUGHT_EXCEPTION:
 			tossim_printf("PANIC: UNCAUGHT EXCEPTION\n");
 			break;
+		case DJ_PANIC_ASSERTION_FAILURE):
+			tossim_printf("PANIC: Assertion failed\n");
+			break;
 		default:
 			tossim_printf("PANIC: UNKNOWN TYPE\n");
 			break;

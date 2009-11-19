@@ -23,6 +23,9 @@ void dj_panic(int32_t panictype)
         case DJ_PANIC_MALFORMED_INFUSION:
             printf("Darjeeling panic: malformed infusion\n");
             break;
+        case DJ_PANIC_ASSERTION_FAILURE:
+        	printf("Darjeeling panic: Assertion failed\n");
+        	break;
         default:
             printf("Darjeeling panic: unknown panic type\n");
             break;
