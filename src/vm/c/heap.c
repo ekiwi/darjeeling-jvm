@@ -452,8 +452,10 @@ void dj_mem_compact()
 	}
 
 	// update the pointers in the reference stack
-	for (i=0; i<refStackPointer; i++)
+	for (i=0; i<refStackPointer; i++){
+		DEBUG_LOG("Pointer %p updated to %p\n", REF_TO_VOIDP(refStack[i]), REF_TO_VOIDP(dj_mem_getUpdatedReference(refStack[i])));
 		refStack[i] = dj_mem_getUpdatedReference(refStack[i]);
+	}
 
 	// update the pointer to the panic exception object, if any
 	if (panicExceptionObject!=nullref)
@@ -483,7 +485,10 @@ void dj_mem_gc()
 {
 	DEBUG_LOG("GC start\n");
 	dj_vm *vm = dj_exec_getVM();
-
+	if (vm == NULL){
+		DARJEELING_PRINTF("Garbage collection cannot start, the VM is not yet initialized\n");
+		dj_panic(DJ_PANIC_OUT_OF_MEMORY);
+	}
 	// Force the execution engine to store the nr_int_stack and nr_ref_stack in the current frame struct
 	// we need this for the root set marking phase
 	dj_exec_deactivateThread(dj_exec_getCurrentThread());

@@ -97,6 +97,7 @@ void dj_dump_int_array(dj_int_array *array)
         case T_LONG:    type='J';break;
         default:
             DEBUG_LOG("Unknown array component type: %d\n",array->type);
+            DARJEELING_PRINTF("Unknown array component type: %d\n",array->type);
             dj_panic(DJ_PANIC_ILLEGAL_INTERNAL_STATE);
     }
 

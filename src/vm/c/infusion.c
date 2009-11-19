@@ -56,7 +56,7 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 	ret = (dj_infusion*)dj_mem_alloc(sizeof(dj_infusion) + staticFieldsSize + nrImportedInfusions*sizeof(dj_infusion*), CHUNKID_INFUSION);
 
     if(ret == NULL)
-        dj_panic(DJ_PANIC_OUT_OF_MEMORY);
+    	return NULL;
 
 	// bookkeeping for the gc
 	ret->nr_static_refs = dj_di_staticFieldInfo_getNrRefs(staticFieldInfo);
@@ -161,6 +161,7 @@ void dj_infusion_updatePointers(dj_infusion *infusion)
 	infusion->staticIntFields = (uint32_t*)((void*)infusion->staticIntFields - shift);
 	infusion->staticReferenceFields = (ref_t*)((void*)infusion->staticReferenceFields - shift);
 	infusion->referencedInfusions = (dj_infusion**)((void*)infusion->referencedInfusions - shift);
+	DEBUG_LOG("Infusion %p elemetns are shifted %d\n", infusion, shift);
 
 
 

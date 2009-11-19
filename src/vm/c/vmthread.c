@@ -84,7 +84,7 @@ dj_thread *dj_thread_create()
 	// if we're out of memory, let the caller handle it
 	if (ret==NULL)
     {
-        DEBUG_LOG("dj_thread_create: could not Thread object frame. Returning null\n");
+        DEBUG_LOG("dj_thread_create: could not create Thread object frame. Returning null\n");
         return NULL;
     }
 
@@ -168,6 +168,7 @@ void dj_frame_updatePointers(dj_frame * frame)
 	// update pointers to the infusion and parent frame
 	// NOTE these have to be updated AFTER the stack and local variable frame
 	frame->method.infusion = dj_mem_getUpdatedPointer(frame->method.infusion);
+	DEBUG_LOG("parent is changed from %p to %p\n", frame->parent, dj_mem_getUpdatedPointer(frame->parent));
 	frame->parent = dj_mem_getUpdatedPointer(frame->parent);
 
 }

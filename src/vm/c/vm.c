@@ -436,16 +436,31 @@ void dj_vm_loadInfusionArchive(dj_vm * vm, dj_di_pointer archive_start, dj_di_po
 			else
 				infusion = dj_vm_loadInfusion(vm, archive_start + AR_EHEADER_SIZE);
 
-			DARJEELING_PRINTF("[%s.di] %d\n",
-					(char *) dj_di_header_getInfusionName(infusion->header),
-					size
-					);
+			//if infusion is not loaded a critical error has occured
+			if (infusion == NULL){
+				DARJEELING_PRINTF("Not enough space to create the infusion : %c%c%c%c%c%c%c%c\n",
+						dj_di_getU8(archive_start+0),
+						dj_di_getU8(archive_start+1),
+						dj_di_getU8(archive_start+2),
+						dj_di_getU8(archive_start+3),
+						dj_di_getU8(archive_start+4),
+						dj_di_getU8(archive_start+5),
+						dj_di_getU8(archive_start+6),
+						dj_di_getU8(archive_start+7)
+				);
+		        dj_panic(DJ_PANIC_OUT_OF_MEMORY);
+			}
+			else
+				DARJEELING_PRINTF("[%s.di] %ld\n",
+						(char *) dj_di_header_getInfusionName(infusion->header),
+						size
+						);
 			for (i=0; i<numHandlers; i++)
 				if (dj_di_strEquals(dj_di_header_getInfusionName(infusion->header), native_handlers[i].name))
 					infusion->native_handler = native_handlers[i].handler;
 
 			// run class initialisers for this infusion
-			dj_vm_runClassInitialisers(vm, infusion);
+			infusion = dj_vm_runClassInitialisers(vm, infusion);
 
 			// find the entry point for the infusion
 			if ((entryPoint.entity_id=dj_di_header_getEntryPoint(infusion->header))!=255)
@@ -1036,6 +1051,7 @@ inline dj_global_id dj_vm_getRuntimeClass(dj_vm *vm, runtime_id_t id)
 
 	// TODO raise error, class not found
 	DEBUG_LOG("error: class not found: %d\n", id);
+	DARJEELING_PRINTF("error: class not found: %d\n", id);
     dj_panic(DJ_PANIC_ILLEGAL_INTERNAL_STATE);
 
     // dead code to make compiler happy
@@ -1061,7 +1077,7 @@ dj_infusion *dj_vm_getSystemInfusion(dj_vm *vm)
  * and for statements like <code>static int foo = 1;</code>.
  * @param vm the virtual machine context
  */
-void dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
+dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 {
 	int i;
 	dj_thread * thread;
@@ -1070,20 +1086,27 @@ void dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 
 	// create a new thread object to run the <CLINIT> methods in
 	thread = dj_thread_create();
+	if (thread == NULL){
+		DARJEELING_PRINTF("Not enough space for class initializer in infusion %s\n", (char *) dj_di_header_getInfusionName(infusion->header));
+		dj_panic(DJ_PANIC_OUT_OF_MEMORY);
+	}
 	thread->id = -1;
 	dj_vm_addThread(vm, thread);
 
 	// the infusion for all of the <CINIT> methods we're executing is the same
 	methodImplId.infusion = infusion;
-
+	dj_mem_pushCompactionUpdateStack(VOIDP_TO_REF(infusion));
 	// iterate over the class list and execute any class initialisers that are encountered
-	for (i=0; i<dj_di_parentElement_getListSize(infusion->classList); i++)
+
+	int size = dj_di_parentElement_getListSize(methodImplId.infusion->classList);
+	for (i=0; i< size; i++)
 	{
-		dj_di_pointer classDef = dj_di_parentElement_getChild(infusion->classList, i);
+		dj_di_pointer classDef = dj_di_parentElement_getChild(methodImplId.infusion->classList, i);
 		methodImplId.entity_id = dj_di_classDefinition_getCLInit(classDef);
 
 		if (methodImplId.entity_id!=255)
 		{
+		DEBUG_LOG("\nInfusion is %p->%d\n", methodImplId.infusion, methodImplId.infusion->classList);
 
 			// create a frame to run the initialiser in
 			frame = dj_frame_create(methodImplId);
@@ -1092,6 +1115,7 @@ void dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 		    if (frame==NULL)
 		    {
 		        DEBUG_LOG("dj_vm_runClassInitialisers: could not create frame. Panicking\n");
+		        DARJEELING_PRINTF("Not enough space to create a frame\n");
 		        dj_panic(DJ_PANIC_OUT_OF_MEMORY);
 		    }
 
@@ -1100,8 +1124,11 @@ void dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 			dj_exec_activate_thread(thread);
 
 			// execute the method
-			while (thread->status!=THREADSTATUS_FINISHED)
+			while (dj_exec_getCurrentThread()->status!=THREADSTATUS_FINISHED){
 				dj_exec_run(RUNSIZE);
+				//if there was a garbage collection in between
+			}
+			DEBUG_LOG("\nInfusion changed to %p->%d\n", methodImplId.infusion, methodImplId.infusion->classList);
 		}
 	}
 
@@ -1109,5 +1136,7 @@ void dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 	dj_vm_removeThread(vm, thread);
 	dj_thread_destroy(thread);
 	vm->currentThread = NULL;
+	dj_mem_popCompactionUpdateStack();
+	return methodImplId.infusion;
 }
 
