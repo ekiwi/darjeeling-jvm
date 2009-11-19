@@ -46,12 +46,16 @@
 #if MAZANIN_IS_DEBUGGING
 #include "stdio.h"
 extern FILE *logFile;
+#define MAZANIN_ASSEMBLY_DEBUG(...)
 #define MAZANIN_DEBUG(...) fprintf(logFile, __VA_ARGS__)
 #define MAZANIN_DEBUG_PREFIX fprintf(logFile, "(DEBUG in node %d)=> ", node_id)
 #define MAZANIN_DEBUG_POSTFIX fprintf(logFile, "\n")
 //#define MAZANIN_DEBUG(...) printf(__VA_ARGS__)
 #else
 #define MAZANIN_DEBUG(...)
+#define MAZANIN_ASSEMBLY_DEBUG(...)
+#define MAZANIN_DEBUG_PREFIX
+#define MAZANIN_DEBUG_POSTFIX
 #endif
 
 #endif
