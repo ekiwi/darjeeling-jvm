@@ -66,7 +66,7 @@ int main(int argc,char* argv[])
 			(dj_di_pointer)di_archive_data,
 			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, length);
 
-	printf("%d infusions loaded\n", dj_vm_countInfusions(vm));
+	DARJEELING_PRINTF("%d infusions loaded\n", dj_vm_countInfusions(vm));
 
 	// pre-allocate an OutOfMemoryError object
 	obj = dj_vm_createSysLibObject(vm, BASE_CDEF_java_lang_OutOfMemoryError);
