@@ -32,7 +32,7 @@ public class Child extends Parent
 		public void setRoutingPull(boolean pull)
 		{
 			if (pull){
-				bytes[Parent.SIZE] &= 1;
+				bytes[Parent.SIZE] |= 1;
 			}
 			else{
 				bytes[Parent.SIZE] &= ~1;
@@ -42,7 +42,7 @@ public class Child extends Parent
 	public void setCongested(boolean congested)
 	{
 		if (congested){
-			bytes[Parent.SIZE] &= 2;
+			bytes[Parent.SIZE] |= 2;
 		}
 		else{
 			bytes[Parent.SIZE] &= ~2;
