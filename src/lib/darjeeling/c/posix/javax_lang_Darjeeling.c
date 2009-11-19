@@ -28,15 +28,17 @@
 #include "execution.h"
 #include "heap.h"
 #include "djtimer.h"
-
+#include "panic.h"
 // void javax.darjeeling.Darjeeling.assertTrue(int, boolean)
 void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 {
 	// pop argument from the stack
 	int32_t value = dj_exec_stackPopShort();
 	int32_t id = dj_exec_stackPopInt();
-	if (value==0)
+	if (value==0){
 		printf("%c[31mASSERT[%3d] FAILED%c[0m\n", 0x1b, (int)id, 0x1b);
+		dj_panic(DJ_PANIC_ASSERTION_FAILURE);
+	}
 	else
 		printf("%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
 }

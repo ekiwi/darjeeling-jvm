@@ -30,6 +30,7 @@
 #include "djtimer.h"
 #include "tosconfig.h"
 #include "nesc.h"
+#include "panic.h"
 
 // void javax.darjeeling.Darjeeling.assertTrue(int, boolean)
 void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
@@ -47,6 +48,8 @@ void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 			snprintf(tempStr, 35, "%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
 		tossim_printf(tempStr);
 		dj_mem_free (tempStr);
+		if (value ==0)
+			dj_panic(DJ_PANIC_ASSERTION_FAILURE);
 	}
 }
 
