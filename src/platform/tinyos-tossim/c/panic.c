@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "panic.h"
-#include "nesc.h"
+#include "tossim.h"
 
 #include "config.h"
 #include "tosconfig.h"

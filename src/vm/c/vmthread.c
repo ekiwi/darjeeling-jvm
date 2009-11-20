@@ -56,7 +56,10 @@ dj_thread *dj_thread_create_and_run(dj_global_id methodImplId)
     }
 
 	// create a thread to execute the method in
+
+    dj_mem_pushCompactionUpdateStack(VOIDP_TO_REF(frame));
 	dj_thread *ret = dj_thread_create();
+	frame = REF_TO_VOIDP(dj_mem_popCompactionUpdateStack());
 
 	// if we're out of memory, let the caller deal with it
     if (ret==NULL)

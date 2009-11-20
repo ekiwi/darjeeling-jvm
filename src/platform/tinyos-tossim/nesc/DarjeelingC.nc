@@ -47,12 +47,12 @@ implementation
 		return 1;
 	}
 
-	uint32_t nesc_getTime() @C() @spontaneous()
+	uint32_t tossim_getTime() @C() @spontaneous()
 	{
 		return call Timer.getNow();
 	}
 
-	uint16_t nesc_getMaxPayloadLength() @C() @spontaneous()
+	uint16_t tossim_getMaxPayloadLength() @C() @spontaneous()
 	{
 		/*
 		return call RadioPacket.maxPayloadLength();
@@ -60,7 +60,7 @@ implementation
 		return 0;
 	}
 
-	int nesc_send(const char * message, int16_t receiverId, uint16_t length) @C() @spontaneous()
+	int tossim_send(const char * message, int16_t receiverId, uint16_t length) @C() @spontaneous()
 	{
 #ifdef WITH_RADIO
 		radio_count_msg_t * tosmessage;
@@ -100,7 +100,7 @@ TODO : put back ack if needed
 	}
 
 #ifdef WITH_RADIO
-	uint16_t nesc_peekMessageLength() @C() @spontaneous()
+	uint16_t tossim_peekMessageLength() @C() @spontaneous()
 	{
 		if (bufferPos>0)
 		{
@@ -109,18 +109,17 @@ TODO : put back ack if needed
 		else
 			return 0;
 	}
-	void nesc_setBufferIsLocked(char lock){
+	void tossim_setBufferIsLocked(char lock){
 		bufferIsLocked = lock;
 	}
-	void * nesc_popMessageBuffer() @C() @spontaneous()
+	void * tossim_popMessageBuffer() @C() @spontaneous()
 	{
 		int len;
 		
-		int i;
-		nx_uint8_t payload;
+		nx_uint8_t* payload;
 		if (bufferPos>0)
 		{
-			len = nesc_peekMessageLength();
+			len = tossim_peekMessageLength();
 			bufferPos--;
 			payload = (messageBuffer[bufferPos].payload);
 			bufferIsLocked = 0;
@@ -131,12 +130,12 @@ TODO : put back ack if needed
 			return NULL;
 	}
 
-	int nesc_getNrMessages() @C() @spontaneous()
+	int tossim_getNrMessages() @C() @spontaneous()
 	{
 		return bufferPos;
 	}
 
-	int nesc_wasAcked() @C() @spontaneous()
+	int tossim_wasAcked() @C() @spontaneous()
 	{
 		return wasAcked?1:0;
 	}

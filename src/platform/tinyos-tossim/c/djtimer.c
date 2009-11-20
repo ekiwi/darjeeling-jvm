@@ -3,7 +3,7 @@
 #include "djtimer.h"
 #include "types.h"
 
-#include "nesc.h"
+#include "tossim.h"
 
 void dj_timer_init()
 {
@@ -11,5 +11,5 @@ void dj_timer_init()
 
 int32_t dj_timer_getTimeMillis()
 {
-	return nesc_getTime();
+	return tossim_getTime();
 }

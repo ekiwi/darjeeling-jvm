@@ -10,7 +10,7 @@ lines = f.readlines()
 for line in lines:
   s = line.split()
   if (len(s) > 0):
-#    print " ", s[0], " ", s[1], " ", s[2];
+    print " ", s[0], " ", s[1], " ", s[2];
     r.add(int(s[0]), int(s[1]), float(s[2]))
 
 t.addChannel("RadioCountToLedsC", sys.stdout)
@@ -26,13 +26,13 @@ for line in lines:
     for i in range(1, 4):
       t.getNode(i).addNoiseTraceReading(val)
 
-for i in range(1, 0):
+for i in range(1, 4):
   print "Creating noise model for ",i;
-#  t.getNode(i).createNoiseModel()
+  t.getNode(i).createNoiseModel()
 
 t.getNode(1).bootAtTime(100001);
-#t.getNode(2).bootAtTime(800008);
-#t.getNode(3).bootAtTime(1800009);
+t.getNode(2).bootAtTime(800008);
+t.getNode(3).bootAtTime(1800009);
 
 while(t.runNextEvent() != 0):
 	True

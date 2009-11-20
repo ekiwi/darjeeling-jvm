@@ -1077,38 +1077,47 @@ dj_infusion *dj_vm_getSystemInfusion(dj_vm *vm)
  * and for statements like <code>static int foo = 1;</code>.
  * @param vm the virtual machine context
  */
+// TODO niels clean up this function
 dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 {
 	int i;
 	dj_thread * thread;
 	dj_frame * frame;
 	dj_global_id methodImplId;
+	uint8_t infusionId;
+
+	// store infusion ID so that we can get an up-to-date infusion pointer later
+	infusionId = dj_vm_getInfusionId(vm, infusion);
 
 	// create a new thread object to run the <CLINIT> methods in
 	thread = dj_thread_create();
-	if (thread == NULL){
+
+	infusion = dj_vm_getInfusion(vm, infusionId);
+
+	if (thread == NULL)
+	{
 		DARJEELING_PRINTF("Not enough space for class initializer in infusion %s\n", (char *) dj_di_header_getInfusionName(infusion->header));
 		dj_panic(DJ_PANIC_OUT_OF_MEMORY);
 	}
 	thread->id = -1;
-	dj_vm_addThread(vm, thread);
+	dj_vm_addThread(dj_exec_getVM(), thread);
 
-	// the infusion for all of the <CINIT> methods we're executing is the same
-	methodImplId.infusion = infusion;
-	dj_mem_pushCompactionUpdateStack(VOIDP_TO_REF(infusion));
 	// iterate over the class list and execute any class initialisers that are encountered
-
-	int size = dj_di_parentElement_getListSize(methodImplId.infusion->classList);
-	for (i=0; i< size; i++)
+	int size = dj_di_parentElement_getListSize(infusion->classList);
+	for (i=0; i<size; i++)
 	{
-		dj_di_pointer classDef = dj_di_parentElement_getChild(methodImplId.infusion->classList, i);
+		infusion = dj_vm_getInfusion(dj_exec_getVM(), infusionId);
+
+		dj_di_pointer classDef = dj_di_parentElement_getChild(infusion->classList, i);
 		methodImplId.entity_id = dj_di_classDefinition_getCLInit(classDef);
+		methodImplId.infusion = infusion;
 
 		if (methodImplId.entity_id!=255)
 		{
-		DEBUG_LOG("\nInfusion is %p->%d\n", methodImplId.infusion, methodImplId.infusion->classList);
+		DEBUG_LOG("\nInfusion is %p->%d\n", infusion, infusion->classList);
 
 			// create a frame to run the initialiser in
+			methodImplId.infusion = infusion;
 			frame = dj_frame_create(methodImplId);
 
 			// if we're out of memory, panic
@@ -1119,24 +1128,27 @@ dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 		        dj_panic(DJ_PANIC_OUT_OF_MEMORY);
 		    }
 
+		    // thread ID -1 is the thread we're running the class initialisers in.
+		    thread = dj_vm_getThreadById(dj_exec_getVM(),-1);
 		    thread->frameStack = frame;
 		    thread->status = THREADSTATUS_RUNNING;
 			dj_exec_activate_thread(thread);
 
 			// execute the method
-			while (dj_exec_getCurrentThread()->status!=THREADSTATUS_FINISHED){
+			while (dj_vm_getThreadById(dj_exec_getVM(),-1)->status!=THREADSTATUS_FINISHED)
+			{
+				// running the CLINIT method may trigger garbage collection
 				dj_exec_run(RUNSIZE);
-				//if there was a garbage collection in between
 			}
-			DEBUG_LOG("\nInfusion changed to %p->%d\n", methodImplId.infusion, methodImplId.infusion->classList);
+			DEBUG_LOG("\nInfusion changed to %p->%d\n", infusion, infusion->classList);
 		}
 	}
 
 	// clean up the thread
+	thread = dj_vm_getThreadById(dj_exec_getVM(),-1);
 	dj_vm_removeThread(vm, thread);
 	dj_thread_destroy(thread);
 	vm->currentThread = NULL;
-	dj_mem_popCompactionUpdateStack();
-	return methodImplId.infusion;
+	return infusion;
 }
 

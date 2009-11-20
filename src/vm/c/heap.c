@@ -483,25 +483,31 @@ void dj_mem_compact()
 
 void dj_mem_gc()
 {
+	dj_thread * thread;
+
 	DEBUG_LOG("GC start\n");
 	dj_vm *vm = dj_exec_getVM();
-	if (vm == NULL){
+	if (vm == NULL)
+	{
 		DARJEELING_PRINTF("Garbage collection cannot start, the VM is not yet initialized\n");
 		dj_panic(DJ_PANIC_OUT_OF_MEMORY);
 	}
 	// Force the execution engine to store the nr_int_stack and nr_ref_stack in the current frame struct
 	// we need this for the root set marking phase
-	dj_exec_deactivateThread(dj_exec_getCurrentThread());
+
+	thread = dj_exec_getCurrentThread();
+	if (thread && thread->frameStack) dj_exec_deactivateThread(thread);
 
 	dj_mem_mark();
 	dj_mem_compact();
 
 	// re-get the VM instance, it might have been moved
 	vm = dj_exec_getVM();
-	dj_exec_activate_thread(vm->currentThread);
+
+	thread = dj_exec_getCurrentThread();
+	if (thread && thread->frameStack) dj_exec_activate_thread(thread);
 
 	DEBUG_LOG("GC done\n");
-	
 }
 
 //void dj_mem_thread_dump()

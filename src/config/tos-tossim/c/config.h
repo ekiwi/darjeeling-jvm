@@ -64,10 +64,11 @@ char *textBuf;
 							tossim_printf(textBuf);\
 							dj_mem_free(textBuf);}*/
 
-#define MAZANIN_DEBUG(...)  textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
+#define MAZANIN_DEBUG(...)
+/*textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
 							if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
 							tossim_printf(textBuf);\
-							dj_mem_free(textBuf);}
+							dj_mem_free(textBuf);}*/
 
 #define MAZANIN_DEBUG_PREFIX
 #define MAZANIN_DEBUG_POSTFIX tossim_printf("\n")

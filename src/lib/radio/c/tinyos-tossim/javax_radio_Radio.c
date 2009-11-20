@@ -23,7 +23,7 @@
 #include "array.h"
 #include "execution.h"
 #include "jlib_base.h"
-#include "nesc.h"
+#include "tossim.h"
 static short sendThreadId = -1, receiveThreadId = -1;
 
 // void javax.radio.Radio._waitForMessage()
@@ -31,7 +31,7 @@ void javax_radio_Radio_void__waitForMessage()
 {
 	dj_thread * currentThread = dj_exec_getCurrentThread();
 
-	if (nesc_getNrMessages()==0)
+	if (tossim_getNrMessages()==0)
 	{
 
 		// block the current thread for IO
@@ -61,7 +61,7 @@ void javax_radio_Radio_void__broadcast_byte__()
 
 	// get byte array to send
 	dj_int_array * arr = REF_TO_VOIDP(dj_exec_stackPopRef());
-	if (nesc_send((char*)arr->data.bytes, 0xffff, arr->array.length)==0)
+	if (tossim_send((char*)arr->data.bytes, 0xffff, arr->array.length)==0)
 	{
 		// block the current thread for IO
 		currentThread->status = THREADSTATUS_BLOCKED_FOR_IO;
@@ -81,7 +81,7 @@ void javax_radio_Radio_boolean__send_short_byte__()
 	dj_int_array * arr = REF_TO_VOIDP(dj_exec_stackPopRef());
 	int16_t id = dj_exec_stackPopShort();
 
-	if (nesc_send((char*)arr->data.bytes, id, arr->array.length)==0)
+	if (tossim_send((char*)arr->data.bytes, id, arr->array.length)==0)
 	{
 		// block the current thread for IO
 		currentThread->status = THREADSTATUS_BLOCKED_FOR_IO;
@@ -89,14 +89,14 @@ void javax_radio_Radio_boolean__send_short_byte__()
 		dj_exec_breakExecution();
 	}
 
-	dj_exec_stackPushShort(nesc_wasAcked());
+	dj_exec_stackPushShort(tossim_wasAcked());
 
 }
 
 // byte[] javax.radio.Radio._readBytes()
 void javax_radio_Radio_byte____readBytes()
 {
-	int length = nesc_peekMessageLength();
+	int length = tossim_peekMessageLength();
 
 	dj_int_array * arr = dj_int_array_create(T_BYTE, length);
 	if (arr==NULL)
@@ -104,8 +104,8 @@ void javax_radio_Radio_byte____readBytes()
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
 		return;
 	}
-	void * data = nesc_popMessageBuffer();
-	//nesc_setBufferIsLocked(0);
+	void * data = tossim_popMessageBuffer();
+	//tossim_setBufferIsLocked(0);
 	if (data==NULL)
 	{
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
@@ -120,12 +120,12 @@ void javax_radio_Radio_byte____readBytes()
 
 void javax_radio_Radio_byte__getNumMessages()
 {
-	dj_exec_stackPushShort(nesc_getNrMessages());
+	dj_exec_stackPushShort(tossim_getNrMessages());
 }
 
 void javax_radio_Radio_short_getMaxMessageLength()
 {
-	dj_exec_stackPushShort(nesc_getMaxPayloadLength());
+	dj_exec_stackPushShort(tossim_getMaxPayloadLength());
 }
 
 void notify_radio_receive()
@@ -145,7 +145,7 @@ void notify_radio_receive()
 
 void notify_radio_sendDone()
 {
-	dj_thread * sendThread;
+	dj_thread * sendThread = NULL;
 	if (sendThreadId!=-1) sendThread = dj_vm_getThreadById(dj_exec_getVM(), sendThreadId);
 
 	// unblock the thread that was waiting for send
