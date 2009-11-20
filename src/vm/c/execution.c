@@ -752,8 +752,9 @@ void dj_exec_throwHere(dj_object *obj) {
 	dj_exec_throw(obj, pc);
 }
 
-
-char *getExceptionName(int exception_id){
+#ifdef DARJEELING_DEBUG
+char *getExceptionName(int exception_id)
+{
 	switch(exception_id){
 	case BASE_CDEF_java_lang_ArrayStoreException :
 	 return "Array store exception";
@@ -791,6 +792,7 @@ char *getExceptionName(int exception_id){
 		return "Unknown exception";
 	}
 }
+#endif
 /**
  * Throws an exception at the given PC.
  * @see dj_exe_throw_here()
@@ -892,8 +894,10 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
 		// I  think that  at this  point, having  an  explicit failure
 		// would be more useful
 		// printf("Uncaught exception[%d]\n", class_global_id.entity_id);
-		DARJEELING_PRINTF("Uncaught exception[%d] : ", classGlobalId.entity_id);
-		DARJEELING_PRINTF("%s\n", getExceptionName(classGlobalId.entity_id));
+#ifdef DARJEELING_DEBUG
+		DARJEELING_PRINTF("Uncaught exception[%d] : \n", classGlobalId.entity_id);
+		DARJEELING_PRINTF("\t%s\n", getExceptionName(classGlobalId.entity_id));
+#endif
 		dj_panic(DJ_PANIC_UNCAUGHT_EXCEPTION);
 	}
 }
