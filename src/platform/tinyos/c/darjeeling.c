@@ -43,8 +43,8 @@ void dj_init()
 	// load the embedded infusions
 
 	dj_named_native_handler handlers[] = {
-			{ "base", &base_native_handler },
-			{ "darjeeling", &darjeeling_native_handler }
+			{ PSTR("base"), &base_native_handler },
+			{ PSTR("darjeeling"), &darjeeling_native_handler }
 #ifdef WITH_RADIO
 			,{ PSTR("radio"), &radio_native_handler }
 #endif
