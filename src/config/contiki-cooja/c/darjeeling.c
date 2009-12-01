@@ -36,8 +36,6 @@ static unsigned char *mem;
 static unsigned char mem[HEAPSIZE];
 #endif
 
-static dj_vm *vm;
-
 #if MAZANIN_IS_DEBUGGING
 FILE* logFile;
 #endif
