@@ -36,6 +36,7 @@
 				
 				<!-- include directories -->
 				<includepath>
+					<pathelement path="${platformpath}/../platform/${platform}/c"/>
 					<pathelement path="${platformpath}/../architecture/${architecture}/c"/>
 					<pathelement path="${platformpath}/../config/${configuration}/c"/>
 					<pathelement path="${platformpath}/../vm/c"/>

@@ -31,21 +31,46 @@ module DarjeelingC
 
 implementation
 {
-
 	#define bufferSize 10
-	char bufferIsLocked = 0;
 	message_t radioPacket;
 	radio_count_msg_t messageBuffer[bufferSize];
 	int bufferPos = 0;
 
-	bool radioLocked, ackPending;
-	bool wasAcked;
+	bool radioLocked, ackPending, wasAcked;
+	void * darjeeling_global_variables;
+	void * darjeeling_UGLY_global_variables;
 
+
+	void* tossim_getDarjeelingUglyGlobals() @C() @spontaneous(){
+		return darjeeling_UGLY_global_variables;
+	}
+
+	void tossim_setDarjeelingUglyGlobals(void *UGLY_global_variables) @C() @spontaneous(){
+		darjeeling_UGLY_global_variables = UGLY_global_variables;
+	}
+
+
+	void* tossim_getDarjeelingGlobals() @C() @spontaneous(){
+		return darjeeling_global_variables;
+	}
+
+	void tossim_setDarjeelingGlobals(void *_darjeeling_global_variables) @C() @spontaneous(){
+		darjeeling_global_variables = _darjeeling_global_variables;
+	}
+
+	
 	int tossim_printf(char * string ) @C() @spontaneous()
+	{
+		dbg_clear("OUTPUT", "%c[32mnode %d:%c[0m  %s", 0x1b, sim_node(), 0x1b, string);
+		return 1;
+	}
+
+	int tossim_debug(char * string ) @C() @spontaneous()
 	{
 		dbg("DEBUG", string);
 		return 1;
 	}
+
 
 	uint32_t tossim_getTime() @C() @spontaneous()
 	{
@@ -89,8 +114,9 @@ TODO : put back ack if needed
 */
 
 		// send radioPacket
-		if (call AMSend.send(AM_BROADCAST_ADDR, &radioPacket, sizeof(radio_count_msg_t)) == SUCCESS)
+		if (call AMSend.send(receiverId, &radioPacket, sizeof(radio_count_msg_t)) == SUCCESS)
 		{
+			dbg("DEBUG", "tossim_send: packet sent.\n");
 			radioLocked = TRUE;
 			return 0;
 		}
@@ -109,21 +135,14 @@ TODO : put back ack if needed
 		else
 			return 0;
 	}
-	void tossim_setBufferIsLocked(char lock){
-		bufferIsLocked = lock;
-	}
+
 	void * tossim_popMessageBuffer() @C() @spontaneous()
 	{
 		int len;
-		
-		nx_uint8_t* payload;
 		if (bufferPos>0)
 		{
 			len = tossim_peekMessageLength();
 			bufferPos--;
-			payload = (messageBuffer[bufferPos].payload);
-			bufferIsLocked = 0;
-
 			return (void *) (messageBuffer[bufferPos].payload);
 		}
 		else
@@ -156,6 +175,7 @@ TODO : put back ack if needed
 
 	event void Boot.booted()
 	{
+
 		dj_init();
 #ifdef WITH_RADIO
 	    call AMControl.start();
@@ -182,36 +202,36 @@ TODO : put back ack if needed
 		// push message into the buffer
 		if (bufferPos<bufferSize)
 		{
-//			while (bufferIsLocked);
 			memcpy(&messageBuffer[bufferPos],  payload,  sizeof(radio_count_msg_t));
 
-/*			messageBuffer[bufferPos] = *((radio_count_msg_t*)payload);*/
-//			dbg("DEBUG", "Received packet of length %hhu.\n", messageBuffer[bufferPos].length);
+			dbg("DEBUG", "Received packet of length %hhu.\n", messageBuffer[bufferPos].length);
 			bufferPos++;
-//			bufferIsLocked = 1;
 		}
 		// notify the JVM
 		dj_notifyRadioReceive();
-//		post run();
+		post run();
 
 		return message;
 	}
 
 	event void AMSend.sendDone(message_t* bufPtr, error_t error)
 	{
+		dbg("DEBUG", "AMSend.sendDone started\n");
 	    if (&radioPacket == bufPtr)
 	    {
+
 		radioLocked = FALSE;
 
 		// record whether the last message was acknowledged
-/*		if (ackPending)
+/*
+		if (ackPending)
 			wasAcked = call PacketAcknowledgements.wasAcked(&radioPacket);
 */
 
+		dbg("DEBUG", "notifyRadioSendDone is called\n");
 		dj_notifyRadioSendDone();
-//		post run();
+		post run();
 	    }
-
 	}
 #endif
 }
