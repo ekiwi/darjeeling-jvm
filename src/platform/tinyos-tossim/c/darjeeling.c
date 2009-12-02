@@ -1,5 +1,5 @@
 #include "darjeeling.h"
-
+#include <stdlib.h>
 #include <stdio.h>
 #include "debug.h"
 #include "vm.h"
@@ -14,23 +14,29 @@
 #include "jlib_base.h"
 #include "jlib_darjeeling.h"
 #include "tosconfig.h"
+#include "panic.h"
+#include "tossim.h"
+
 
 #ifdef WITH_RADIO
 #include "jlib_radio.h"
 #endif
 extern unsigned char di_archive_data[];
 extern size_t di_archive_size;
-static unsigned char mem[HEAPSIZE];
-static dj_vm *vm;
-char * ref_t_base_address;
-
-//extern int16_t TOS_NODE_ID;
 
 void dj_init()
 {
+	//before anything starts, define global variables
+	struct tossim_global_variables* global_variables = malloc(sizeof(struct tossim_global_variables));
+	struct tossim_UGLY_global_variables* UGLY_global_variables = malloc(sizeof(struct tossim_UGLY_global_variables));
+	setGlobalVariables(global_variables);
+	setUglyGlobalVariables(UGLY_global_variables);
+
+	dj_vm *vm;
+	unsigned char *mem = malloc(HEAPSIZE);
 	// initialise memory manager
 	dj_mem_init(mem, HEAPSIZE);
-    ref_t_base_address = (char*)mem - 42;
+    _global_ref_t_base_address = (char*)mem - 42;
 
 	// initialise timer
 	dj_timer_init();
@@ -56,27 +62,27 @@ void dj_init()
 		};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
-	dj_vm_loadInfusionArchive(vm,
+	dj_vm_loadInfusionArchive(dj_exec_getVM(),
 			(dj_di_pointer)di_archive_data,
 			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, length);	// load the embedded infusions
 
-	DARJEELING_PRINTF("%d infusions loaded\n", dj_vm_countInfusions(vm));
+	DARJEELING_PRINTF("%d infusions loaded\n", dj_vm_countInfusions(dj_exec_getVM()));
 
 	// pre-allocate an OutOfMemoryError object
-	dj_object *obj = dj_vm_createSysLibObject(vm, BASE_CDEF_java_lang_OutOfMemoryError);
+	dj_object *obj = dj_vm_createSysLibObject(dj_exec_getVM(), BASE_CDEF_java_lang_OutOfMemoryError);
 	dj_mem_setPanicExceptionObject(obj);
 }
 
 uint32_t dj_run()
 {
 	// find thread to schedule
-	dj_vm_schedule(vm);
+	dj_vm_schedule(dj_exec_getVM());
 
 	if (dj_exec_getCurrentThread()!=NULL)
 		if (dj_exec_getCurrentThread()->status==THREADSTATUS_RUNNING){
 			dj_exec_run(RUNSIZE);
 		}
-	return dj_vm_getVMSleepTime(vm);
+	return dj_vm_getVMSleepTime(dj_exec_getVM());
 
 }
 

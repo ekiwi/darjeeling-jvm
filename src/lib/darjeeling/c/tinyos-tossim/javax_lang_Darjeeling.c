@@ -29,8 +29,8 @@
 #include "heap.h"
 #include "djtimer.h"
 #include "tosconfig.h"
-#include "nesc.h"
 #include "panic.h"
+#include "tossim.h"
 
 // void javax.darjeeling.Darjeeling.assertTrue(int, boolean)
 void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
@@ -93,7 +93,7 @@ void javax_darjeeling_Darjeeling_int_getMemFree()
 // int javax.darjeeling.Darjeeling.getNodeId()
 void javax_darjeeling_Darjeeling_int_getNodeId()
 {
-	dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+	dj_exec_stackPushInt(sim_node());
 }
 
 

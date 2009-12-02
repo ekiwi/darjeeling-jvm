@@ -24,7 +24,7 @@
 	<!-- TinyOS tos dir -->
 	<property name="tos" value="${env.TOSDIR}"/>
 
-	<property name="TOS_INCLUDES" value="chips/cc2420/ lib/printf lib/timer lib/serial lib/power interfaces types system"/>
+	<property name="TOS_INCLUDES" value="chips/cc2420/ lib/tossim lib/printf lib/timer lib/serial lib/power interfaces types system"/>
 	
 	<pathconvert property="tosincludepaths" pathsep=" ">
 		<filelist dir="/" files="${TOS_INCLUDES}"/>
@@ -53,9 +53,6 @@
 			<arg value="-fnesc-nido-tosnodes=1000"/>
 			<arg value="-fnesc-simulate"/>
 			<arg value="-fnesc-nido-motenumber=sim_node()"/>
-			<arg value=""/>
-			<arg value=""/>
-			<arg value="-v"/>
 			<arg value="-finline-limit=100000"/>
 			<arg value="-Wall"/>
 			<arg value="-Wshadow"/>
@@ -74,6 +71,14 @@
 			<arg value="-fnesc-dump=interfacedefs"/>
 			<arg value="-fnesc-dump=tags"/>
 			<arg value="-fnesc-dumpfile=app.xml"/>
+			
+			<arg value="-I${tinyosbuildpath}/../../architecture/${architecture}/c"/>
+			<arg value="-I${tinyosbuildpath}/../../platform/${platform}/c"/>
+			<arg value="-I${tinyosbuildpath}/../../config/${configuration}/c"/>
+			<arg value="-I${tinyosbuildpath}/../../lib/base/build"/>
+			<arg value="-I${tinyosbuildpath}/../../lib/darjeeling/build"/>
+			
+			<arg value="-I${tinyosbuildpath}/../../vm/c/"/>
 			<arg value="-I${tinyos-c-src}"/>
 			<arg value="-I${nesc-src}"/>
 		</exec>
@@ -81,7 +86,6 @@
 	<target name="tossim-create" depends="all">
 		<exec executable="g++">
 			<arg value="-c"/>
-			<arg value=""/>
 			<arg value="-shared"/>
 			<arg value="-fPIC"/>
 			<arg value="-o"/>

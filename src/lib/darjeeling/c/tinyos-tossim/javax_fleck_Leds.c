@@ -27,7 +27,7 @@
 #include "jlib_base.h"
 #include "heap.h"
 #include "types.h"
-#include "nesc.h"
+#include "tossim.h"
 // void javax.fleck.Leds.setLed(int, boolean)
 void javax_fleck_Leds_void_setLed_int_boolean()
 {
