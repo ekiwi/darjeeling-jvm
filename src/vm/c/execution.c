@@ -98,7 +98,6 @@ static uint16_t oldPc;
 #ifdef DARJEELING_DEBUG_TRACE
 static int callDepth = 0;
 #endif
-#endif
 //if it is tossim we need a bunch of getter setters,
 //because tossim considers global variables in all nodes to be shared
 /**
