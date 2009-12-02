@@ -91,10 +91,6 @@ static uint8_t nrIntegerParameters;
 static ref_t this;
 
 static int nrOpcodesLeft;
-#ifdef MAZANIN_IS_DEBUGGING
-uint8_t mazaninStackSize = 0;
-#endif
-
 #ifdef DARJEELING_DEBUG
 static uint32_t totalNrOpcodes;
 static uint16_t oldPc;
@@ -102,11 +98,9 @@ static uint16_t oldPc;
 #ifdef DARJEELING_DEBUG_TRACE
 static int callDepth = 0;
 #endif
-
-#ifdef MAZANIN_IS_DEBUGGING
-void print_stack(){}
 #endif
-
+//if it is tossim we need a bunch of getter setters,
+//because tossim considers global variables in all nodes to be shared
 /**
  * Tells the execution engine which VM is currently running. In principle this should be called once in the main.
  * @param _vm the virtual machine to set as the executing VM
@@ -148,10 +142,10 @@ static inline void dj_exec_saveLocalState(dj_frame *frame) {
 	frame->nr_ref_stack = (dj_frame_stackEndOffset(frame) - (char*) refStack)
 			/ sizeof(ref_t);
 
-#ifdef MAZANIN_IS_DEBUGGING
-	MAZANIN_ASSEMBLY_DEBUG("\t----------------------------------------------\n");
-	MAZANIN_ASSEMBLY_DEBUG("\tLocal state saved\n\trefStack\t - \t%p\n\tintStack\t - \t%p\n\tnr_ref_stack\t - \t%d\n\tnr_int_stack\t - \t%d\n\tframe\t\t - \t%p\n", refStack, intStack, frame->nr_ref_stack, frame->nr_int_stack, frame);
-	MAZANIN_ASSEMBLY_DEBUG("\t----------------------------------------------\n");
+#ifdef ASSEMBLY_DEBUGGING
+	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
+	ASSEMBLY_DEBUG("\tLocal state saved\n\trefStack\t - \t%p\n\tintStack\t - \t%p\n\tnr_ref_stack\t - \t%d\n\tnr_int_stack\t - \t%d\n\tframe\t\t - \t%p\n", refStack, intStack, frame->nr_ref_stack, frame->nr_int_stack, frame);
+	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
 #endif
 }
 
@@ -181,22 +175,6 @@ static inline void dj_exec_loadLocalState(dj_frame *frame) {
 	nrIntegerParameters
 			= dj_di_methodImplementation_getIntegerArgumentCount(methodImpl);
 
-	dj_frame * tempFrame = frame;
-#ifdef MAZANIN_IS_DEBUGGING
-
-	MAZANIN_DEBUG("-----------------------\n");
-	MAZANIN_DEBUG("CURRENT THREAD IS : %p\n", dj_exec_getCurrentThread());
-	MAZANIN_DEBUG("\tCURRENT INFUSION IS : %p\n", dj_exec_getCurrentInfusion());
-	MAZANIN_DEBUG("\tMETHOD IMPL : %ld", methodImpl);
-	MAZANIN_DEBUG("\tFRAME TOP : %p", frame);
-	while (tempFrame->parent != NULL){
-		MAZANIN_DEBUG("<- %p", tempFrame->parent);
-		MAZANIN_DEBUG("(%ld)", dj_global_id_getMethodImplementation(
-			tempFrame->parent->method))
-		tempFrame = tempFrame->parent;
-	}
-	MAZANIN_DEBUG("\n");
-#endif
 	if (frame->parent != NULL) {
 		referenceParameters = dj_frame_getReferenceStack(frame->parent)
 				+ nrReferenceParameters - 1;
@@ -214,11 +192,10 @@ static inline void dj_exec_loadLocalState(dj_frame *frame) {
 		integerParameters = NULL;
 
 	}
-#ifdef MAZANIN_IS_DEBUGGING
-	mazaninStackSize = dj_di_methodImplementation_getMaxStack(dj_global_id_getMethodImplementation(frame->method));
-	MAZANIN_ASSEMBLY_DEBUG("\t----------------------------------------------\n");
-	MAZANIN_ASSEMBLY_DEBUG("\tLocal state loaded \n\tmaxStack\t - \t%d\n\trefStack\t - \t%p\n\tintStack\t - \t%p\n\tnr_ref_stack\t - \t%d\n\tnr_int_stack\t - \t%d\n\tframe\t\t - \t%p\n", dj_di_methodImplementation_getMaxStack(dj_global_id_getMethodImplementation(frame->method)), refStack, intStack, frame->nr_ref_stack, frame->nr_int_stack, frame);
-	MAZANIN_ASSEMBLY_DEBUG("\t----------------------------------------------\n");
+#if ASSEMBLY_DEBUGGING
+	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
+	ASSEMBLY_DEBUG("\tLocal state loaded \n\tmaxStack\t - \t%d\n\trefStack\t - \t%p\n\tintStack\t - \t%p\n\tnr_ref_stack\t - \t%d\n\tnr_int_stack\t - \t%d\n\tframe\t\t - \t%p\n", dj_di_methodImplementation_getMaxStack(dj_global_id_getMethodImplementation(frame->method)), refStack, intStack, frame->nr_ref_stack, frame->nr_int_stack, frame);
+	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
 #endif
 
 }
@@ -353,44 +330,24 @@ static inline dj_local_id dj_fetchLocalId() {
  * Pushes an int (32 bit) onto the runtime stack
  */
 static inline void pushInt(int32_t value) {
-#ifdef MAZANIN_IS_DEBUGGING
-	MAZANIN_ASSEMBLY_DEBUG("\t<pushInt {intStack : %p, refStack : %p} - value pushed %d>\n", intStack, refStack, value);
-#endif
 	*((int32_t*) intStack) = value;
 	intStack += 2;
-#ifdef MAZANIN_IS_DEBUGGING
-	mazaninStackSize -= 2;
-	MAZANIN_ASSEMBLY_DEBUG("\tremained stack size : %d\n", mazaninStackSize);
-#endif
 }
 
 /**
  * Pushes a short (16 bit) onto the runtime stack
  */
 static inline void pushShort(int16_t value) {
-#ifdef MAZANIN_IS_DEBUGGING
-	MAZANIN_ASSEMBLY_DEBUG("\t<pushShort {intStack : %p, refStack : %p} - value pushed %d>\n", intStack, refStack, value);
-#endif
 	*intStack = value;
 	intStack++;
-#ifdef MAZANIN_IS_DEBUGGING
-	mazaninStackSize -= 1;
-	MAZANIN_ASSEMBLY_DEBUG("\tremained stack size : %d\n", mazaninStackSize);
-#endif
 }
 
 /**
  * Pushes a reference onto the runtime stack
  */
 static inline void pushRef(ref_t value) {
-
 	refStack--;
 	*refStack = value;
-#ifdef MAZANIN_IS_DEBUGGING
-	MAZANIN_ASSEMBLY_DEBUG("\t<pushRef {intStack : %p, refStack : %p} - ref pushed %p>\n", intStack, refStack, REF_TO_VOIDP(value));
-	mazaninStackSize -= 1;
-	MAZANIN_ASSEMBLY_DEBUG("\tremained stack size : %d\n", mazaninStackSize);
-#endif
 }
 
 /**
@@ -398,11 +355,6 @@ static inline void pushRef(ref_t value) {
  */
 static inline int32_t popInt() {
 	intStack -= 2;
-#ifdef MAZANIN_IS_DEBUGGING
-	MAZANIN_ASSEMBLY_DEBUG("<popInt {intStack : %p} - value popped %d>\n", intStack, *(int32_t*)intStack);
-	mazaninStackSize += 2;
-	MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
 	return *(int32_t*) intStack;
 }
 
@@ -411,11 +363,6 @@ static inline int32_t popInt() {
  */
 static inline int16_t popShort() {
 	intStack--;
-#ifdef MAZANIN_IS_DEBUGGING
-	mazaninStackSize += 1;
-	MAZANIN_ASSEMBLY_DEBUG("\t<popShort {intStack : %p} - value popped %d>\n", intStack, *intStack);
-	MAZANIN_ASSEMBLY_DEBUG("\tremained stack size : %d\n", mazaninStackSize);
-#endif
 	return *intStack;
 }
 
@@ -425,12 +372,6 @@ static inline int16_t popShort() {
 static inline ref_t popRef() {
 	ref_t ret = *refStack;
 	refStack++;
-#ifdef MAZANIN_IS_DEBUGGING
-	mazaninStackSize += 1;
-	MAZANIN_ASSEMBLY_DEBUG("\t<popRef {refStack : %p} - ref popped %p>\n", refStack, REF_TO_VOIDP(ret));
-	MAZANIN_ASSEMBLY_DEBUG("\tremained stack size : %d\n", mazaninStackSize);
-	print_stack();
-#endif
 	return ret;
 }
 
@@ -752,7 +693,7 @@ void dj_exec_throwHere(dj_object *obj) {
 	dj_exec_throw(obj, pc);
 }
 
-#ifdef DARJEELING_DEBUG
+#ifdef IS_SIMULATOR
 char *getExceptionName(int exception_id)
 {
 	switch(exception_id){
@@ -893,10 +834,9 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
 		// terminating the thread is technically a correct beahaviour,
 		// I  think that  at this  point, having  an  explicit failure
 		// would be more useful
-		// printf("Uncaught exception[%d]\n", class_global_id.entity_id);
-#ifdef DARJEELING_DEBUG
-		DARJEELING_PRINTF("Uncaught exception[%d] : \n", classGlobalId.entity_id);
-		DARJEELING_PRINTF("\t%s\n", getExceptionName(classGlobalId.entity_id));
+		// printf("Uncaught exception[%d]\n", classid.entity_id);
+#ifdef IS_SIMULATOR
+		DARJEELING_PRINTF("Uncaught exception[%d] - %c[31m%s%c[0m\n", classGlobalId.entity_id, 0x1b, getExceptionName(classGlobalId.entity_id), 0x1b );
 #endif
 		dj_panic(DJ_PANIC_UNCAUGHT_EXCEPTION);
 	}
@@ -931,17 +871,13 @@ int dj_exec_run(int nrOpcodes) {
 	int32_t temp1, temp2, temp3;
 	ref_t rtemp1, rtemp2, rtemp3;
 
-#ifdef MAZANIN_IS_DEBUGGING
-		MAZANIN_DEBUG("code is %ld\n" , code);
-#endif
 	while (nrOpcodesLeft > 0) {
 		nrOpcodesLeft--;
-
 		opcode = fetch();
 
-#ifdef MAZANIN_IS_DEBUGGING
-		MAZANIN_DEBUG("_%d(pc=%d)_" , opcode, pc);
-		MAZANIN_ASSEMBLY_DEBUG("=====\tOPCODE %d\t=====\n" , opcode);
+#ifdef ASSEMBLY_DEBUGGING
+//		DARJEELING_PRINTF("_%d(pc=%d)\n" , opcode, pc);
+		ASSEMBLY_DEBUG("=====\tOPCODE %d\t=====\n" , opcode);
 #endif
 #ifdef DARJEELING_DEBUG
 		totalNrOpcodes++;
@@ -951,44 +887,44 @@ int dj_exec_run(int nrOpcodes) {
 		switch (opcode) {
 		// arithmetic
 		case JVM_IADD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IADD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IADD\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(+);
 			break;
 		case JVM_ISUB:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISUB\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISUB\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(-);
 			break;
 		case JVM_IMUL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IMUL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IMUL\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(*);
 			break;
 		case JVM_IDIV:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IDIV\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IDIV\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(/);
 			break;
 		case JVM_INEG:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_INEG\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_INEG\t=====\n");
 #endif
 			pushInt(-popInt());
 			break;
 		case JVM_ISHR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISHR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISHR\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(>>);
 			break;
 		case JVM_IUSHR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IUSHR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IUSHR\t=====\n");
 #endif
 
 			temp2 = popInt();
@@ -996,76 +932,76 @@ int dj_exec_run(int nrOpcodes) {
 			pushInt(((uint32_t) temp1) >> temp2);
 			break;
 		case JVM_ISHL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISHL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISHL\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(<<);
 			break;
 		case JVM_IREM:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IREM\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IREM\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(%);
 			break;
 		case JVM_IAND:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IAND\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IAND\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(&);
 			break;
 		case JVM_IOR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IOR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IOR\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(|);
 			break;
 		case JVM_IXOR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IXOR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IXOR\t=====\n");
 #endif
 			INT_ARITHMETIC_OP(^);
 			break;
 
 			// arithmetic
 		case JVM_SADD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SADD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SADD\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(+);
 			break;
 		case JVM_SSUB:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSUB\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSUB\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(-);
 			break;
 		case JVM_SMUL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SMUL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SMUL\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(*);
 			break;
 		case JVM_SDIV:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SDIV\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SDIV\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(/);
 			break;
 		case JVM_SNEG:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SNEG\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SNEG\t=====\n");
 #endif
 			pushShort(-popShort());
 			break;
 		case JVM_SSHR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSHR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSHR\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(>>);
 			break;
 		case JVM_SUSHR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SUSHR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SUSHR\t=====\n");
 #endif
 
 			temp2 = popShort();
@@ -1073,85 +1009,85 @@ int dj_exec_run(int nrOpcodes) {
 			pushShort(((uint16_t) temp1) >> temp2);
 			break;
 		case JVM_SSHL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSHL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSHL\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(<<);
 			break;
 		case JVM_SREM:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SREM\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SREM\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(%);
 			break;
 		case JVM_SAND:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SAND\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SAND\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(&);
 			break;
 		case JVM_SOR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SOR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SOR\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(|);
 			break;
 		case JVM_SXOR:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SXOR\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SXOR\t=====\n");
 #endif
 			SHORT_ARITHMETIC_OP(^);
 			break;
 
 			// TODO use peekInt/pokeInt
 		case JVM_I2B:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_I2B\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_I2B\t=====\n");
 #endif
 			pushShort((int8_t) popInt());
 			break;
 		case JVM_I2C:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_I2C\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_I2C\t=====\n");
 #endif
 			pushShort((int8_t) popInt());
 			break;
 		case JVM_I2S:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_I2S\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_I2S\t=====\n");
 #endif
 			pushShort((int16_t) popInt());
 			break;
 
 		case JVM_S2B:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_S2B\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_S2B\t=====\n");
 #endif
 			pushShort((int8_t) popShort());
 			break;
 		case JVM_S2C:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_S2C\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_S2C\t=====\n");
 #endif
 			pushShort((int8_t) popShort());
 			break;
 		case JVM_S2I:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_S2I\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_S2I\t=====\n");
 #endif
 			pushInt((int32_t) popShort());
 			break;
 
 		case JVM_B2C:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_B2C\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_B2C\t=====\n");
 #endif
 			// TODO keep this opcode?
 			break;
 
 		case JVM_IINC:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IINC\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IINC\t=====\n");
 #endif
 
 			temp1 = fetch();
@@ -1160,8 +1096,8 @@ int dj_exec_run(int nrOpcodes) {
 			break;
 
 		case JVM_IINC_W:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IINC_W\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IINC_W\t=====\n");
 #endif
 
 			temp1 = fetch();
@@ -1170,8 +1106,8 @@ int dj_exec_run(int nrOpcodes) {
 			break;
 
 		case JVM_SINC:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SINC\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SINC\t=====\n");
 #endif
 
 			temp1 = fetch();
@@ -1180,8 +1116,8 @@ int dj_exec_run(int nrOpcodes) {
 			break;
 
 		case JVM_SINC_W:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SINC_W\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SINC_W\t=====\n");
 #endif
 
 			temp1 = fetch();
@@ -1191,44 +1127,44 @@ int dj_exec_run(int nrOpcodes) {
 
 			// stack and local variables
 		case JVM_ICONST_M1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_\t=====\n");
 #endif
 			pushInt(-1);
 			break;
 		case JVM_ICONST_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICONST_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICONST_0\t=====\n");
 #endif
 			pushInt(0);
 			break;
 		case JVM_ICONST_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICONST_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICONST_1\t=====\n");
 #endif
 			pushInt(1);
 			break;
 		case JVM_ICONST_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICONST_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICONST_2\t=====\n");
 #endif
 			pushInt(2);
 			break;
 		case JVM_ICONST_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICONST_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICONST_3\t=====\n");
 #endif
 			pushInt(3);
 			break;
 		case JVM_ICONST_4:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICONST_4\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICONST_4\t=====\n");
 #endif
 			pushInt(4);
 			break;
 		case JVM_ICONST_5:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICONST_5\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICONST_5\t=====\n");
 #endif
 			pushInt(5);
 			break;
@@ -1237,344 +1173,313 @@ int dj_exec_run(int nrOpcodes) {
 			pushShort(-1);
 			break;
 		case JVM_SCONST_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCONST_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCONST_0\t=====\n");
 #endif
 			pushShort(0);
 			break;
 		case JVM_SCONST_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCONST_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCONST_1\t=====\n");
 #endif
 			pushShort(1);
 			break;
 		case JVM_SCONST_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCONST_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCONST_2\t=====\n");
 #endif
 			pushShort(2);
 			break;
 		case JVM_SCONST_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCONST_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCONST_3\t=====\n");
 #endif
 			pushShort(3);
 			break;
 		case JVM_SCONST_4:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCONST_4\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCONST_4\t=====\n");
 #endif
 			pushShort(4);
 			break;
 		case JVM_SCONST_5:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCONST_5\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCONST_5\t=====\n");
 #endif
 			pushShort(5);
 			break;
 
 		case JVM_BIPUSH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_BIPUSH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_BIPUSH\t=====\n");
 #endif
 			pushInt((int8_t) fetch());
 			break;
 		case JVM_BSPUSH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_BSPUSH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_BSPUSH\t=====\n");
 #endif
 			pushShort((int8_t) fetch());
 			break;
 		case JVM_SIPUSH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SIPUSH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SIPUSH\t=====\n");
 #endif
 			pushInt((int16_t) fetch16());
 			break;
 		case JVM_SSPUSH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSPUSH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSPUSH\t=====\n");
 #endif
 			pushShort((int16_t) fetch16());
 			break;
 		case JVM_IIPUSH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IIPUSH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IIPUSH\t=====\n");
 #endif
 			pushInt((int32_t) fetch32());
 			break;
 
 		case JVM_LDS:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_LDS\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_LDS\t=====\n");
 #endif
 			LDS();
 			break;
 
 		case JVM_ISTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISTORE\t=====\n");
 #endif
 			setLocalInt(fetch(), popInt());
 			break;
 		case JVM_ISTORE_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISTORE_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_0\t=====\n");
 #endif
 			setLocalInt(0, popInt());
 			break;
 		case JVM_ISTORE_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISTORE_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_1\t=====\n");
 #endif
 			setLocalInt(1, popInt());
 			break;
 		case JVM_ISTORE_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISTORE_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_2\t=====\n");
 #endif
 			setLocalInt(2, popInt());
 			break;
 		case JVM_ISTORE_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ISTORE_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_3\t=====\n");
 #endif
 			setLocalInt(3, popInt());
 			break;
 
 		case JVM_ILOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ILOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ILOAD\t=====\n");
 #endif
 			pushInt(getLocalInt(fetch()));
 			break;
 		case JVM_ILOAD_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ILOAD_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_0\t=====\n");
 #endif
 			pushInt(getLocalInt(0));
 			break;
 		case JVM_ILOAD_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ILOAD_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_1\t=====\n");
 #endif
 			pushInt(getLocalInt(1));
 			break;
 		case JVM_ILOAD_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ILOAD_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_2\t=====\n");
 #endif
 			pushInt(getLocalInt(2));
 			break;
 		case JVM_ILOAD_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ILOAD_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_3\t=====\n");
 #endif
 			pushInt(getLocalInt(3));
 			break;
 
 		case JVM_SSTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSTORE\t=====\n");
 #endif
 			setLocalShort(fetch(), popShort());
 			break;
 		case JVM_SSTORE_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSTORE_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_0\t=====\n");
 #endif
 			setLocalShort(0, popShort());
 			break;
 		case JVM_SSTORE_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSTORE_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_1\t=====\n");
 #endif
 			setLocalShort(1, popShort());
 			break;
 		case JVM_SSTORE_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSTORE_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_2\t=====\n");
 #endif
 			setLocalShort(2, popShort());
 			break;
 		case JVM_SSTORE_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SSTORE_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_3\t=====\n");
 #endif
 			setLocalShort(3, popShort());
 			break;
 
 		case JVM_SLOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SLOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SLOAD\t=====\n");
 #endif
 			pushShort(getLocalShort(fetch()));
 			break;
 		case JVM_SLOAD_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SLOAD_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_0\t=====\n");
 #endif
 			pushShort(getLocalShort(0));
 			break;
 		case JVM_SLOAD_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SLOAD_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_1\t=====\n");
 #endif
 			pushShort(getLocalShort(1));
 			break;
 		case JVM_SLOAD_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SLOAD_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_2\t=====\n");
 #endif
 			pushShort(getLocalShort(2));
 			break;
 		case JVM_SLOAD_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SLOAD_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_3\t=====\n");
 #endif
 			pushShort(getLocalShort(3));
 			break;
 
 		case JVM_ACONST_NULL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ACONST_NULL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ACONST_NULL\t=====\n");
 #endif
 			pushRef(nullref);
 			break;
 
 		case JVM_ALOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ALOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ALOAD\t=====\n");
 #endif
 			pushRef(getLocalRef(fetch()));
 			break;
 		case JVM_ALOAD_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ALOAD_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_0\t=====\n");
 #endif
 			pushRef(getLocalRef(0));
 			break;
 		case JVM_ALOAD_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ALOAD_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_1\t=====\n");
 #endif
 			pushRef(getLocalRef(1));
 			break;
 		case JVM_ALOAD_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ALOAD_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_2\t=====\n");
 #endif
 			pushRef(getLocalRef(2));
 			break;
 		case JVM_ALOAD_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ALOAD_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_3\t=====\n");
 #endif
 			pushRef(getLocalRef(3));
 			break;
 
 		case JVM_ASTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ASTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ASTORE\t=====\n");
 #endif
 			setLocalRef(fetch(), popRef());
 			break;
 		case JVM_ASTORE_0:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ASTORE_0\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_0\t=====\n");
 #endif
 			setLocalRef(0, popRef());
 			break;
 		case JVM_ASTORE_1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ASTORE_1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_1\t=====\n");
 #endif
 			setLocalRef(1, popRef());
 			break;
 		case JVM_ASTORE_2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ASTORE_2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_2\t=====\n");
 #endif
 			setLocalRef(2, popRef());
 			break;
 		case JVM_ASTORE_3:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ASTORE_3\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_3\t=====\n");
 #endif
 			setLocalRef(3, popRef());
 			break;
 
 			// Integer stack operations
 		case JVM_IPOP:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IPOP\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IPOP\t=====\n");
 #endif
-
 			intStack--;
-#ifdef MAZANIN_IS_DEBUGGING
-			mazaninStackSize += 1;
-			MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
-
 			break;
 
 		case JVM_IPOP2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IPOP2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IPOP2\t=====\n");
 #endif
 
 			intStack -= 2;
-#ifdef MAZANIN_IS_DEBUGGING
-			mazaninStackSize += 2;
-			MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
-
 			break;
 
 		case JVM_IDUP:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IDUP\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IDUP\t=====\n");
 #endif
 			*intStack = *(intStack - 1);
 			intStack++;
-#ifdef MAZANIN_IS_DEBUGGING
-			mazaninStackSize -= 1;
-			MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
-
 			break;
 
 		case JVM_IDUP2:
 
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IDUP2\t=====\n");
-			MAZANIN_ASSEMBLY_DEBUG("intStack -1 : %d, intStack - 2 : %d\n", *(intStack - 1), *(intStack - 2));
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IDUP2\t=====\n");
+			ASSEMBLY_DEBUG("intStack -1 : %d, intStack - 2 : %d\n", *(intStack - 1), *(intStack - 2));
 #endif
 
 			*(intStack + 1) = *(intStack - 1);
 			*(intStack) = *(intStack - 2);
 
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("intStack + 1 : %d, intStack : %d\n", *(intStack + 1), *(intStack));
-			MAZANIN_ASSEMBLY_DEBUG("intStack : %p, *intStack : %d\n", intStack, *intStack);
-#endif
-
 			intStack += 2;
-
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("intStack : %p, *intStack : %d\n", intStack, *intStack);
-			mazaninStackSize -= 2;
-#endif
-
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
-
 			break;
 
 		case JVM_IDUP_X:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IDUP_X\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IDUP_X\t=====\n");
 #endif
 
 			m = fetch();
@@ -1603,8 +1508,8 @@ int dj_exec_run(int nrOpcodes) {
 
 			// TODO make faster
 		case JVM_IDUP_X1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IDUP_X1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IDUP_X1\t=====\n");
 #endif
 
 			temp1 = popShort();
@@ -1616,8 +1521,8 @@ int dj_exec_run(int nrOpcodes) {
 
 			// TODO make faster
 		case JVM_IDUP_X2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IDUP_X2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IDUP_X2\t=====\n");
 #endif
 
 			temp1 = popShort();
@@ -1631,68 +1536,42 @@ int dj_exec_run(int nrOpcodes) {
 
 			// Reference stack operations
 		case JVM_APOP:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_APOP\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_APOP\t=====\n");
 #endif
 
 			refStack++;
-
-#ifdef MAZANIN_IS_DEBUGGING
-			mazaninStackSize += 1;
-			MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
-
 			break;
 
 		case JVM_APOP2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_APOP2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_APOP2\t=====\n");
 #endif
-
 			refStack += 2;
-
-#ifdef MAZANIN_IS_DEBUGGING
-			mazaninStackSize += 2;
-			MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
 			break;
 
 		case JVM_ADUP:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ADUP\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ADUP\t=====\n");
 #endif
-
 			refStack--;
-#ifdef MAZANIN_IS_DEBUGGING
-			mazaninStackSize -= 1;
-#endif
 			*refStack = *(refStack + 1);
-
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("*refstack %d, *refstack+1 %d\n", *refStack, *(refStack + 1));
-			MAZANIN_ASSEMBLY_DEBUG("refstack %p, refstack+1 %p\n", refStack, refStack + 1);
-			MAZANIN_ASSEMBLY_DEBUG("remained stack size : %d\n", mazaninStackSize);
-#endif
-
 			break;
 
 		case JVM_ADUP2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ADUP2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ADUP2\t=====\n");
 #endif
 
 			refStack -= 2;
 			*(refStack) = *(refStack + 2);
 			*(refStack + 1) = *(refStack + 3);
-#ifdef MAZANIN_IS_DEBUGGING
-			mazaninStackSize -= 2;
-#endif
 			break;
 
 			// TODO make faster
 		case JVM_ADUP_X1:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ADUP_X1\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ADUP_X1\t=====\n");
 #endif
 
 			rtemp1 = popRef();
@@ -1704,8 +1583,8 @@ int dj_exec_run(int nrOpcodes) {
 
 			// TODO make faster
 		case JVM_ADUP_X2:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ADUP_X2\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ADUP_X2\t=====\n");
 #endif
 
 			rtemp1 = popRef();
@@ -1719,501 +1598,497 @@ int dj_exec_run(int nrOpcodes) {
 
 			// program flow
 		case JVM_GOTO:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GOTO\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GOTO\t=====\n");
 #endif
 			GOTO();
 			break;
 
 		case JVM_IF_ICMPEQ:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICMPEQ\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICMPEQ\t=====\n");
 #endif
 			IF_ICMPEQ();
 			break;
 		case JVM_IF_ICMPNE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICMPNE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICMPNE\t=====\n");
 #endif
 			IF_ICMPNE();
 			break;
 		case JVM_IF_ICMPLT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICMPLT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICMPLT\t=====\n");
 #endif
 			IF_ICMPLT();
 			break;
 		case JVM_IF_ICMPGE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICMPGE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICMPGE\t=====\n");
 #endif
 			IF_ICMPGE();
 			break;
 		case JVM_IF_ICMPGT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICMPGT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICMPGT\t=====\n");
 #endif
 			IF_ICMPGT();
 			break;
 		case JVM_IF_ICMPLE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ICMPLE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ICMPLE\t=====\n");
 #endif
 			IF_ICMPLE();
 			break;
 
 		case JVM_IF_SCMPEQ:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCMPEQ\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCMPEQ\t=====\n");
 #endif
 			IF_SCMPEQ();
 			break;
 		case JVM_IF_SCMPNE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCMPNE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCMPNE\t=====\n");
 #endif
 			IF_SCMPNE();
 			break;
 		case JVM_IF_SCMPLT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCMPLT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCMPLT\t=====\n");
 #endif
 			IF_SCMPLT();
 			break;
 		case JVM_IF_SCMPGE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCMPGE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCMPGE\t=====\n");
 #endif
 			IF_SCMPGE();
 			break;
 		case JVM_IF_SCMPGT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCMPGT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCMPGT\t=====\n");
 #endif
 			IF_SCMPGT();
 			break;
 		case JVM_IF_SCMPLE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SCMPLE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SCMPLE\t=====\n");
 #endif
 			IF_SCMPLE();
 			break;
 
 		case JVM_IIFEQ:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IIFEQ\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IIFEQ\t=====\n");
 #endif
 			IIFEQ();
 			break;
 		case JVM_IIFNE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IIFNE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IIFNE\t=====\n");
 #endif
 			IIFNE();
 			break;
 		case JVM_IIFLT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IIFLT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IIFLT\t=====\n");
 #endif
 			IIFLT();
 			break;
 		case JVM_IIFGE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IIFGE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IIFGE\t=====\n");
 #endif
 			IIFGE();
 			break;
 		case JVM_IIFGT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IIFGT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IIFGT\t=====\n");
 #endif
 			IIFGT();
 			break;
 		case JVM_IIFLE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IIFLE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IIFLE\t=====\n");
 #endif
 			IIFLE();
 			break;
 
 		case JVM_SIFEQ:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SIFEQ\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SIFEQ\t=====\n");
 #endif
 			SIFEQ();
 			break;
 		case JVM_SIFNE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SIFNE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SIFNE\t=====\n");
 #endif
 			SIFNE();
 			break;
 		case JVM_SIFLT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SIFLT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SIFLT\t=====\n");
 #endif
 			SIFLT();
 			break;
 		case JVM_SIFGE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SIFGE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SIFGE\t=====\n");
 #endif
 			SIFGE();
 			break;
 		case JVM_SIFGT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SIFGT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SIFGT\t=====\n");
 #endif
 			SIFGT();
 			break;
 		case JVM_SIFLE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SIFLE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SIFLE\t=====\n");
 #endif
 			SIFLE();
 			break;
 
 		case JVM_IF_ACMPEQ:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IF_ACMPEQ\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IF_ACMPEQ\t=====\n");
 #endif
 			IF_ACMPEQ();
 			break;
 		case JVM_IF_ACMPNE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IF_ACMPNE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IF_ACMPNE\t=====\n");
 #endif
 			IF_ACMPNE();
 			break;
 		case JVM_IFNULL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IFNULL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IFNULL\t=====\n");
 #endif
 			IFNULL();
 			break;
 		case JVM_IFNONNULL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IFNONNULL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IFNONNULL\t=====\n");
 #endif
 			IFNONNULL();
 			break;
 
 		case JVM_RETURN:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_RETURN\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_RETURN\t=====\n");
 #endif
 			RETURN();
 			break;
 		case JVM_IRETURN:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IRETURN\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IRETURN\t=====\n");
 #endif
 			IRETURN();
 			break;
 		case JVM_SRETURN:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SRETURN\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SRETURN\t=====\n");
 #endif
 			SRETURN();
 			break;
 		case JVM_ARETURN:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ARETURN\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ARETURN\t=====\n");
 #endif
 			ARETURN();
 			break;
 		case JVM_INVOKESTATIC:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_INVOKESTATIC\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_INVOKESTATIC\t=====\n");
 #endif
 			INVOKESTATIC();
 			break;
 		case JVM_INVOKESPECIAL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_INVOKESPECIAL\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_INVOKESPECIAL\t=====\n");
 #endif
 			INVOKESPECIAL();
 			break;
 		case JVM_INVOKEVIRTUAL:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_INVOKEVIRTUAL\t=====\n");
-#endif
-
-#ifdef MAZANIN_IS_DEBUGGING
-			print_stack();
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_INVOKEVIRTUAL\t=====\n");
 #endif
 
 			INVOKEVIRTUAL();
 			break;
 		case JVM_INVOKEINTERFACE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_INVOKEINTERFACE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_INVOKEINTERFACE\t=====\n");
 #endif
 			INVOKEINTERFACE();
 			break;
 
 			// monitors
 		case JVM_MONITORENTER:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_MONITORENTER\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_MONITORENTER\t=====\n");
 #endif
 			MONITORENTER();
 			break;
 		case JVM_MONITOREXIT:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_MONITOREXIT\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_MONITOREXIT\t=====\n");
 #endif
 			MONITOREXIT();
 			break;
 
 			// arrays and classes
 		case JVM_NEW:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_NEW\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_NEW\t=====\n");
 #endif
 			NEW();
 			break;
 		case JVM_INSTANCEOF:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_INSTANCEOF\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_INSTANCEOF\t=====\n");
 #endif
 			INSTANCEOF();
 			break;
 		case JVM_CHECKCAST:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_CHECKCAST\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_CHECKCAST\t=====\n");
 #endif
 			CHECKCAST();
 			break;
 
 		case JVM_NEWARRAY:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_NEWARRAY\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_NEWARRAY\t=====\n");
 #endif
 			NEWARRAY();
 			break;
 		case JVM_ANEWARRAY:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ANEWARRAY\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ANEWARRAY\t=====\n");
 #endif
 			ANEWARRAY();
 			break;
 		case JVM_ARRAYLENGTH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ARRAYLENGTH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ARRAYLENGTH\t=====\n");
 #endif
 			ARRAYLENGTH();
 			break;
 		case JVM_BASTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_BASTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_BASTORE\t=====\n");
 #endif
 			BASTORE();
 			break;
 		case JVM_CASTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_CASTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_CASTORE\t=====\n");
 #endif
 			CASTORE();
 			break;
 		case JVM_SASTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SASTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SASTORE\t=====\n");
 #endif
 			SASTORE();
 			break;
 		case JVM_IASTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IASTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IASTORE\t=====\n");
 #endif
 			IASTORE();
 			break;
 		case JVM_AASTORE:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_AASTORE\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_AASTORE\t=====\n");
 #endif
 			AASTORE();
 			break;
 
 		case JVM_BALOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_BALOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_BALOAD\t=====\n");
 #endif
 			BALOAD();
 			break;
 		case JVM_CALOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_CALOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_CALOAD\t=====\n");
 #endif
 			CALOAD();
 			break;
 		case JVM_SALOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_SALOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_SALOAD\t=====\n");
 #endif
 			SALOAD();
 			break;
 		case JVM_IALOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_IALOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_IALOAD\t=====\n");
 #endif
 			IALOAD();
 			break;
 		case JVM_AALOAD:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_AALOAD\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_AALOAD\t=====\n");
 #endif
 			AALOAD();
 			break;
 
 		case JVM_GETSTATIC_I:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_I\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_I\t=====\n");
 #endif
 			GETSTATIC_I();
 			break;
 		case JVM_GETSTATIC_A:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_A\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_A\t=====\n");
 #endif
 			GETSTATIC_A();
 			break;
 		case JVM_GETSTATIC_B:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_B\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_B\t=====\n");
 #endif
 			GETSTATIC_B();
 			break;
 		case JVM_GETSTATIC_C:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_C\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_C\t=====\n");
 #endif
 			GETSTATIC_C();
 			break;
 		case JVM_GETSTATIC_S:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_S\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_S\t=====\n");
 #endif
 			GETSTATIC_S();
 			break;
 
 		case JVM_PUTSTATIC_I:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_I\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_I\t=====\n");
 #endif
 			PUTSTATIC_I();
 			break;
 		case JVM_PUTSTATIC_A:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_A\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_A\t=====\n");
 #endif
 			PUTSTATIC_A();
 			break;
 		case JVM_PUTSTATIC_B:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_B\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_B\t=====\n");
 #endif
 			PUTSTATIC_B();
 			break;
 		case JVM_PUTSTATIC_C:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_C\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_C\t=====\n");
 #endif
 			PUTSTATIC_C();
 			break;
 		case JVM_PUTSTATIC_S:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_S\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_S\t=====\n");
 #endif
 			PUTSTATIC_S();
 			break;
 
 		case JVM_GETFIELD_I:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_I\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_I\t=====\n");
 #endif
 			GETFIELD_I();
 			break;
 		case JVM_GETFIELD_A:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_A\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_A\t=====\n");
 #endif
 			GETFIELD_A();
 			break;
 		case JVM_GETFIELD_B:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_B\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_B\t=====\n");
 #endif
 			GETFIELD_B();
 			break;
 		case JVM_GETFIELD_C:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_C\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_C\t=====\n");
 #endif
 			GETFIELD_C();
 			break;
 		case JVM_GETFIELD_S:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_S\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_S\t=====\n");
 #endif
 			GETFIELD_S();
 			break;
 
 		case JVM_PUTFIELD_I:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_I\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_I\t=====\n");
 #endif
 			PUTFIELD_I();
 			break;
 		case JVM_PUTFIELD_A:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_A\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_A\t=====\n");
 #endif
 			PUTFIELD_A();
 			break;
 		case JVM_PUTFIELD_B:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_B\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_B\t=====\n");
 #endif
 			PUTFIELD_B();
 			break;
 		case JVM_PUTFIELD_C:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_C\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_C\t=====\n");
 #endif
 			PUTFIELD_C();
 			break;
 		case JVM_PUTFIELD_S:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_S\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_S\t=====\n");
 #endif
 			PUTFIELD_S();
 			break;
 
 		case JVM_TABLESWITCH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_TABLESWITCH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_TABLESWITCH\t=====\n");
 #endif
 			TABLESWITCH();
 			break;
 		case JVM_LOOKUPSWITCH:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_LOOKUPSWITCH\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_LOOKUPSWITCH\t=====\n");
 #endif
 			LOOKUPSWITCH();
 			break;
 
 		case JVM_ATHROW:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_ATHROW\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_ATHROW\t=====\n");
 #endif
 			ATHROW();
 			break;
 
 			// misc
 		case JVM_NOP:
-#ifdef MAZANIN_IS_DEBUGGING
-			MAZANIN_ASSEMBLY_DEBUG("=====\tJVM_NOP\t=====\n");
+#ifdef ASSEMBLY_DEBUGGING
+			ASSEMBLY_DEBUG("=====\tJVM_NOP\t=====\n");
 #endif
 			/* do nothing */
 			break;
