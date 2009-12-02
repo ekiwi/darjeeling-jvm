@@ -55,8 +55,8 @@ void javax_darjeeling_Darjeeling_void_print_java_lang_String()
 {
 	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
 #ifdef IS_COOJA
-	printf("\n(Node %d) ---> ", node_id);
-	MAZANIN_DEBUG("(Node %d) ---> ", node_id);
+	DARJEELING_PRINTF("\n(Node %d) ---> ", node_id);
+	ASSEMBLY_DEBUG("(Node %d) ---> ", node_id);
 #endif
 	printf("%s", str);
 }
