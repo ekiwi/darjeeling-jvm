@@ -36,7 +36,7 @@ static unsigned char *mem;
 static unsigned char mem[HEAPSIZE];
 #endif
 
-#if MAZANIN_IS_DEBUGGING
+#if ASSEMBLY_DEBUGGING
 FILE* logFile;
 #endif
 
@@ -51,7 +51,7 @@ char * ref_t_base_address;
 void dj_init()
 {
 #ifdef IS_COOJA
-#if MAZANIN_IS_DEBUGGING
+#if ASSEMBLY_DEBUGGING
 	char name[100];
 	sprintf(name, "file%d", node_id);
 	logFile= fopen(name, "w");
