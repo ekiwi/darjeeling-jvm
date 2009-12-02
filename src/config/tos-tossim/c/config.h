@@ -37,43 +37,36 @@
 #ifndef __TEXT_BUF__
 #define __TEXT_BUF__
 #include <stdio.h>
+#include <stdlib.h>
 char *textBuf;
 #endif
+//this define is used to let vm be stored as a global variable in DarjeelingC.nc
+#define IS_TOSSIM
+//this define is used to include excpetion text messages
+#define IS_SIMULATOR
 //#define DARJEELING_PRINTF(...)
-
 #define DARJEELING_PRINTF(...) textBuf = malloc(100);\
-							if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
-							tossim_printf(textBuf);\
+							if (textBuf != NULL) { snprintf(textBuf, 100, __VA_ARGS__);\
+							tossim_debug(textBuf);\
 							free(textBuf);}
+
 
 #define DARJEELING_PGMSPACE_MACRO
 
 
 
-#define MAZANIN_IS_DEBUGGING 1
-#if MAZANIN_IS_DEBUGGING
+#define ASSEMBLY_DEBUGGING 0
+#if ASSEMBLY_DEBUGGING
 #ifndef __TEXT_BUF__
 #define __TEXT_BUF__
 #include <stdio.h>
 char *textBuf;
 #endif
-#define MAZANIN_ASSEMBLY_DEBUG(...)
-/*textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
-
- if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
-							tossim_printf(textBuf);\
-							dj_mem_free(textBuf);}*/
-
-#define MAZANIN_DEBUG(...)
-/*textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
+#define ASSEMBLY_DEBUG(...) textBuf = dj_mem_alloc(65, CHUNKID_REFARRAY);\
 							if (textBuf != NULL) { snprintf(textBuf, 65, __VA_ARGS__);\
-							tossim_printf(textBuf);\
-							dj_mem_free(textBuf);}*/
-
-#define MAZANIN_DEBUG_PREFIX
-#define MAZANIN_DEBUG_POSTFIX tossim_printf("\n")
-//#define MAZANIN_DEBUG(...) printf(__VA_ARGS__)
+							tossim_debug(textBuf);\
+							dj_mem_free(textBuf);}
 #else
-#define MAZANIN_DEBUG(...)
+#define ASSEMBLY_DEBUG(...)
 #endif
 #endif

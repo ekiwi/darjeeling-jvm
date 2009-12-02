@@ -1,5 +1,14 @@
 <project name="tinyos" default="all">
 	<!--
+		Pleaser refer to tossim-ugly-branch 
+		in order to have radio working on tossim,
+		the main problem with tossim is that it simply creates a
+		single thread for all the nodes, so all the memory locations are pointing 
+		to the same places for all nodes,
+		
+		however, if you just want to test the other stuff than radio on tossim you
+		can still use the following instructions
+		
 		in order to run tossim you have to first export 
 		PYTHON_LIBS
 		you can do that by editing env.sh appropriately to your computer setting
@@ -15,8 +24,8 @@
 	-->
 	
 	<!-- include native code for libraries -->
-	<property name="libs" value="base, darjeeling"/>
-	<property name="apps" value="testsuite"/>
+	<property name="libs" value="base, darjeeling, radio"/>
+	<property name="apps" value="ctp"/>
 
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="tinyos-tossim"/>
