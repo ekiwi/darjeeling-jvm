@@ -36,7 +36,8 @@ void serial_printf(char * format, ...);
 // #define DARJEELING_DEBUG_TRACE
 // #define DARJEELING_DEBUG_CHECK_HEAP_SANITY
 // #define DARJEELING_DEBUG_PERFILE
-#define DARJEELING_PRINTF serial_printf
+// #define DARJEELING_PRINTF serial_printf
+#define DARJEELING_PRINTF
 #define DARJEELING_PGMSPACE_MACRO
 
 #endif
