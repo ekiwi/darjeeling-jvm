@@ -22,6 +22,8 @@
 #ifndef __misc_instructions_h
 #define __misc_instructions_h
 
+#include<string.h>
+
 static inline void LDS()
 {
 	uint16_t i;
@@ -50,7 +52,7 @@ static inline void LDS()
 	}
 
 	// create charArray
-	dj_int_array * charArray = dj_int_array_create(T_CHAR, stringLength+1);
+	dj_int_array * charArray = dj_int_array_create(T_CHAR, stringLength);
 
 	// throw OutOfMemoryError
 	if (charArray == NULL)
@@ -63,17 +65,14 @@ static inline void LDS()
 	for (i = 0; i < stringLength; i++)
 		charArray->data.bytes[i] = dj_di_getU8(stringBytes++);
 
-	// append a trailing zero
-	charArray->data.bytes[stringLength] = 0;
-
 	/// initialize object
 	char* stringP = (char*)string;
 	int refOffset = dj_di_classDefinition_getOffsetOfFirstReference(classDef);
 	// string.stringStore is the first reference field, assign it
-	ref_t* string_stringStore = stringP + refOffset;
+	ref_t* string_stringStore = (ref_t*)(stringP + refOffset);
 	*string_stringStore = VOIDP_TO_REF(charArray);
 	// string.offset is the first non-reference field (int), assign it
-	int32_t* string_offset = stringP;
+	int32_t* string_offset = (int32_t*)stringP;
 	*string_offset = 0;
 	// string.offset is the second non-reference field (int), assign it
 	int32_t* string_stringLength = string_offset+1;
