@@ -50,8 +50,8 @@ void javax_darjeeling_Darjeeling_void_gc()
 	dj_mem_gc();
 }
 
-// void javax.darjeeling.Darjeeling.print(java.lang.String)
-void javax_darjeeling_Darjeeling_void_print_java_lang_String()
+// void javax.darjeeling.Darjeeling.printBytesAsString(java.lang.String)
+void javax_darjeeling_Darjeeling_void_printBytesAsString_java_lang_String()
 {
 	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
 #ifdef IS_COOJA

@@ -27,7 +27,9 @@ public class Darjeeling
 
 	public static native void gc();
 	
-	public static native void print(String str);
+	public static void print(String str) {
+		printBytesAsString(str.toZeroTerminatedByteArray());
+	}
 	public static native void print(int i);
 
 	public static void print(byte[] array){
@@ -60,4 +62,6 @@ public class Darjeeling
     public static native int getPulseCounter();
 
     public static native void setExpansionPower(short on);
+    
+    private static native void printBytesAsString(byte[] str);
 }

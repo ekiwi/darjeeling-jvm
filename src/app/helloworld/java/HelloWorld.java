@@ -20,10 +20,8 @@
  */
 import javax.darjeeling.*;
 
-public class HelloWorld
-{
-    public static void main(String args[])
-    {
-    	Darjeeling.print("Hello World\n");
-    }
+public class HelloWorld {
+	public static void main(String args[]) {
+		Darjeeling.print("Hello world!\n");
+	}
 }

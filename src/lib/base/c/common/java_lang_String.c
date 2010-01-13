@@ -27,27 +27,6 @@
 
 #include "jlib_base.h"
 
-// int java.lang.String.length()
-void java_lang_String_int_length()
-{
-	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
-	dj_exec_stackPushInt(strlen(str));
-}
-
-// byte[] java.lang.String.toByteArray()
-void java_lang_String_byte___toByteArray()
-{
-	//you have to consider the last element, if you want to treat it as a string
-	int i;
-	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
-	int size = strlen(str);
-	dj_int_array * byteArray = dj_int_array_create(T_BYTE, size);
-
-	for (i = 0; i < size; i ++)
-		byteArray->data.bytes[i] = str[i];
-	dj_exec_stackPushRef(VOIDP_TO_REF(byteArray));
-}
-
 // java.lang.String java.lang.String.concat(java.lang.String[])
 void java_lang_String_java_lang_String_concat_java_lang_String__()
 {
@@ -144,13 +123,4 @@ void java_lang_String_java_lang_String_join_java_lang_String_java_lang_String__(
 
 	dj_exec_stackPushRef(VOIDP_TO_REF(ret));
 
-}
-
-// boolean java.lang.String.equals(java.lang.String)
-void java_lang_String_boolean_equals_java_lang_String()
-{
-	char *str1 = REF_TO_VOIDP(dj_exec_stackPopRef());
-	char *str2 = REF_TO_VOIDP(dj_exec_stackPopRef());
-
-	dj_exec_stackPushShort(strcmp(str1,str2)==0);
 }

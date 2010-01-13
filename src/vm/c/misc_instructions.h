@@ -34,24 +34,52 @@ static inline void LDS()
 	dj_di_pointer stringBytes = dj_di_stringtable_getElementBytes(string_id.infusion->stringTable, string_id.entity_id);
 	uint16_t stringLength = dj_di_stringtable_getElementLength(string_id.infusion->stringTable, string_id.entity_id);
 
-	// allocate memory to hold the string
-	char *ret = (char*)dj_mem_alloc(stringLength+1, dj_vm_getSysLibClassRuntimeId(dj_exec_getVM(), BASE_CDEF_java_lang_String));
+	// create java String object
+	uint8_t runtime_id = dj_vm_getSysLibClassRuntimeId(dj_exec_getVM(), BASE_CDEF_java_lang_String);
+	dj_di_pointer classDef = dj_vm_getRuntimeClassDefinition(vm, runtime_id);
+	dj_object * string =  dj_object_create(runtime_id,
+			dj_di_classDefinition_getNrRefs(classDef),
+			dj_di_classDefinition_getOffsetOfFirstReference(classDef)
+			);
 
-    // throw OutOfMemoryError
-	if(ret == NULL)
+	// throw OutOfMemoryError
+	if (string == NULL)
 	{
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
 		return;
 	}
 
-	// copy the ASCII string from program space into memory
-	for (i=0; i<stringLength; i++)
-		ret[i] = dj_di_getU8(stringBytes++);
+	// create charArray
+	dj_int_array * charArray = dj_int_array_create(T_CHAR, stringLength+1);
+
+	// throw OutOfMemoryError
+	if (charArray == NULL)
+	{
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
+		return;
+	}
+
+	// coppy ASCII from program space to the array
+	for (i = 0; i < stringLength; i++)
+		charArray->data.bytes[i] = dj_di_getU8(stringBytes++);
 
 	// append a trailing zero
-	ret[stringLength] = 0;
+	charArray->data.bytes[stringLength] = 0;
 
-	pushRef(VOIDP_TO_REF(ret));
+	/// initialize object
+	char* stringP = (char*)string;
+	int refOffset = dj_di_classDefinition_getOffsetOfFirstReference(classDef);
+	// string.stringStore is the first reference field, assign it
+	ref_t* string_stringStore = stringP + refOffset;
+	*string_stringStore = VOIDP_TO_REF(charArray);
+	// string.offset is the first non-reference field (int), assign it
+	int32_t* string_offset = stringP;
+	*string_offset = 0;
+	// string.offset is the second non-reference field (int), assign it
+	int32_t* string_stringLength = string_offset+1;
+	*string_stringLength = stringLength;
+
+	pushRef(VOIDP_TO_REF(string));
 }
 
 static inline void NEW()
@@ -77,7 +105,6 @@ static inline void NEW()
 	}
 
 	pushRef(VOIDP_TO_REF(object));
-
 }
 
 static inline void INSTANCEOF()

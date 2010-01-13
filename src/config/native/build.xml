@@ -4,7 +4,7 @@
 	<property name="libs" value="base, darjeeling"/>
 
 	<!-- Compile these applications -->
-	<property name="apps" value="testsuite"/>
+	<property name="apps" value="helloworld"/>
 
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="posix"/>

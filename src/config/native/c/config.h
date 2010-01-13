@@ -38,5 +38,6 @@
 // #define DARJEELING_DEBUG_PERFILE
 #define DARJEELING_PRINTF printf
 #define DARJEELING_PGMSPACE_MACRO
+#define IS_SIMULATOR
 
 #endif

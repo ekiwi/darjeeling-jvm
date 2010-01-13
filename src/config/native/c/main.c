@@ -57,7 +57,8 @@ int main(int argc,char* argv[])
 
 	dj_named_native_handler handlers[] = {
 			{ "base", &base_native_handler },
-			{ "darjeeling", &darjeeling_native_handler }
+			{ "darjeeling", &darjeeling_native_handler },
+			//{ "extended", &extended_native_handler }
 		};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);

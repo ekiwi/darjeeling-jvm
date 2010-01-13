@@ -25,16 +25,49 @@ public class Integer
 	
 	private int value;
 	
-	public Integer(int value)
-	{
+	public Integer(int value) {
 		this.value = value;
 	}
 	
-	public int intValue()
-	{
+	public int intValue() {
 		return value;
 	}
 	
-	public static native String toString(int i);
-
+	public static String toString(int i) {
+		// base 10 is default
+		return toString(i, 10);
+		
+	}
+	
+	public static String toString(int i, int base) {
+		//TODO: better implementation, maybe native c with atoi?
+		
+		// determine number of digits
+		int abs = i >= 0 ? i : -i;
+		int size = 1;
+		while (abs >= base) {
+			abs /= base;
+			size++;
+		}
+		// reserve space for the '-'
+		if (i < 0)
+			size++;
+		
+		// allocate 
+		char[] charString = new char[size];
+		
+		// convert each digit
+		abs = i >= 0 ? i : -i;
+		while (size > 1) {
+			char ch = (char)('0' + abs % base);
+			charString[--size] = ch;
+			abs /= base;
+		}
+		
+		// prepend '-'
+		if (i < 0)
+			charString[0]='-';
+		return new String(charString);
+		
+	}
 }

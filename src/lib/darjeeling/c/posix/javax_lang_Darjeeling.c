@@ -29,6 +29,7 @@
 #include "heap.h"
 #include "djtimer.h"
 #include "panic.h"
+#include "array.h"
 // void javax.darjeeling.Darjeeling.assertTrue(int, boolean)
 void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 {
@@ -49,11 +50,11 @@ void javax_darjeeling_Darjeeling_void_gc()
 	dj_mem_gc();
 }
 
-// void javax.darjeeling.Darjeeling.print(java.lang.String)
-void javax_darjeeling_Darjeeling_void_print_java_lang_String()
+// void javax.darjeeling.Darjeeling.printBytesAsString(byte[])
+void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
 {
-	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
-	printf("%s", str);
+	dj_int_array* byteStr = REF_TO_VOIDP(dj_exec_stackPopRef());
+	printf("%s", byteStr->data.bytes);
 }
 
 // void javax.darjeeling.Darjeeling.print(int)

@@ -1,7 +1,7 @@
 /*
  *	java_lang_System.c
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008, 2009 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -61,7 +61,7 @@ void java_lang_System_void_arraycopy_java_lang_Object_int_java_lang_Object_int_i
 	}
 
 	// check for out of bounds
-	if ((src_pos<0)||(src_pos+length>=src->length)||(dst_pos<0)||(dst_pos+length>=src->length))
+	if ((src_pos<0)||(src_pos+length>src->length)||(dst_pos<0)||(dst_pos+length>dst->length)||length<0)
 	{
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
 		return;
@@ -72,6 +72,14 @@ void java_lang_System_void_arraycopy_java_lang_Object_int_java_lang_Object_int_i
 	{
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_ArrayStoreException);
 		return;
+	}
+
+	// function to copy with, either use memcpy or memmove
+	void* (*copyFunction)(void*, const void*, size_t) = &memcpy;
+	// use memmove for overlapping memory areas
+	if (src == dst)
+	{
+		copyFunction = &memmove;
 	}
 
 	// integer copy
@@ -88,25 +96,31 @@ void java_lang_System_void_arraycopy_java_lang_Object_int_java_lang_Object_int_i
 			return;
 		}
 
+		size_t size;
 		// copy
 		switch (srcint->type)
 		{
 			case T_BOOLEAN:
 			case T_BYTE:
 			case T_CHAR:
-				memccpy(dstint->data.bytes+length, srcint->data.bytes+length, length, 1);
+				size = sizeof(dstint->data.bytes[0]);
+				copyFunction(dstint->data.bytes+dst_pos, srcint->data.bytes+src_pos, length * size);
+				break;
 			case T_SHORT:
-				memccpy(dstint->data.shorts+length, srcint->data.shorts+length, length, 2);
+				size = sizeof(dstint->data.shorts[0]);
+				copyFunction(dstint->data.shorts+dst_pos, srcint->data.shorts+src_pos, length * size);
+				break;
 			case T_INT:
 			case T_FLOAT:
-				memccpy(dstint->data.ints+length, srcint->data.ints+length, length, 4);
+				size = sizeof(dstint->data.ints[0]);
+				copyFunction(dstint->data.ints+dst_pos, srcint->data.ints+src_pos, length * size);
+				break;
 			case T_LONG:
 			case T_DOUBLE:
-				memccpy(dstint->data.longs+length, srcint->data.longs+length, length, 8);
+				size = sizeof(dstint->data.longs[0]);
+				copyFunction(dstint->data.longs+dst_pos, srcint->data.longs+src_pos, length * size);
 		}
-
-
-	} else
+	} else //reference copy
 	{
 		dj_ref_array *srcref = (dj_ref_array*)src;
 		dj_ref_array *dstref = (dj_ref_array*)dst;
@@ -122,8 +136,7 @@ void java_lang_System_void_arraycopy_java_lang_Object_int_java_lang_Object_int_i
 		}
 
 		// copy references
-		memccpy(dstref->refs, srcref->refs, length, sizeof(ref_t));
-
+		copyFunction(dstref->refs+dst_pos, srcref->refs+src_pos, length * sizeof(ref_t));
 	}
 
 }
