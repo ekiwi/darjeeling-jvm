@@ -399,6 +399,7 @@ void dj_vm_unloadInfusion(dj_vm *vm, dj_infusion * unloadInfusion)
 #define AR_EHEADER_SIZE 60
 #define AR_EHEADER_SIZE_START 48
 #define AR_EHEADER_SIZE_END 58
+
 void dj_vm_loadInfusionArchive(dj_vm * vm, dj_di_pointer archive_start, dj_di_pointer archive_end, dj_named_native_handler native_handlers[], unsigned char numHandlers)
 {
 
@@ -468,6 +469,10 @@ void dj_vm_loadInfusionArchive(dj_vm * vm, dj_di_pointer archive_start, dj_di_po
 				// create a new thread and add it to the VM
 				entryPoint.infusion = infusion;
 				thread = dj_thread_create_and_run(entryPoint);
+
+				if (thread==NULL)
+			        dj_panic(DJ_PANIC_OUT_OF_MEMORY);
+
 				dj_vm_addThread(vm, thread);
 			}
 
@@ -909,8 +914,11 @@ void dj_vm_updatePointers(dj_vm *vm)
 dj_monitor * dj_vm_getMonitor(dj_vm *vm, dj_object * object)
 {
 	int i;
-	dj_monitor *monitor;
+	dj_monitor *monitor, *ret = NULL;
 	dj_monitor_block *block, *newBlock;
+	dj_object * obj = object;
+
+	dj_mem_addSafePointer((void**)&obj);
 
 	// search for the monitor
 	block = vm->monitors;
@@ -920,62 +928,62 @@ dj_monitor * dj_vm_getMonitor(dj_vm *vm, dj_object * object)
 		monitor = &(block->monitors[i%MONITOR_BLOCK_SIZE]);
 
 		if (monitor->object==object)
-			return monitor;
+		{
+			ret = monitor;
+			break;
+		}
 
 		// if we have reached the end of a block, move to the next one
 		if ((i%MONITOR_BLOCK_SIZE)==(MONITOR_BLOCK_SIZE-1))
 			block = block->next;
 	}
 
-	// If the following code is reached, the monitor is not yet in the monitor list.
-	// We add the monitor to the end of the list.
-
-	// check if we need to add a new block
-	if ((vm->numMonitors%MONITOR_BLOCK_SIZE)==0)
+	// If the monitor is not yet in the monitor list, add the monitor to the end of the list.
+	if (ret==NULL)
 	{
-		// tell the memory manager to update the pointer to the object should garbage collection
-		// be triggered
-		dj_mem_pushCompactionUpdateStack(VOIDP_TO_REF(object));
 
-		// allocate a new monitor block
-		newBlock = dj_monitor_block_create();
+		// check if we need to add a new block
+		if ((vm->numMonitors%MONITOR_BLOCK_SIZE)==0)
+		{
+			// allocate a new monitor block
+			newBlock = dj_monitor_block_create();
 
-		// get the object pointer
-		object = REF_TO_VOIDP(dj_mem_popCompactionUpdateStack());
+			// check for out of memory and let the caller deal with it
+			if (newBlock==NULL) return NULL;
 
-		// check for out of memory and let the caller deal with it
-		if (newBlock==NULL) return NULL;
+			// find the last block (do this after the allocation to make sure everything goes right
+			// in case the allocation triggers garbage collection)
+			for (block=vm->monitors; (block!=NULL)&&(block->next!=NULL); block=block->next);
 
-		// find the last block (do this after the allocation to make sure everything goes right
-		// in case the allocation triggers garbage collection)
-		for (block=vm->monitors; (block!=NULL)&&(block->next!=NULL); block=block->next);
+			// add the new monitor to the virtual machine
+			if (vm->monitors==NULL)
+				vm->monitors = newBlock;
+			else
+				block->next = newBlock;
 
-		// add the new monitor to the virtual machine
-		if (vm->monitors==NULL)
-			vm->monitors = newBlock;
-		else
-			block->next = newBlock;
+			block = newBlock;
+		} else
+			// find last block
+			for (block=vm->monitors; (block!=NULL)&&(block->next!=NULL); block=block->next);
 
-		block = newBlock;
-	} else
-		// find last block
-		for (block=vm->monitors; (block!=NULL)&&(block->next!=NULL); block=block->next);
+		// Create a new monitor and add it to the list.
+		// note that vm->monitors acts like a stack, so vm->monitors points to the
+		// block that was added last
+		ret = &(block->monitors[vm->numMonitors%MONITOR_BLOCK_SIZE]);
 
-	// Create a new monitor and add it to the list.
-	// note that vm->monitors acts like a stack, so vm->monitors points to the
-	// block that was added last
-	monitor = &(block->monitors[vm->numMonitors%MONITOR_BLOCK_SIZE]);
+		// reset the monitor to count=0, waiting_threads=0
+		ret->count = 0;
+		ret->waiting_threads = 0;
+		ret->object = object;
+		ret->owner = NULL;
+		vm->numMonitors++;
+		block->count++;
 
-	// reset the monitor to count=0, waiting_threads=0
-	// NB: 8-10-08: This fixes the bug that caused the thread test to hang on the fleck
-	monitor->count = 0;
-	monitor->waiting_threads = 0;
-	monitor->object = object;
-	monitor->owner = NULL;
-	vm->numMonitors++;
-	block->count++;
+	}
 
-	return monitor;
+	dj_mem_removeSafePointer((void**)&obj);
+
+	return ret;
 }
 
 void dj_vm_removeMonitor(dj_vm *vm, dj_monitor * monitor)

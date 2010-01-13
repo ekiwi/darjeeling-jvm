@@ -34,7 +34,6 @@ char dj_di_strEquals(dj_di_pointer str1, dj_di_pointer str2)
 {
 	uint8_t a,b;
 	do {
-		// TODO replace with dj_di_fetchU8() ?
 		a = dj_di_getU8(str1); str1++;
 		b = dj_di_getU8(str2); str2++;
 		if (a!=b) return 0;

@@ -22,11 +22,13 @@
 #ifndef __misc_instructions_h
 #define __misc_instructions_h
 
-#include<string.h>
+#include <string.h>
 
 static inline void LDS()
 {
 	uint16_t i;
+
+	dj_object * string;
 
 	// fetch and resolve the string id
 	dj_local_id string_local_id = dj_fetchLocalId();
@@ -39,7 +41,7 @@ static inline void LDS()
 	// create java String object
 	uint8_t runtime_id = dj_vm_getSysLibClassRuntimeId(dj_exec_getVM(), BASE_CDEF_java_lang_String);
 	dj_di_pointer classDef = dj_vm_getRuntimeClassDefinition(vm, runtime_id);
-	dj_object * string =  dj_object_create(runtime_id,
+	string = dj_object_create(runtime_id,
 			dj_di_classDefinition_getNrRefs(classDef),
 			dj_di_classDefinition_getOffsetOfFirstReference(classDef)
 			);
@@ -51,34 +53,52 @@ static inline void LDS()
 		return;
 	}
 
+	// add the string pointer to the safe memory pool to avoid it becoming invalid in case dj_int_array_create triggers a GC
+	dj_mem_addSafePointer((void**)&string);
+
 	// create charArray
 	dj_int_array * charArray = dj_int_array_create(T_CHAR, stringLength);
 
 	// throw OutOfMemoryError
 	if (charArray == NULL)
 	{
+		dj_mem_free(string);
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
-		return;
+	} else
+	{
+
+		// coppy ASCII from program space to the array
+		for (i = 0; i < stringLength; i++)
+			charArray->data.bytes[i] = dj_di_getU8(stringBytes++);
+
+		BASE_STRUCT_java_lang_String * stringObject = (BASE_STRUCT_java_lang_String*)string;
+
+		stringObject->offset = 0;
+		stringObject->stringLength = stringLength;
+		stringObject->stringStore = VOIDP_TO_REF(charArray);
+		/*
+		/// initialize object
+		char* stringP = (char*)string;
+		int refOffset = dj_di_classDefinition_getOffsetOfFirstReference(classDef);
+
+		// string.stringStore is the first reference field, assign it
+		ref_t* string_stringStore = (ref_t*)(stringP + refOffset);
+		*string_stringStore = VOIDP_TO_REF(charArray);
+
+		// string.offset is the first non-reference field (int), assign it
+		int32_t* string_offset = (int32_t*)stringP;
+		*string_offset = 0;
+
+		// string.offset is the second non-reference field (int), assign it
+		int32_t* string_stringLength = string_offset+1;
+		*string_stringLength = stringLength;
+		*/
+
+		pushRef(VOIDP_TO_REF(string));
 	}
 
-	// coppy ASCII from program space to the array
-	for (i = 0; i < stringLength; i++)
-		charArray->data.bytes[i] = dj_di_getU8(stringBytes++);
-
-	/// initialize object
-	char* stringP = (char*)string;
-	int refOffset = dj_di_classDefinition_getOffsetOfFirstReference(classDef);
-	// string.stringStore is the first reference field, assign it
-	ref_t* string_stringStore = (ref_t*)(stringP + refOffset);
-	*string_stringStore = VOIDP_TO_REF(charArray);
-	// string.offset is the first non-reference field (int), assign it
-	int32_t* string_offset = (int32_t*)stringP;
-	*string_offset = 0;
-	// string.offset is the second non-reference field (int), assign it
-	int32_t* string_stringLength = string_offset+1;
-	*string_stringLength = stringLength;
-
-	pushRef(VOIDP_TO_REF(string));
+	// Remove the string object pointer from the safe memory pool.
+	dj_mem_removeSafePointer((void**)&string);
 }
 
 static inline void NEW()
@@ -175,51 +195,53 @@ static inline void MONITORENTER()
 		return;
 	}
 
+	obj = (dj_object*)REF_TO_VOIDP(objRef);
+	dj_mem_addSafePointer((void**)&obj);
+
     DEBUG_ENTER_NEST_LOG("MONITORENTER() thread:%d, object%p\n", dj_exec_getCurrentThread()->id, REF_TO_VOIDP(objRef));
 
-    dj_mem_pushCompactionUpdateStack(objRef);
-
 	// get the monitor for this object
-	monitor = dj_vm_getMonitor(dj_exec_getVM(), (void*)REF_TO_VOIDP(objRef));
-
-	objRef = dj_mem_popCompactionUpdateStack();
+	monitor = dj_vm_getMonitor(dj_exec_getVM(), obj);
 
 	// if the monitor didn't exist and could not be created, throw exception
 	if (monitor==NULL)
 	{
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
-		return;
-	}
-
-	obj = (dj_object*)REF_TO_VOIDP(objRef);
-
-	// check if we can enter the monitor
-	if (monitor->count==0)
+	} else
 	{
-        DEBUG_LOG("Entering monitor %p\n",monitor);
-		// we can enter the monitor, huzzaa
-		monitor->count = 1;
-		monitor->owner = dj_exec_getCurrentThread();
 
-	} else {
-		if (monitor->owner==dj_exec_getCurrentThread())
+		// check if we can enter the monitor
+		if (monitor->count==0)
 		{
-            DEBUG_LOG("Reentering monitor %p. count is now %d\n",monitor,monitor->count+1);
+			DEBUG_LOG("Entering monitor %p\n",monitor);
+			// we can enter the monitor, huzzaa
+			monitor->count = 1;
+			monitor->owner = dj_exec_getCurrentThread();
 
-			monitor->count++;
-		} else
-		{
+		} else {
+			if (monitor->owner==dj_exec_getCurrentThread())
+			{
+				DEBUG_LOG("Reentering monitor %p. count is now %d\n",monitor,monitor->count+1);
 
-			// we can't enter, so just block
-			dj_exec_getCurrentThread()->status = THREADSTATUS_BLOCKED_FOR_MONITOR;
-			dj_exec_getCurrentThread()->monitorObject = obj;
-			monitor->waiting_threads++;
-            DEBUG_LOG("monitor is already held by someone. let's block\n");
+				monitor->count++;
+			} else
+			{
 
-			dj_exec_breakExecution();
+				// we can't enter, so just block
+				dj_exec_getCurrentThread()->status = THREADSTATUS_BLOCKED_FOR_MONITOR;
+				dj_exec_getCurrentThread()->monitorObject = obj;
+				monitor->waiting_threads++;
+				DEBUG_LOG("monitor is already held by someone. let's block\n");
+
+				dj_exec_breakExecution();
+			}
 		}
+
 	}
+
     DEBUG_EXIT_NEST_LOG("MONITORENTER()\n");
+	dj_mem_removeSafePointer((void**)&obj);
+
 }
 
 static inline void MONITOREXIT()

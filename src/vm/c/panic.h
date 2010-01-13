@@ -29,6 +29,8 @@
 #define DJ_PANIC_UNSATISFIED_LINK			46
 #define DJ_PANIC_MALFORMED_INFUSION			47
 #define DJ_PANIC_ASSERTION_FAILURE			48
+#define DJ_PANIC_SAFE_POINTER_OVERFLOW		49
+
 void dj_panic(int32_t panictype);
 
 #endif

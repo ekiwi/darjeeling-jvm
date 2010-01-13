@@ -23,24 +23,25 @@
  * so that allocation is done using a free list and compaction is only triggered when absolutely neccesairy.
  *
  * Because calls to dj_mem_alloc() can trigger garbage compaction, pointers (in the C code) may be made invalid as the
- * element they were pointing to may have been moved. In order to 'rescue' those pointers it is possible to push them
- * onto a 'compaction stack' before the call and pop them after the call. If the element was moved, the pointer will
- * have been updated accordingly.
+ * element they were pointing to may have been moved. A C pointer can be added to the 'safe pointer pool' which will cause
+ * the object the pointer is pointing to to be marked as live, and the pointer to be updated in case of GC. The size of
+ * the pool is limited, so it's best to add pointers only temporarily (i.e. during method calls where multiple allocations
+ * are needed).
  *
  * For example:
  *
  * <code>
  *   // pop an object off the operand stack<br>
- *   ref_t object = dj_exec_stackPopRef();<br>
+ *   dj_object * object = REF_TO_VOIDP(dj_exec_stackPopRef());<br>
  *   <br>
  *   // make sure the object pointer is updated on garbage compaction<br>
- *   void dj_mem_pushCompactionUpdateStack(object);<br>
+ *   dj_mem_addSafePointer((void**)&object);
  *   <br>
  *   // do some memory allocation<br>
  *   void * something = dj_mem_alloc(...);<br>
  *   <br>
- *   // get the (possibly) updated object pointer back<br>
- *   object = ref_t dj_mem_popCompactionUpdateStack();<br>
+ *   // remove the pointer from the safe pool when done
+ *   dj_mem_removeSafePointer((void**)&object);
  *   <br>
  * </code>
  *
@@ -63,8 +64,8 @@
 static char *heap_base;
 static dj_object *panicExceptionObject;
 static uint16_t heap_size;
-static ref_t refStack[HEAP_REFSTACKSIZE];
-static uint8_t refStackPointer;
+
+static void ** safePointerPool[SAFE_POINTER_POOL_SIZE];
 
 static void *left_pointer, *right_pointer;
 
@@ -79,13 +80,15 @@ static int nrTrace = 0;
  */
 void dj_mem_init(void *mem_pointer, uint16_t mem_size)
 {
+	uint16_t i;
+
     // initialize our private pointer to the heap memory
     heap_base =  mem_pointer;
 
     // the rest of the memory is for heap chunks
     heap_size = mem_size;
 
-    refStackPointer = 0;
+    for (i=0; i<SAFE_POINTER_POOL_SIZE; i++) safePointerPool[i] = NULL;
 
     panicExceptionObject = nullref;
 
@@ -178,23 +181,45 @@ dj_object * dj_mem_getPanicExceptionObject()
 }
 
 /**
- * Pushes a reference on the compaction update stack.
- * @param ref the reference to keep updated during compaction.
+ * Pushes a pointer on the safe pointer stack.
+ * @param void** the pointer to keep updated during compaction.
  */
-void dj_mem_pushCompactionUpdateStack(ref_t ref)
+void dj_mem_addSafePointer(void ** ptr)
 {
-	refStack[refStackPointer] = ref;
-	refStackPointer++;
+	uint16_t i;
+
+	for (i=0; i<SAFE_POINTER_POOL_SIZE; i++)
+		if (safePointerPool[i]==NULL)
+		{
+			safePointerPool[i] = ptr;
+			return;
+		}
+
+	dj_panic(DJ_PANIC_SAFE_POINTER_OVERFLOW);
+}
+
+uint16_t dj_mem_countSafePointers()
+{
+	uint16_t ret = 0, i;
+
+	for (i=0; i<SAFE_POINTER_POOL_SIZE; i++)
+		if (safePointerPool[i]!=NULL) ret ++;
+
+	return ret;
 }
 
 /**
  * Pops a reference from the compaction update stack.
  * @return updated reference
  */
-ref_t dj_mem_popCompactionUpdateStack()
+void dj_mem_removeSafePointer(void ** ptr)
 {
-	refStackPointer--;
-	return refStack[refStackPointer];
+	uint16_t i;
+
+	for (i=0; i<SAFE_POINTER_POOL_SIZE; i++)
+		if (safePointerPool[i]==ptr)
+			safePointerPool[i] = NULL;
+
 }
 
 /**
@@ -311,11 +336,14 @@ static inline void dj_mem_mark()
 
 	DEBUG_LOG("\tmark reference stack\n");
 
-	// mark the reference stack and the panic exception object
-	for (i=0; i<refStackPointer; i++) dj_mem_setRefGrayIfWhite(refStack[i]);
+	// mark the panic exception object
 	if (panicExceptionObject!=nullref)
 		dj_mem_setRefGrayIfWhite(VOIDP_TO_REF(panicExceptionObject));
 
+	// mark the safe pointer pool
+	for (i=0; i<SAFE_POINTER_POOL_SIZE; i++)
+		if (safePointerPool[i]!=NULL)
+			dj_mem_setPointerGrayIfWhite(*(safePointerPool[i]));
 
 	// iterate over the chunks, make every gray chunk black
 	int nrGray;
@@ -451,11 +479,10 @@ void dj_mem_compact()
 		loc += chunk->size;
 	}
 
-	// update the pointers in the reference stack
-	for (i=0; i<refStackPointer; i++){
-		DEBUG_LOG("Pointer %p updated to %p\n", REF_TO_VOIDP(refStack[i]), REF_TO_VOIDP(dj_mem_getUpdatedReference(refStack[i])));
-		refStack[i] = dj_mem_getUpdatedReference(refStack[i]);
-	}
+	// update pointers in the safe pointer pool
+	for (i=0; i<SAFE_POINTER_POOL_SIZE; i++)
+		if (safePointerPool[i]!=NULL)
+			*(safePointerPool[i]) = dj_mem_getUpdatedPointer(*(safePointerPool[i]));
 
 	// update the pointer to the panic exception object, if any
 	if (panicExceptionObject!=nullref)

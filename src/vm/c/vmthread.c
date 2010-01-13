@@ -55,11 +55,10 @@ dj_thread *dj_thread_create_and_run(dj_global_id methodImplId)
         return NULL;
     }
 
-	// create a thread to execute the method in
+    dj_mem_addSafePointer((void**)&frame);
 
-    dj_mem_pushCompactionUpdateStack(VOIDP_TO_REF(frame));
+	// create a thread to execute the method in
 	dj_thread *ret = dj_thread_create();
-	frame = REF_TO_VOIDP(dj_mem_popCompactionUpdateStack());
 
 	// if we're out of memory, let the caller deal with it
     if (ret==NULL)
@@ -67,11 +66,14 @@ dj_thread *dj_thread_create_and_run(dj_global_id methodImplId)
         // free the frame object (if we get here, its allocation was successful)
         DEBUG_LOG("dj_thread_create_and_run: could create the top frame but not the Thread object. Aborting\n");
         dj_mem_free(frame);
-        return NULL;
+
+    } else
+    {
+    	ret->frameStack = frame;
+    	ret->status = THREADSTATUS_RUNNING;
     }
 
-	ret->frameStack = frame;
-	ret->status = THREADSTATUS_RUNNING;
+	dj_mem_removeSafePointer((void**)&frame);
 
 	return ret;
 }
@@ -235,6 +237,9 @@ void dj_thread_wait(dj_thread * thread, dj_object * object, int32_t time)
  */
 dj_frame *dj_frame_create(dj_global_id methodImplId)
 {
+	dj_infusion * infusion = methodImplId.infusion;
+	dj_mem_addSafePointer((void**)&infusion);
+
 	dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(methodImplId);
 
 	// calculate the size of the frame to create
@@ -248,29 +253,29 @@ dj_frame *dj_frame_create(dj_global_id methodImplId)
 		localVariablesSize
 		;
 
-	dj_mem_pushCompactionUpdateStack(VOIDP_TO_REF(methodImplId.infusion));
-
 	dj_frame *ret = (dj_frame*)dj_mem_alloc(size, CHUNKID_FRAME);
-
-	// pop infusion off the update stack
-	methodImplId.infusion = REF_TO_VOIDP(dj_mem_popCompactionUpdateStack());
 
 	// in case of null, return and let the caller deal with it
 	if (ret==NULL)
     {
         DEBUG_LOG("dj_frame_create: could not create frame. Returning null\n");
-        return NULL;
+    } else
+    {
+    	// restore a potentially invalid infusion pointer
+    	methodImplId.infusion = infusion;
+
+		// init the frame
+		ret->method = methodImplId;
+		ret->parent = NULL;
+		ret->pc = 0;
+		ret->nr_int_stack = 0;
+		ret->nr_ref_stack = 0;
+
+		// set local variables to 0/null
+		memset(dj_frame_getLocalReferenceVariables(ret), 0, localVariablesSize);
     }
 
-	// init the frame
-	ret->method = methodImplId;
-	ret->parent = NULL;
-	ret->pc = 0;
-	ret->nr_int_stack = 0;
-	ret->nr_ref_stack = 0;
-
-	// set local variables to 0/null
-	memset(dj_frame_getLocalReferenceVariables(ret), 0, localVariablesSize);
+	dj_mem_removeSafePointer((void**)&infusion);
 
 	return ret;
 }

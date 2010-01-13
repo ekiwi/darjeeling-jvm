@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#define HEAP_REFSTACKSIZE 4
+#define SAFE_POINTER_POOL_SIZE 4
 
 /**
  * Heap chunk types. Darjeeling keeps a heap where Java objects and non-Java objects are mixed on the same heap.
@@ -68,8 +68,8 @@ void dj_mem_free(void *ptr);
 void dj_mem_setPanicExceptionObject(dj_object *obj);
 dj_object * dj_mem_getPanicExceptionObject();
 
-void dj_mem_pushCompactionUpdateStack(ref_t ref);
-ref_t dj_mem_popCompactionUpdateStack();
+void dj_mem_addSafePointer(void ** ptr);
+void dj_mem_removeSafePointer(void ** ptr);
 
 int dj_mem_countChunks(runtime_id_t id);
 void dj_mem_gc();
@@ -141,11 +141,17 @@ static inline void dj_mem_setRefGrayIfWhite(ref_t ref)
 	if (chunk->color==TCM_WHITE) chunk->color=TCM_GRAY;
 }
 
+static inline void dj_mem_setPointerGrayIfWhite(void * ptr)
+{
+	if (ptr == NULL) return;
+	heap_chunk * chunk = ((heap_chunk*)((size_t)ptr - sizeof(heap_chunk)));
+	if (chunk->color==TCM_WHITE) chunk->color=TCM_GRAY;
+}
+
 static inline void dj_mem_setRefColor(ref_t ref, int color)
 {
 	if (ref==nullref) return;
 	dj_mem_setChunkColor(REF_TO_VOIDP(ref), color);
-	// ((heap_chunk*)(REF_TO_VOIDP(ref)-sizeof(heap_chunk)))->color = color;
 }
 
 #endif
