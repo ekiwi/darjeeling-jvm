@@ -42,7 +42,8 @@ public class StringBuilder
 		return this;
 	}
 	
-	public StringBuilder append(int integer) {
+	public StringBuilder append(int integer)
+	{
 		String str = Integer.toString(integer);
 		char[] app = str.toCharArray();
 		append(app);

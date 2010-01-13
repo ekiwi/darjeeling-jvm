@@ -45,11 +45,11 @@ public class Infusion
 		return new Infusion(_getInfusion(index));
 	}
 	
-	private static native String _getName(Object internalInfusion);	
+	private static native char[] _getName(Object internalInfusion);	
 	
 	public String getName()
 	{
-		return _getName(internalInfusion);		
+		return new String(_getName(internalInfusion));		
 	}
 	
 	private static native short _getImportedInfusionCount(Object internalInfusion);
@@ -75,7 +75,7 @@ public class Infusion
 		for (short i=0; i<getInfusionCount(); i++)
 		{
 			Object internalInfusion = _getInfusion(i);
-			if (_getName(internalInfusion).equals(name))
+			if (new String(_getName(internalInfusion)).equals(name))
 				return new Infusion(internalInfusion);
 		}		
 		

@@ -56,6 +56,7 @@ void java_lang_Thread_void__start_short()
 	// pop thread Id and get the corresponding Thread object
 	int16_t id = dj_exec_stackPopShort();
 	dj_thread * thread = dj_vm_getThreadById(dj_exec_getVM(), id);
+	dj_mem_addSafePointer((void**)&thread);
 
 	// create a ResolvedId to represent the method definition we're looking for
 	dj_global_id methodDefId;
@@ -66,27 +67,27 @@ void java_lang_Thread_void__start_short()
 	dj_global_id methodImplId = dj_global_id_lookupVirtualMethod(methodDefId, thread->runnable);
 
 	// create a frame for the 'run' function and push it on the thread stack
-	dj_mem_pushCompactionUpdateStack(VOIDP_TO_REF(thread));
 	dj_frame *frame = dj_frame_create(methodImplId);
-	thread = REF_TO_VOIDP(dj_mem_popCompactionUpdateStack());
 
 	// check that the frame alloc was succesful
 	if(frame == NULL)
 	{
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_StackOverflowError);
-		return;
+	} else
+	{
+
+		// push the new frame on the thread's frame stack
+		thread->frameStack = frame;
+
+		// copy the runnable object to the first reference local variable ('this') in the
+		// new frame
+		dj_frame_getLocalReferenceVariables(frame)[0] = VOIDP_TO_REF(thread->runnable);
+
+		// mark new thread eligible for execution
+		thread->status = THREADSTATUS_RUNNING;
 	}
 
-	// push the new frame on the thread's frame stack
-	thread->frameStack = frame;
-
-	// copy the runnable object to the first reference local variable ('this') in the
-	// new frame
-	dj_frame_getLocalReferenceVariables(frame)[0] = VOIDP_TO_REF(thread->runnable);
-
-	// mark new thread eligible for execution
-	thread->status = THREADSTATUS_RUNNING;
-
+	dj_mem_removeSafePointer((void**)&thread);
 }
 
 // short java.lang.Thread._getStatus(short)

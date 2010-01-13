@@ -20,6 +20,7 @@
  */
 package java.lang;
 
-public class Character {
+public class Character
+{
 
 }

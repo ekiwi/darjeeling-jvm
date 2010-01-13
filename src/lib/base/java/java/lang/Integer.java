@@ -39,9 +39,10 @@ public class Integer
 		
 	}
 	
-	public static String toString(int i, int base) {
+	public static String toString(int i, int base)
+	{
 		//TODO: better implementation, maybe native c with atoi?
-		
+
 		// determine number of digits
 		int abs = i >= 0 ? i : -i;
 		int size = 1;
@@ -49,16 +50,17 @@ public class Integer
 			abs /= base;
 			size++;
 		}
+		
 		// reserve space for the '-'
 		if (i < 0)
 			size++;
 		
 		// allocate 
 		char[] charString = new char[size];
-		
+
 		// convert each digit
 		abs = i >= 0 ? i : -i;
-		while (size > 1) {
+		while (size > 0) {
 			char ch = (char)('0' + abs % base);
 			charString[--size] = ch;
 			abs /= base;
@@ -67,6 +69,7 @@ public class Integer
 		// prepend '-'
 		if (i < 0)
 			charString[0]='-';
+
 		return new String(charString);
 		
 	}

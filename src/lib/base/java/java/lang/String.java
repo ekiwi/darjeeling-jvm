@@ -27,8 +27,8 @@ public class String
 	 * Darjeelings LDS instruction expects them to be in this order.
 	 */
 	private char[] stringStore;// contains an immutable, unterminated string.
-	private int offset;
-	private int stringLength;
+	private short offset;
+	private short stringLength;
 	/* More variables can be added AFTER this comment statement. */
 	
 	public String() {
@@ -43,20 +43,23 @@ public class String
 		stringLength = original.stringLength;
 	}
 
-	public String(char[] charStr) {
+	public String(char[] charStr)
+	{
 		if (charStr == null)
 			throw new NullPointerException();
 		
 		// find length of the string contained in charStr
-		stringLength = charStr.length;
-		for (int i=0;i<charStr.length;i++) {
+		stringLength = (short)charStr.length;
+		for (short i=0; i<stringLength; i++) {
 			if (charStr[i] == 0){
 				stringLength = i;
 				break;
 			}
 		}
+		
 		// allocate memory
 		stringStore = new char[stringLength];
+		
 		// copy 
 		System.arraycopy(charStr, 0, stringStore, 0, stringLength);
 
@@ -68,8 +71,9 @@ public class String
 			throw new NullPointerException();
 		
 		// find length of the string contained in byteStr
-		stringLength = byteStr.length;
-		for (int i=0;i<byteStr.length;i++) {
+		stringLength = (short)byteStr.length;
+		for (short i=0; i<stringLength; i++)
+		{
 			if (byteStr[i] == 0){
 				stringLength = i;
 				break;
@@ -130,7 +134,7 @@ public class String
 		String ret = new String(this);
 		// set boundaries
 		ret.offset += beginIndex;
-		ret.stringLength = endIndex-beginIndex;
+		ret.stringLength = (short)(endIndex - beginIndex);
 		return ret;
 	}
 	
