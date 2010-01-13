@@ -21,11 +21,15 @@
 package org.csiro.darjeeling.infuser.outputphase;
 
 import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.apache.bcel.generic.Type;
 import org.csiro.darjeeling.infuser.structure.DescendingVisitor;
 import org.csiro.darjeeling.infuser.structure.Element;
 import org.csiro.darjeeling.infuser.structure.ParentElement;
+import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractHeader;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassList;
@@ -88,13 +92,58 @@ public class CHeaderVisitor extends DescendingVisitor
 	
 	public void visit(InternalClassDefinition element)
 	{
-		String className = element.getName();
-		className = className.replaceAll("\\.", "_").replaceAll("\\$", "_inner_");
+		String className = element.getName().replaceAll("\\.", "_").replaceAll("\\$", "_inner_");
+
+		writer.printf("// %s\n", element.getName()); 
+
 		writer.printf("#define %s_CDEF_%s %d\n",
 				infusionName.toUpperCase(),
 				className,
 				element.getGlobalId().getEntityId()
 				);
+		
+		// Get field list and sort it by offset
+		List<AbstractField> fields = element.getFieldList().getFields();
+		Collections.sort(fields, new Comparator<AbstractField>() {
+			public int compare(AbstractField arg0, AbstractField arg1)
+			{
+				if (!arg0.isRef()&&arg1.isRef()) return -1;
+				if (arg0.isRef()&&!arg1.isRef()) return 1;
+				
+				return arg0.getOffset() < arg1.getOffset() ? -1 : 1;
+			}
+		});
+		
+		writer.printf("typedef struct _%s_STRUCT_%s {\n", infusionName.toUpperCase(), className);
+		for (AbstractField field : fields)
+		{
+			String typeString = "";
+			switch (field.classify())
+			{
+				case Char:
+					typeString = "char";
+					break;
+				case Byte:
+				case Boolean:
+					typeString = "int8_t";
+					break;
+				case Short:
+					typeString = "int16_t";
+					break;
+				case Int:
+					typeString = "int32_t";
+					break;
+				case Long:
+					typeString = "int64_t";
+					break;
+				case Ref:
+					typeString = "ref_t";
+					break;
+			}
+			
+			writer.printf("\t%s %s;\n", typeString, field.getName().replaceAll("\\$", "_"));
+		}
+		writer.printf("} __attribute__ ((__packed__)) %s_STRUCT_%s;\n\n", infusionName.toUpperCase(), className);
 	}
 
 	public void visit(InternalMethodDefinitionList element)

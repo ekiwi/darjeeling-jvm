@@ -21,7 +21,7 @@
 package org.csiro.darjeeling.infuser.structure;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 
@@ -60,7 +60,7 @@ public class FieldList
 		return null;
 	}
 
-	public Collection<AbstractField> getFields()
+	public List<AbstractField> getFields()
 	{
 		return fields;
 	}

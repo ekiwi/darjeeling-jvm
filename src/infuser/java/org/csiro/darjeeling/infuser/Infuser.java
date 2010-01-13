@@ -46,14 +46,14 @@ import org.csiro.darjeeling.infuser.outputphase.CHeaderVisitor;
 import org.csiro.darjeeling.infuser.outputphase.DIWriterVisitor;
 import org.csiro.darjeeling.infuser.outputphase.HeaderVisitor;
 import org.csiro.darjeeling.infuser.outputphase.CFileVisitor;
+import org.csiro.darjeeling.infuser.processingphase.ClassInitialiserResolutionVisitor;
+import org.csiro.darjeeling.infuser.processingphase.CodeBlockVisitor;
+import org.csiro.darjeeling.infuser.processingphase.FieldMapVisitor;
+import org.csiro.darjeeling.infuser.processingphase.FindEntryPointVisitor;
+import org.csiro.darjeeling.infuser.processingphase.HeaderResolutionVisitor;
+import org.csiro.darjeeling.infuser.processingphase.IndexVisitor;
+import org.csiro.darjeeling.infuser.processingphase.InterfaceListFlattenVisitor;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalInfusion;
-import org.csiro.infuser.processingphase.ClassInitialiserResolutionVisitor;
-import org.csiro.infuser.processingphase.CodeBlockVisitor;
-import org.csiro.infuser.processingphase.FieldMapVisitor;
-import org.csiro.infuser.processingphase.FindEntryPointVisitor;
-import org.csiro.infuser.processingphase.HeaderResolutionVisitor;
-import org.csiro.infuser.processingphase.IndexVisitor;
-import org.csiro.infuser.processingphase.InterfaceListFlattenVisitor;
 import org.w3c.dom.Document;
 
 /**

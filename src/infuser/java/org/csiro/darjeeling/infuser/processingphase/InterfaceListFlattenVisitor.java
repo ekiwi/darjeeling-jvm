@@ -1,5 +1,5 @@
 /*
- *	FindEntryPointVisitor.java
+ *	InterfaceFlattenVisitor.java
  * 
  *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
  * 
@@ -18,40 +18,25 @@
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.csiro.infuser.processingphase;
+package org.csiro.darjeeling.infuser.processingphase;
 
 import org.csiro.darjeeling.infuser.structure.DescendingVisitor;
 import org.csiro.darjeeling.infuser.structure.Element;
-import org.csiro.darjeeling.infuser.structure.elements.AbstractHeader;
-import org.csiro.darjeeling.infuser.structure.elements.AbstractMethodImplementation;
+import org.csiro.darjeeling.infuser.structure.elements.internal.InternalClassDefinition;
 
-public class FindEntryPointVisitor extends DescendingVisitor
+public class InterfaceListFlattenVisitor extends DescendingVisitor
 {
 	
-	private AbstractHeader header;
-	
-	public FindEntryPointVisitor(AbstractHeader header)
-	{
-		this.header = header;
-	}
-	
 	@Override
-	public void visit(AbstractMethodImplementation element)
+	public void visit(InternalClassDefinition element)
 	{
-		if (element.getMethodDefinition().getName().equals("main") &&
-			element.getMethodDefinition().getSignature().equals("([Ljava/lang/String;)V") )
-		{
-			header.setEntryPoint(element);
-		}
-				
+		super.visit(element);
+		element.flattenInterfaceList();
 	}
-
+	
 	@Override
 	public void visit(Element element)
 	{
-		// TODO Auto-generated method stub
-		
 	}
-	
-	
+
 }

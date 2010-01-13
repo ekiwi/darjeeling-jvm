@@ -54,6 +54,11 @@ public class AbstractField extends Element
 		this.parentClass = parentClass;
 	}
 	
+	public BaseType classify()
+	{
+		return AbstractField.classify(descriptor);
+	}
+	
 	/**
 	 * Returns the size of a base type, or -1 if it's a reference type
 	 * @param descriptor java field descriptor, check the JVM spec ver2, 

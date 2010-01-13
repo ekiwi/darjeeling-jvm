@@ -18,7 +18,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.csiro.infuser.processingphase;
+package org.csiro.darjeeling.infuser.processingphase;
 
 import org.csiro.darjeeling.infuser.structure.DescendingVisitor;
 import org.csiro.darjeeling.infuser.structure.Element;
