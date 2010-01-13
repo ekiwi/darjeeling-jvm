@@ -60,11 +60,13 @@ public class DataEngine extends AbstractPacketListener {
 				// check if this element is already in the queue
 				for (short i = 0; i < size; i++) {
 					PacketInstance instance = queue[(head + i) % queue.length];
-					if (instance.id == id && (byte) instance.thl == thl && (byte) instance.seq == seq) {
+					if (instance.id == id && (byte) instance.thl == thl
+							&& (byte) instance.seq == seq) {
 						// duplicate found, refresh the item by moving it to the
 						// head of the queue
-						for (short j = i; j >= 0; j--)
-							queue[(head + j) % queue.length] = queue[(head + j) % queue.length];
+						for (short j = i; j >= 1; j--)
+							queue[(head + j) % queue.length] = queue[(head + j - 1)
+									% queue.length];
 
 						queue[head] = instance;
 						return true;
