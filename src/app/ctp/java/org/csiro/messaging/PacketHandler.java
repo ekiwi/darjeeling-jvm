@@ -25,12 +25,12 @@ public abstract class PacketHandler {
 		// start a new receive thread
 		new Thread() {
 			public void run() {
-				Debug.print(String.concat("Receive thread is : ", Integer.toString(Thread.getCurrentThreadId())));
+				Debug.print("Receive thread is : " + Thread.getCurrentThreadId());
 				while (true) {
 					try {
 						receive();
 					} catch (Throwable t) {
-						Debug.print(String.concat("receive: ", t.toString(), "\n"));
+						Debug.print("receive: " + t + "\n");
 					}
 				}
 			}
@@ -39,14 +39,14 @@ public abstract class PacketHandler {
 		// start a new send thread
 		new Thread() {
 			public void run() {
-				Debug.print(String.concat("Send thread is : ", Integer.toString(Thread.getCurrentThreadId())));
+				Debug.print("Send thread is : " + Thread.getCurrentThreadId());
 				while (true) {
 					// send a packet very SENDBACKOFFTIME milliseconds
 					Thread.sleep(SENDBACKOFFTIME);
 					try {
 						send();
 					} catch (Throwable t) {
-						Debug.print(String.concat("throwable during send: ", t.toString(), "\n"));
+						Debug.print("throwable during send: " + t + "\n");
 					}
 				}
 			}
@@ -153,7 +153,7 @@ public abstract class PacketHandler {
 		try {
 			packet = wrap(data);
 		} catch (Exception ex) {
-			Debug.print(String.concat("The problem is ", ex.toString()));
+			Debug.print("The problem is " + ex.toString());
 			// error decoding packet
 			return;
 		}

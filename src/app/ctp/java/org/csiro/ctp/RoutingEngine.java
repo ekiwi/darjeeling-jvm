@@ -245,11 +245,11 @@ public class RoutingEngine implements PacketListener {
 		// if (!isSink)
 		new Thread() {
 			public void run() {
-				Debug.print(String.concat("PingLoop thread is : ", Integer.toString(Thread.getCurrentThreadId())));
+				Debug.print("PingLoop thread is : " + Thread.getCurrentThreadId());
 				try {
 					pingLoop();
 				} catch (Throwable t) {
-					Debug.print(String.concat("Ping thread terminated unexpectedly: ", t.toString(), "\n"));
+					Debug.print("Ping thread terminated unexpectedly: " + t + "\n");
 				}
 			}
 		}.start();
@@ -257,11 +257,11 @@ public class RoutingEngine implements PacketListener {
 		// start the beacon thread
 		new Thread() {
 			public void run() {
-				Debug.print(String.concat("BeaconLoop thread is : ", Integer.toString(Thread.getCurrentThreadId())));
+				Debug.print("BeaconLoop thread is : " + Thread.getCurrentThreadId());
 				try {
 					beaconLoop();
 				} catch (Throwable t) {
-					Debug.print(String.concat("Beacon thread terminated unexpectedly: ", t.toString(), "\n"));
+					Debug.print("Beacon thread terminated unexpectedly: " + t + "\n");
 				}
 			}
 		}.start();

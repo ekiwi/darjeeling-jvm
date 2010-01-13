@@ -18,7 +18,7 @@
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stdint.h>
+#include <stdio.h>
 
 #include "array.h"
 #include "execution.h"

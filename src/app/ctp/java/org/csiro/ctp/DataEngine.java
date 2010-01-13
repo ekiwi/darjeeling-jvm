@@ -94,12 +94,12 @@ public class DataEngine extends AbstractPacketListener {
 		// start the data send loop in a new thread
 		new Thread() {
 			public void run() {
-				Debug.print(String.concat("Data engine thread is : ", Integer.toString(Thread.getCurrentThreadId())));
+				Debug.print("Data engine thread is : " + Thread.getCurrentThreadId());
 				while (true) {
 					try {
 						sendDataLoop();
 					} catch (Throwable t) {
-						Debug.print(String.concat("!!! SendDataLoop died with throwable: ", t.toString(), "!!!\nRestarting"));
+						Debug.print("!!! SendDataLoop died with throwable: " + t + "!!!\nRestarting");
 					}
 				}
 			}
@@ -167,8 +167,7 @@ public class DataEngine extends AbstractPacketListener {
 					consumer.dataReceived(data, dataFrame.getOrigin(), dataFrame.getTimeHasLived());
 				}
 			} else {
-				Debug.print(String.concat("(DataEngine -> PacketReceived) Forwarding packet with new ETX ", Integer.toString(routingEngine
-						.getEtx()), " : "));
+				Debug.print("(DataEngine -> PacketReceived) Forwarding packet with new ETX " + routingEngine.getEtx() + " : ");
 				Debug.print(dataFrame.getBytes());
 				// forward
 				dataFrame.setTimeHasLived((byte) (dataFrame.getTimeHasLived() + 1));

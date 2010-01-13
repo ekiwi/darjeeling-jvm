@@ -36,16 +36,11 @@ public class CtpReimplemented
 	{
 		public void dataReceived(short[] data, short origin, short timeHasLived)
 		{
-			Darjeeling.print(String.concat(
-					"DATA RECEIVED FROM ID: ",
-					Integer.toString(origin),
-					" THL: ",
-					Integer.toString(timeHasLived),
-					" DATA: "
-					));
+			Darjeeling.print("DATA RECEIVED FROM ID: " + origin +
+					" THL: " + timeHasLived + " DATA: ");
 			
 				for (int i = 0; i < data.length; i ++)
-					Darjeeling.print(String.concat(Integer.toString(data[i]), "."));
+					Darjeeling.print(data[i] + ".");
 		}
 	}
 
@@ -69,7 +64,7 @@ public class CtpReimplemented
 
     	// wait for radio to be initialised (hack for TNodes)
     	Debug.setDisplayOutput(false);
-    	Debug.print(String.concat("Main thread is : ", Integer.toString(Thread.getCurrentThreadId())));
+    	Debug.print("Main thread is : " + Thread.getCurrentThreadId());
     	Thread.sleep(1000);
     	
     	// Debug.setDisplayOutput(Darjeeling.getNodeId()==1);
