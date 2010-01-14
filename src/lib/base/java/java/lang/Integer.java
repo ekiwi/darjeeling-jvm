@@ -39,20 +39,24 @@ public class Integer
 		
 	}
 	
+	/// Uses characters [0-9a-z] as digits (0 being the smallest, z the largest)
 	public static String toString(int i, int base)
 	{
-		//TODO: better implementation, maybe native c with atoi?
+		// only supporting base 2 to 36
+		if (base < 2 || base > (10+26))
+			base = 10;
 
 		// determine number of digits
 		int abs = i >= 0 ? i : -i;
-		int size = 1;
+		short size = 1;
 		while (abs >= base) {
 			abs /= base;
 			size++;
 		}
 		
 		// reserve space for the '-'
-		if (i < 0)
+		boolean negative = i < 0;;
+		if (negative)
 			size++;
 		
 		// allocate 
@@ -60,14 +64,15 @@ public class Integer
 
 		// convert each digit
 		abs = i >= 0 ? i : -i;
-		while (size > 0) {
-			char ch = (char)('0' + abs % base);
+		while (size > (negative ? 1 : 0)) {
+			byte digit = (byte) (abs % base);
+			char ch = (char)(digit < 10 ? '0' + digit :'a' + digit - 10);
 			charString[--size] = ch;
 			abs /= base;
 		}
 		
 		// prepend '-'
-		if (i < 0)
+		if (negative)
 			charString[0]='-';
 
 		return new String(charString);
