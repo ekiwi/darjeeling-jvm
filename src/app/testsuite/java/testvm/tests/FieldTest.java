@@ -28,6 +28,7 @@ public class FieldTest
 {
 	
 	private static int _integer;
+	private static long _long;
 	private static byte _byte;
 	private static short _short;
 	private static boolean _boolean;
@@ -54,6 +55,28 @@ public class FieldTest
 		Darjeeling.assertTrue(testBase +  7, _integer == b.integer3);
 		Darjeeling.assertTrue(testBase +  8, b.integer3 == 30);
 
+	}
+	
+	private static void testLong(int testBase)
+	{
+		B b = new B();
+		_long = 10;
+		Darjeeling.assertTrue(testBase +  0, _long == 10);
+		b.long1 = _long;
+		Darjeeling.assertTrue(testBase +  1, _long == b.long1);
+		Darjeeling.assertTrue(testBase +  2, b.long1 == 10);
+
+		_long = 20;
+		Darjeeling.assertTrue(testBase +  3, _long == 20);
+		b.long2 = _long;
+		Darjeeling.assertTrue(testBase +  4, _long == b.long2);
+		Darjeeling.assertTrue(testBase +  5, b.long2 == 20);
+
+		_long = 30;
+		Darjeeling.assertTrue(testBase +  6, _long == 30);
+		b.long3 = _long;
+		Darjeeling.assertTrue(testBase +  7, _long == b.long3);
+		Darjeeling.assertTrue(testBase +  8, b.long3 == 30);
 	}
 	
 	private static void testShort(int testBase)
@@ -157,6 +180,7 @@ public class FieldTest
 		testShort(testBase + 10);		
 		testByte(testBase + 20);		
 		testBoolean(testBase + 30);
+		testLong(testBase + 40);
 		testIntArray(testBase + 40);
 	}
 	

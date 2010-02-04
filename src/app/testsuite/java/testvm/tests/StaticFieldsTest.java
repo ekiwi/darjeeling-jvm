@@ -28,6 +28,7 @@ public class StaticFieldsTest
 {
 
 	private static int _integer;
+	private static long _long;
 	private static byte _byte;
 	private static short _short;
 	private static boolean _boolean;
@@ -52,6 +53,28 @@ public class StaticFieldsTest
 		A.integer3 = _integer;
 		Darjeeling.assertTrue(testBase +  7, _integer == A.integer3);
 		Darjeeling.assertTrue(testBase +  8, A.integer3 == 30);
+
+	}
+	
+	private static void testLong(int testBase)
+	{
+		_long = 10;
+		Darjeeling.assertTrue(testBase +  0, _long == 10);
+		A.long1 = _long;
+		Darjeeling.assertTrue(testBase +  1, _long == A.long1);
+		Darjeeling.assertTrue(testBase +  2, A.long1 == 10);
+
+		_long = 20;
+		Darjeeling.assertTrue(testBase +  3, _long == 20);
+		A.long2 = _long;
+		Darjeeling.assertTrue(testBase +  4, _long == A.long2);
+		Darjeeling.assertTrue(testBase +  5, A.long2 == 20);
+
+		_long = 30;
+		Darjeeling.assertTrue(testBase +  6, _long == 30);
+		A.long3 = _long;
+		Darjeeling.assertTrue(testBase +  7, _long == A.long3);
+		Darjeeling.assertTrue(testBase +  8, A.long3 == 30);
 
 	}
 	
@@ -148,11 +171,12 @@ public class StaticFieldsTest
 	
 	public static void test(int testBase)
 	{
-		testInteger(testBase + 00);		
-		testShort(testBase + 10);		
-		testByte(testBase + 20);		
-		testBoolean(testBase + 30);
-		testIntArray(testBase + 40);		
+		testByte(testBase + 00);		
+		testBoolean(testBase + 10);
+		testShort(testBase + 20);		
+		testInteger(testBase + 30);		
+		testLong(testBase + 40);		
+		testIntArray(testBase + 50);		
 	}
 	
 

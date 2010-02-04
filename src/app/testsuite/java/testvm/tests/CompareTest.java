@@ -27,16 +27,17 @@ public class CompareTest
 	
 	public static void test(int testBase)
 	{
+		int a = 1, b = 2, c = 1;
 		// test equal
-		if (1==1) Darjeeling.assertTrue(testBase + 0, true); else 
+		if (a==c) Darjeeling.assertTrue(testBase + 0, true); else 
 			Darjeeling.assertTrue(testBase + 0, false);
-		if (1==2) Darjeeling.assertTrue(testBase + 1, false); else 
+		if (a==b) Darjeeling.assertTrue(testBase + 1, false); else 
 			Darjeeling.assertTrue(testBase + 1, true);
 
 		// test not equal
-		if (1!=2) Darjeeling.assertTrue(testBase + 2, true); else 
+		if (a!=b) Darjeeling.assertTrue(testBase + 2, true); else 
 			Darjeeling.assertTrue(testBase + 2, false);
-		if (1!=1) Darjeeling.assertTrue(testBase + 3, false); else 
+		if (a!=c) Darjeeling.assertTrue(testBase + 3, false); else 
 			Darjeeling.assertTrue(testBase + 3, true);
 		
 		// null test

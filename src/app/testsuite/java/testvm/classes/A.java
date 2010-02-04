@@ -23,6 +23,7 @@ package testvm.classes;
 public class A implements AInterface
 {
 	public static int integer1, integer2, integer3; 
+	public static long long1, long2, long3; 
 	public static byte byte1, byte2, byte3; 
 	public static short short1, short2, short3; 
 	public static boolean boolean1, boolean2, boolean3; 

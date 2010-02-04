@@ -24,6 +24,7 @@ public class B extends A
 {
 	
 	public int integer1, integer2, integer3; 
+	public long long1, long2, long3; 
 	public byte byte1, byte2, byte3; 
 	public short short1, short2, short3; 
 	public boolean boolean1, boolean2, boolean3; 

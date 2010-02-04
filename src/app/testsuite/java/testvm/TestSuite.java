@@ -20,6 +20,8 @@
  */
 package testvm;
 
+import javax.darjeeling.Darjeeling;
+
 import testvm.tests.ArithmeticTest;
 import testvm.tests.ArrayTest;
 import testvm.tests.BitManipulationTest;
@@ -38,8 +40,6 @@ import testvm.tests.RuntimeExceptionsTest;
 import testvm.tests.StaticFieldsTest;
 import testvm.tests.SwitchTest;
 import testvm.tests.ThreadTest;
-import javax.darjeeling.Darjeeling;
-//import testvm.tests.TryCatchTest;
 
 public class TestSuite
 {
@@ -62,7 +62,7 @@ public class TestSuite
  		MD5Test.test(1300);
 		MethodOverloadingTest.test(1400);
 		RuntimeExceptionsTest.test(1500);
-		InfusionTest.test(1600);
+		// InfusionTest.test(1600);
 		BitManipulationTest.test(1700);
 		Darjeeling.print("All testsuites have passed succsessfuly.\n");
 //		TryCatchTest.test(1800);

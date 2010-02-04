@@ -205,12 +205,69 @@ public class ArithmeticTest
 		Darjeeling.assertTrue(testBase + 29, true);
 		
 	}
+	
+	private static void testLong(int testBase)
+	{
+		long a,b;
+		
+		a = 64;
+		b = 2;
+		
+		// exercise standard arithmetic
+		Darjeeling.assertTrue(testBase+ 0, a+b==66);
+		Darjeeling.assertTrue(testBase+ 1, a-b==62);
+		Darjeeling.assertTrue(testBase+ 2, a/b==32);
+		Darjeeling.assertTrue(testBase+ 3, a*b==128);
+
+		Darjeeling.assertTrue(testBase+ 4, -a==-64);
+		Darjeeling.assertTrue(testBase+ 5, a%b==0);
+
+		// shr
+		Darjeeling.assertTrue(testBase+ 6, a>>1==32);
+		Darjeeling.assertTrue(testBase+ 7, a>>3==8);
+		Darjeeling.assertTrue(testBase+ 8, a>>5==b);
+
+		// shl
+		Darjeeling.assertTrue(testBase+ 9, a<<1==128);
+		Darjeeling.assertTrue(testBase+10, b<<3==16);
+		Darjeeling.assertTrue(testBase+11, b<<7==256);
+		
+		// iinc
+		a++;
+		Darjeeling.assertTrue(testBase+12, a==65);
+		a--;
+		Darjeeling.assertTrue(testBase+13, a==64);
+		a+=1000;
+		Darjeeling.assertTrue(testBase+14, a==1064);
+		a-=1000;
+
+		// exercise boolean logic
+		Darjeeling.assertTrue(testBase+15, (a & b)==0);
+		Darjeeling.assertTrue(testBase+16, (a | b)==66);
+		Darjeeling.assertTrue(testBase+17, (a ^ b)==66);
+		
+		// exercise LDC
+		a = 123456;
+		Darjeeling.assertTrue(testBase+18, (a >>> 16) == 1);
+		Darjeeling.assertTrue(testBase+19, (a >>> 8) == 482);
+		Darjeeling.assertTrue(testBase+20, (-a >>> 8) == 72057594037927453L);
+
+		a = 0x0000ffff;
+		Darjeeling.assertTrue(testBase+21, (a >>> 8) == 255);
+		a = 0x00ffffff;
+		Darjeeling.assertTrue(testBase+22, (a >>> 16) == 255);
+		a = 0xffffffff00000000L;
+		Darjeeling.assertTrue(testBase+23, (a >>> 24) == 0x000000ffffffff00L);
+	}	
 
 	public static void test(int testBase)
 	{
+		/*
 		testByte(testBase);
-		testShort(testBase+30);
-		testInt(testBase+60);
+		testShort(testBase+25);
+		testInt(testBase+50);
+		*/
+		testLong(testBase+80);
 	}
 
 }

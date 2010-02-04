@@ -43,11 +43,11 @@ public class ArrayTest
 	public static void test(int testBase)
 	{
 		boolean pass;
-        byte    barr[];
-        short   sarr[];
-        int     iarr[];
-        Object  oarr[];
-
+		byte barr[];
+		short sarr[];
+		int iarr[];
+		long larr[];
+		Object oarr[];
         
 		// test byte array new
 		barr = new byte[100];
@@ -77,8 +77,10 @@ public class ArrayTest
         Darjeeling.assertTrue(testBase+6, sarr[3]==0);
         iarr = new int[5];
         Darjeeling.assertTrue(testBase+7, iarr[3]==0);
+        larr = new long[5];
+        Darjeeling.assertTrue(testBase+8, larr[3]==0);
         oarr = new Object[5];
-        Darjeeling.assertTrue(testBase+8, oarr[3]==null);
+        Darjeeling.assertTrue(testBase+9, oarr[3]==null);
 
 		// test short array new
 		sarr = new short[100];
@@ -100,10 +102,8 @@ public class ArrayTest
 		
 		// test integer array store/load
 		pass = true;
-		for (int i=0; i<iarr.length; i++)
-			iarr[i] = i;
-		for (int i=0; i<iarr.length; i++)
-			pass=pass && (iarr[i]==i);
+		for (int i=0; i<iarr.length; i++) iarr[i] = i;
+		for (int i=0; i<iarr.length; i++) pass=pass && (iarr[i]==i);
 		Darjeeling.assertTrue(testBase+22, pass);
 		
 		// there was a bug in IASTORE that wasn't caught by the above tests,
@@ -112,12 +112,23 @@ public class ArrayTest
 		intTest[0] = 0x67452301;
 		Darjeeling.assertTrue(testBase+23, intTest[0] == 0x67452301);
 		
-		// char arrays weren't tested before :)
+		// test long array new
+		larr = new long[100];
+		Darjeeling.assertTrue(testBase+30, larr!=null);
+		Darjeeling.assertTrue(testBase+31, larr.length == 100);
+		
+		// test integer array store/load
+		pass = true;
+		for (int i=0; i<iarr.length; i++) larr[i] = i;
+		for (int i=0; i<iarr.length; i++) pass=pass && (larr[i]==i);
+		Darjeeling.assertTrue(testBase+32, pass);
+
+		// Char arrays
 		char carr[] = new char[] { 'a', 'b', 'c', 'd' };
-		Darjeeling.assertTrue(testBase+24, carr[0] == 'a');
-		Darjeeling.assertTrue(testBase+25, carr[1] == 'b');
-		Darjeeling.assertTrue(testBase+26, carr[2] == 'c');
-		Darjeeling.assertTrue(testBase+27, carr[3] == 'd');
+		Darjeeling.assertTrue(testBase+41, carr[0] == 'a');
+		Darjeeling.assertTrue(testBase+42, carr[1] == 'b');
+		Darjeeling.assertTrue(testBase+43, carr[2] == 'c');
+		Darjeeling.assertTrue(testBase+44, carr[3] == 'd');
 		
 	}	
 

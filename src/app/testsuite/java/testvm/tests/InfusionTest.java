@@ -46,7 +46,7 @@ public class InfusionTest
 		
 		Infusion base = Infusion.getInfusionByName("base");
 		
-		Darjeeling.assertTrue(testBase + 0, base!=null);
+		Darjeeling.assertTrue(testBase + 0, base != null);
 		Darjeeling.assertTrue(testBase + 1, (base!=null) && (base.getImportedInfusionCount()==0));
 		
 		try {
@@ -57,7 +57,6 @@ public class InfusionTest
 			Darjeeling.assertTrue(testBase + 2, true);
 		}
 		
-		/*
 		Infusion testSuite = Infusion.getInfusionByName("testsuite");
 		try {
 			testSuite.unload();
@@ -66,7 +65,6 @@ public class InfusionTest
 		{
 			Darjeeling.assertTrue(testBase + 3, false);
 		}
-		*/
 		
 	}
 
