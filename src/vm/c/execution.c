@@ -140,12 +140,6 @@ static inline void dj_exec_saveLocalState(dj_frame *frame) {
 			/ sizeof(int16_t);
 	frame->nr_ref_stack = (dj_frame_stackEndOffset(frame) - (char*) refStack)
 			/ sizeof(ref_t);
-
-#ifdef ASSEMBLY_DEBUGGING
-	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
-	ASSEMBLY_DEBUG("\tLocal state saved\n\trefStack\t - \t%p\n\tintStack\t - \t%p\n\tnr_ref_stack\t - \t%d\n\tnr_int_stack\t - \t%d\n\tframe\t\t - \t%p\n", refStack, intStack, frame->nr_ref_stack, frame->nr_int_stack, frame);
-	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
-#endif
 }
 
 /**
@@ -191,12 +185,6 @@ static inline void dj_exec_loadLocalState(dj_frame *frame) {
 		integerParameters = NULL;
 
 	}
-#if ASSEMBLY_DEBUGGING
-	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
-	ASSEMBLY_DEBUG("\tLocal state loaded \n\tmaxStack\t - \t%d\n\trefStack\t - \t%p\n\tintStack\t - \t%p\n\tnr_ref_stack\t - \t%d\n\tnr_int_stack\t - \t%d\n\tframe\t\t - \t%p\n", dj_di_methodImplementation_getMaxStack(dj_global_id_getMethodImplementation(frame->method)), refStack, intStack, frame->nr_ref_stack, frame->nr_int_stack, frame);
-	ASSEMBLY_DEBUG("\t----------------------------------------------\n");
-#endif
-
 }
 
 /**
@@ -305,6 +293,23 @@ static inline int32_t fetch32() {
 }
 
 /**
+ * Fetches a 64-bit value from the code area and increases the PC by 8.
+ */
+static inline int64_t fetch64() {
+	int64_t ret = ((uint64_t) dj_di_getU8(code + pc) << 56)
+			| ((uint64_t) dj_di_getU8(code + pc + 1) << 48)
+			| ((uint64_t) dj_di_getU8(code + pc + 2) << 40)
+			| ((uint64_t) dj_di_getU8(code + pc + 3) << 32)
+			| ((uint64_t) dj_di_getU8(code + pc + 4) << 24)
+			| ((uint64_t) dj_di_getU8(code + pc + 5) << 16)
+			| ((uint64_t) dj_di_getU8(code + pc + 6) << 8)
+			| (uint64_t) dj_di_getU8(code + pc + 7);
+
+	pc += 8;
+	return ret;
+}
+
+/**
  * Peeks a 32-bit value from the code area at PC+n, doesn't increase the PC.
  * @param n the offset in bytes from the current PC at which to peek
  */
@@ -326,6 +331,14 @@ static inline dj_local_id dj_fetchLocalId() {
 }
 
 /**
+ * Pushes a short (16 bit) onto the runtime stack
+ */
+static inline void pushShort(int16_t value) {
+	*intStack = value;
+	intStack++;
+}
+
+/**
  * Pushes an int (32 bit) onto the runtime stack
  */
 static inline void pushInt(int32_t value) {
@@ -334,11 +347,11 @@ static inline void pushInt(int32_t value) {
 }
 
 /**
- * Pushes a short (16 bit) onto the runtime stack
+ * Pushes a long (64 bit) onto the runtime stack
  */
-static inline void pushShort(int16_t value) {
-	*intStack = value;
-	intStack++;
+static inline void pushLong(int64_t value) {
+	*((int64_t*) intStack) = value;
+	intStack += 4;
 }
 
 /**
@@ -350,6 +363,14 @@ static inline void pushRef(ref_t value) {
 }
 
 /**
+ * Pops a short (16 bit) from the runtime stack
+ */
+static inline int16_t popShort() {
+	intStack--;
+	return *intStack;
+}
+
+/**
  * Pops an int (32 bit) from the runtime stack
  */
 static inline int32_t popInt() {
@@ -358,11 +379,11 @@ static inline int32_t popInt() {
 }
 
 /**
- * Pops a short (16 bit) from the runtime stack
+ * Pops a long (64 bit) from the runtime stack
  */
-static inline int16_t popShort() {
-	intStack--;
-	return *intStack;
+static inline int64_t popLong() {
+	intStack -= 4;
+	return *(int64_t*) intStack;
 }
 
 /**
@@ -375,6 +396,13 @@ static inline ref_t popRef() {
 }
 
 /**
+ * Returns the topmost 16 bit short element on the integer stack, does not change the stackpointer.
+ */
+static inline int16_t peekShort() {
+	return *(intStack - 1);
+}
+
+/**
  * Returns the topmost 32 bit integer element on the integer stack, does not change the stackpointer.
  */
 static inline int32_t peekInt() {
@@ -382,10 +410,10 @@ static inline int32_t peekInt() {
 }
 
 /**
- * Returns the topmost 16 bit short element on the integer stack, does not change the stackpointer.
+ * Returns the topmost 64 bit long element on the integer stack, does not change the stackpointer.
  */
-static inline int16_t peekShort() {
-	return *(intStack - 1);
+static inline int64_t peekLong() {
+	return *(int64_t*) (intStack - 4);
 }
 
 /**
@@ -418,8 +446,19 @@ void dj_exec_stackPushShort(int16_t value) {
  * running program.
  * @param value the integer value to push.
  */
-void dj_exec_stackPushInt(int32_t value) {
+void dj_exec_stackPushInt(int32_t value)
+{
 	pushInt(value);
+}
+
+/**
+ * Pushes a long onto the runtime stack. Can be used by functions outside the execution module to interact with the
+ * running program.
+ * @param value the integer value to push.
+ */
+void dj_exec_stackPushLong(int64_t value)
+{
+	pushLong(value);
 }
 
 /**
@@ -432,6 +471,15 @@ void dj_exec_stackPushRef(ref_t value) {
 }
 
 /**
+ * Pops a short from the runtime stack. Can be used by functions outside the execution module to interact with the
+ * running program. Corruping the stack can lead to crashes, use with care!
+ * @return the top value of the runtime stack.
+ */
+int16_t dj_exec_stackPopShort() {
+	return popShort();
+}
+
+/**
  * Pops an int from the runtime stack. Can be used by functions outside the execution module to interact with the
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
@@ -441,12 +489,12 @@ int32_t dj_exec_stackPopInt() {
 }
 
 /**
- * Pops a short from the runtime stack. Can be used by functions outside the execution module to interact with the
+ * Pops a long from the runtime stack. Can be used by functions outside the execution module to interact with the
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
  */
-int16_t dj_exec_stackPopShort() {
-	return popShort();
+int64_t dj_exec_stackPopLong() {
+	return popLong();
 }
 
 /**
@@ -477,58 +525,21 @@ int32_t dj_exec_stackPeekInt() {
 }
 
 /**
+ * Returns the top of the stack as a long value, but does not change the stackpointer. Can be used by functions outside
+ * the execution module to interact with the running program.
+ * @return the top value of the runtime stack.
+ */
+int64_t dj_exec_stackPeekLong() {
+	return peekInt();
+}
+
+/**
  * Returns the top of the stack as a reference value, but does not change the stackpointer. Can be used by functions outside
  * the execution module to interact with the running program.
  * @return the top value of the runtime stack.
  */
 ref_t dj_exec_stackPeekRef() {
 	return peekRef();
-}
-
-/**
- * Set local reference variable at index
- * @param index local variable slot number
- * @param value reference value
- */
-static inline void setLocalRef(int index, ref_t value) {
-	if (index < nrReferenceParameters)
-		referenceParameters[-index] = value;
-	else
-		localReferenceVariables[index - nrReferenceParameters] = value;
-}
-
-/**
- * Returns local reference variable at index
- * @param index local variable slot number
- */
-static inline ref_t getLocalRef(int index) {
-	if (index < nrReferenceParameters)
-		return referenceParameters[-index];
-	else
-		return localReferenceVariables[index - nrReferenceParameters];
-}
-
-/**
- * Set local reference variable at index
- * @param index local variable slot number
- * @param value 32 bit integer value
- */
-static inline void setLocalInt(int index, int32_t value) {
-	if (index < nrIntegerParameters)
-		*(int32_t*) (integerParameters + index) = value;
-	else
-		*(int32_t*) (localIntegerVariables + index - nrIntegerParameters)
-				= value;
-}
-/**
- * Returns 32 bit integer local variable at index
- * @param index local variable slot number
- */
-static inline int32_t getLocalInt(int index) {
-	if (index < nrIntegerParameters)
-		return *(int32_t*) (integerParameters + index);
-	else
-		return *(int32_t*) (localIntegerVariables + index - nrIntegerParameters);
 }
 
 /**
@@ -552,6 +563,73 @@ static inline int16_t getLocalShort(int index) {
 		return integerParameters[index];
 	else
 		return localIntegerVariables[index - nrIntegerParameters];
+}
+
+/**
+ * Set local reference variable at index
+ * @param index local variable slot number
+ * @param value 32 bit integer value
+ */
+static inline void setLocalInt(int index, int32_t value) {
+	if (index < nrIntegerParameters)
+		*(int32_t*) (integerParameters + index) = value;
+	else
+		*(int32_t*) (localIntegerVariables + index - nrIntegerParameters) = value;
+}
+/**
+ * Returns 32 bit integer local variable at index
+ * @param index local variable slot number
+ */
+static inline int32_t getLocalInt(int index) {
+	if (index < nrIntegerParameters)
+		return *(int32_t*) (integerParameters + index);
+	else
+		return *(int32_t*) (localIntegerVariables + index - nrIntegerParameters);
+}
+
+/**
+ * Set local reference variable at index
+ * @param index local variable slot number
+ * @param value 64-bit long value
+ */
+static inline void setLocalLong(int index, int64_t value) {
+	if (index < nrIntegerParameters)
+		*(int64_t*) (integerParameters + index) = value;
+	else
+		*(int64_t*) (localIntegerVariables + index - nrIntegerParameters) = value;
+}
+/**
+ * Returns 64-bit long local variable at index
+ * @param index local variable slot number
+ */
+static inline int64_t getLocalLong(int index) {
+	if (index < nrIntegerParameters)
+		return *(int64_t*) (integerParameters + index);
+	else
+		return *(int64_t*) (localIntegerVariables + index - nrIntegerParameters);
+}
+
+/**
+ * Set local reference variable at index
+ * @param index local variable slot number
+ * @param value reference value
+ */
+static inline void setLocalRef(int index, ref_t value) {
+	if (index < nrReferenceParameters)
+		referenceParameters[-index] = value;
+	else
+		localReferenceVariables[index - nrReferenceParameters] = value;
+}
+
+/**
+ * Returns local reference variable at index
+ * @param index local variable slot number
+ */
+static inline ref_t getLocalRef(int index) {
+	if (index < nrReferenceParameters)
+		return referenceParameters[-index];
+	else
+		return localReferenceVariables[index - nrReferenceParameters];
 }
 
 /**
@@ -688,51 +766,11 @@ void dj_exec_createAndThrow(int exceptionId) {
  * @see dj_exe_throw()
  * @param obj the object to throw
  */
-void dj_exec_throwHere(dj_object *obj) {
+void dj_exec_throwHere(dj_object *obj)
+{
 	dj_exec_throw(obj, pc);
 }
 
-#ifdef IS_SIMULATOR
-char *getExceptionName(int exception_id)
-{
-	switch(exception_id){
-	case BASE_CDEF_java_lang_ArrayStoreException :
-	 return "Array store exception";
-	case BASE_CDEF_java_lang_ClassCastException :
-	 return "Class cast exception";
-	case BASE_CDEF_java_lang_Error :
-	 return "Error";
-	case BASE_CDEF_java_lang_Exception :
-	 return "General exception";
-	case BASE_CDEF_java_lang_IllegalArgumentException :
-	 return "Illegal argument exception";
-	case BASE_CDEF_java_lang_IllegalThreadStateException :
-	 return "Illegal thread exception";
-	case BASE_CDEF_java_lang_IndexOutOfBoundsException :
-	 return "Index out of bound exception";
-	case BASE_CDEF_java_lang_NullPointerException :
-	 return "Null pointer exception";
-	case BASE_CDEF_java_lang_OutOfMemoryError :
-	 return "Out of memory exception";
-	case BASE_CDEF_java_lang_RuntimeException :
-	 return "Runtime exception";
-	case BASE_CDEF_java_lang_StackOverflowError :
-	 return "Stack overflow error";
-	case BASE_CDEF_java_lang_VirtualMachineError :
-	 return "Virtual machine error";
-	case BASE_CDEF_java_util_NoSuchElementException :
-	 return "No such element exception";
-	case BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException :
-	 return "Class unloaded exception";
-	case BASE_CDEF_javax_darjeeling_vm_InfusionUnloadDependencyException :
-	 return "Infusion unload dependency exception";
-	case BASE_CDEF_javax_darjeeling_vm_NativeMethodNotImplementedError :
-	 return "Native method not implemented error";
-	default:
-		return "Unknown exception";
-	}
-}
-#endif
 /**
  * Throws an exception at the given PC.
  * @see dj_exe_throw_here()
@@ -740,7 +778,8 @@ char *getExceptionName(int exception_id)
  * @param throw_pc the address at which the exception ocurred.
  */
 
-void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
+void dj_exec_throw(dj_object *obj, uint16_t throw_pc)
+{
 	uint8_t i;
 	dj_di_pointer method;
 	char caught = 0, type_applies;
@@ -753,33 +792,23 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
 
 	DEBUG_LOG("Throwing exception at pc=%d, object entity id=%d\n", pc, dj_mem_getChunkId(obj));
 
-	//	char temp[32];
-	//	snprintf(temp, 32, "%d, %d\n", dj_vm_getInfusionId(dj_exec_getVM(), classGlobalId.infusion), classGlobalId.entity_id);
-	//	nesc_printf(temp);
-
 	throw_pc = pc;
-	while (!caught && dj_exec_getCurrentThread()->frameStack != NULL) {
+	while (!caught && dj_exec_getCurrentThread()->frameStack != NULL)
+	{
 		method = dj_global_id_getMethodImplementation(
 				dj_exec_getCurrentThread()->frameStack->method);
 
 		// loop through the exception handlers to try and find an appropriate one
 		uint8_t nr_handlers =
 				dj_di_methodImplementation_getNrExceptionHandlers(method);
-		for (i = 0; (i < nr_handlers) && (caught == 0); i++) {
-			catch_type_local_id
-					= dj_di_methodImplementation_getExceptionHandlerType(method, i);
-
-			DEBUG_LOG("Testing handler pc=%d, start=%d, end=%d, object entity id=%d, handler type=%d\n",
-					pc,
-					dj_di_methodImplementation_getExceptionHandlerStartPC(method, i),
-					dj_di_methodImplementation_getExceptionHandlerEndPC(method, i),
-					dj_mem_getChunkId(obj),
-					dj_global_id_resolve(dj_exec_getCurrentInfusion(), catch_type_local_id).entity_id
-			);
+		for (i = 0; (i < nr_handlers) && (caught == 0); i++)
+		{
+			catch_type_local_id = dj_di_methodImplementation_getExceptionHandlerType(method, i);
 
 			// If the infusion_id of the catch type equals 255, the catch block applies for every type.
 			// This special case implements the finally block, as per JVM spec version 2, section 7.13.
-			if (catch_type_local_id.infusion_id == 255) {
+			if (catch_type_local_id.infusion_id == 255)
+			{
 				type_applies = 1;
 			} else {
 				catch_type = dj_global_id_resolve(dj_exec_getCurrentInfusion(),
@@ -790,20 +819,16 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
 
 			// check if this handler applies
 			if ((type_applies)
-					&& (throw_pc
-							>=dj_di_methodImplementation_getExceptionHandlerStartPC(method, i))
-					&& (throw_pc
-							<=dj_di_methodImplementation_getExceptionHandlerEndPC(method, i))) {
+					&& (throw_pc >= dj_di_methodImplementation_getExceptionHandlerStartPC(method, i))
+					&& (throw_pc <= dj_di_methodImplementation_getExceptionHandlerEndPC(method, i)))
+			{
 				// handler found, jump to catch adress
-				pc
-						= dj_di_methodImplementation_getExceptionHandlerCatchPC(method, i);
+				pc = dj_di_methodImplementation_getExceptionHandlerCatchPC(method, i);
 
 				// TODO is this correct?
 				// pop all operands from the integer and reference stacks
-				intStack
-						= (int16_t*) dj_frame_stackStartOffset(dj_exec_getCurrentThread()->frameStack);
-				refStack
-						= (ref_t*) dj_frame_stackEndOffset(dj_exec_getCurrentThread()->frameStack);
+				intStack = (int16_t*) dj_frame_stackStartOffset(dj_exec_getCurrentThread()->frameStack);
+				refStack = (ref_t*) dj_frame_stackEndOffset(dj_exec_getCurrentThread()->frameStack);
 
 				pushRef(VOIDP_TO_REF(obj));
 				caught = 1;
@@ -811,12 +836,13 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
 		}
 
 		// if not caught, destroy the current frame and go into the next on the stack
-		if (!caught) {
+		if (!caught)
+		{
 
 			dj_frame_destroy(dj_thread_popFrame(dj_exec_getCurrentThread()));
 
+			// perform context switch
 			if (dj_exec_getCurrentThread()->frameStack != NULL)
-				// perform context switch
 				dj_exec_activate_thread(dj_exec_getCurrentThread());
 
 			throw_pc = pc;
@@ -825,18 +851,12 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
 	}
 
 	// if the exception was not caught, terminate the thread
-	if (!caught) {
+	if (!caught)
+	{
 		dj_exec_getCurrentThread()->status = THREADSTATUS_FINISHED;
 		dj_exec_breakExecution();
 
-		// GS-07/10/2008-14:27(AEST)  while   I  agree  that  silently
-		// terminating the thread is technically a correct beahaviour,
-		// I  think that  at this  point, having  an  explicit failure
-		// would be more useful
 		// printf("Uncaught exception[%d]\n", classid.entity_id);
-#ifdef IS_SIMULATOR
-		DARJEELING_PRINTF("Uncaught exception[%d] - %c[31m%s%c[0m\n", classGlobalId.entity_id, 0x1b, getExceptionName(classGlobalId.entity_id), 0x1b );
-#endif
 		dj_panic(DJ_PANIC_UNCAUGHT_EXCEPTION);
 	}
 }
@@ -847,19 +867,25 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc) {
 #include "invoke_instructions.h"
 #include "misc_instructions.h"
 
+#define SHORT_ARITHMETIC_OP(op) do { temp2 = popShort(); \
+        temp1 = popShort();                        \
+        pushShort((int16_t)(temp1 op temp2)); } while(0)
+
 #define INT_ARITHMETIC_OP(op) do { temp2 = popInt(); \
         temp1 = popInt();                        \
         pushInt(temp1 op temp2); } while(0)
 
-#define SHORT_ARITHMETIC_OP(op) do { temp2 = popShort(); \
-        temp1 = popShort();                        \
-        pushShort((int16_t)(temp1 op temp2)); } while(0)
+#define LONG_ARITHMETIC_OP(op) do { ltemp2 = popLong(); \
+        ltemp1 = popLong();                        \
+        pushLong((int64_t)(ltemp1 op ltemp2)); } while(0)
 
 /**
  * The execution engine's main run function. Executes [nrOpcodes] instructions, or until execution is stopped explicitly.
  * @param nrOpcodes the amount of opcodes to execute in one 'run'.
  */
-int dj_exec_run(int nrOpcodes) {
+int dj_exec_run(int nrOpcodes)
+{
+
 #ifdef DARJEELING_DEBUG_TRACE
 	int oldCallDepth = callDepth;
 #endif
@@ -868,619 +894,208 @@ int dj_exec_run(int nrOpcodes) {
 	int i;
 	nrOpcodesLeft = nrOpcodes;
 	int32_t temp1, temp2, temp3;
+	int64_t ltemp1, ltemp2, ltemp3;
 	ref_t rtemp1, rtemp2, rtemp3;
 
 	while (nrOpcodesLeft > 0) {
 		nrOpcodesLeft--;
 		opcode = fetch();
 
-#ifdef ASSEMBLY_DEBUGGING
-//		DARJEELING_PRINTF("_%d(pc=%d)\n" , opcode, pc);
-		ASSEMBLY_DEBUG("=====\tOPCODE %d\t=====\n" , opcode);
-#endif
 #ifdef DARJEELING_DEBUG
 		totalNrOpcodes++;
 		oldPc = pc;
 #endif
 
 		switch (opcode) {
+
 		// arithmetic
-		case JVM_IADD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IADD\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(+);
-			break;
-		case JVM_ISUB:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISUB\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(-);
-			break;
-		case JVM_IMUL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IMUL\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(*);
-			break;
-		case JVM_IDIV:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IDIV\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(/);
-			break;
-		case JVM_INEG:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_INEG\t=====\n");
-#endif
-			pushInt(-popInt());
-			break;
-		case JVM_ISHR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISHR\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(>>);
-			break;
-		case JVM_IUSHR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IUSHR\t=====\n");
-#endif
-
-			temp2 = popInt();
-			temp1 = popInt();
-			pushInt(((uint32_t) temp1) >> temp2);
-			break;
-		case JVM_ISHL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISHL\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(<<);
-			break;
-		case JVM_IREM:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IREM\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(%);
-			break;
-		case JVM_IAND:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IAND\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(&);
-			break;
-		case JVM_IOR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IOR\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(|);
-			break;
-		case JVM_IXOR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IXOR\t=====\n");
-#endif
-			INT_ARITHMETIC_OP(^);
-			break;
-
-			// arithmetic
-		case JVM_SADD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SADD\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(+);
-			break;
-		case JVM_SSUB:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSUB\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(-);
-			break;
-		case JVM_SMUL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SMUL\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(*);
-			break;
-		case JVM_SDIV:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SDIV\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(/);
-			break;
-		case JVM_SNEG:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SNEG\t=====\n");
-#endif
-			pushShort(-popShort());
-			break;
-		case JVM_SSHR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSHR\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(>>);
-			break;
+		case JVM_SADD: SHORT_ARITHMETIC_OP(+); break;
+		case JVM_SSUB: SHORT_ARITHMETIC_OP(-); break;
+		case JVM_SMUL: SHORT_ARITHMETIC_OP(*); break;
+		case JVM_SDIV: SHORT_ARITHMETIC_OP(/); break;
+		case JVM_SNEG: pushShort(-popShort()); break;
+		case JVM_SSHR: SHORT_ARITHMETIC_OP(>>); break;
 		case JVM_SUSHR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SUSHR\t=====\n");
-#endif
-
-			temp2 = popShort();
+			temp2 = popShort() & 15;
 			temp1 = popShort();
 			pushShort(((uint16_t) temp1) >> temp2);
 			break;
-		case JVM_SSHL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSHL\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(<<);
-			break;
-		case JVM_SREM:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SREM\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(%);
-			break;
-		case JVM_SAND:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SAND\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(&);
-			break;
-		case JVM_SOR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SOR\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(|);
-			break;
-		case JVM_SXOR:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SXOR\t=====\n");
-#endif
-			SHORT_ARITHMETIC_OP(^);
-			break;
+		case JVM_SSHL: SHORT_ARITHMETIC_OP(<<); break;
+		case JVM_SREM: SHORT_ARITHMETIC_OP(%); break;
+		case JVM_SAND: SHORT_ARITHMETIC_OP(&); break;
+		case JVM_SOR: SHORT_ARITHMETIC_OP(|); break;
+		case JVM_SXOR: SHORT_ARITHMETIC_OP(^); break;
 
-			// TODO use peekInt/pokeInt
-		case JVM_I2B:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_I2B\t=====\n");
-#endif
-			pushShort((int8_t) popInt());
+		case JVM_IADD: INT_ARITHMETIC_OP(+); break;
+		case JVM_ISUB: INT_ARITHMETIC_OP(-); break;
+		case JVM_IMUL: INT_ARITHMETIC_OP(*); break;
+		case JVM_IDIV: INT_ARITHMETIC_OP(/); break;
+		case JVM_INEG: pushInt(-popInt()); break;
+		case JVM_ISHR: INT_ARITHMETIC_OP(>>); break;
+		case JVM_IUSHR:
+			temp2 = popShort() & 31;
+			temp1 = popInt();
+			pushInt(((uint32_t) temp1) >> temp2);
 			break;
-		case JVM_I2C:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_I2C\t=====\n");
-#endif
-			pushShort((int8_t) popInt());
-			break;
-		case JVM_I2S:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_I2S\t=====\n");
-#endif
-			pushShort((int16_t) popInt());
-			break;
+		case JVM_ISHL: INT_ARITHMETIC_OP(<<); break;
+		case JVM_IREM: INT_ARITHMETIC_OP(%); break;
+		case JVM_IAND: INT_ARITHMETIC_OP(&); break;
+		case JVM_IOR: INT_ARITHMETIC_OP(|); break;
+		case JVM_IXOR: INT_ARITHMETIC_OP(^); break;
 
-		case JVM_S2B:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_S2B\t=====\n");
-#endif
-			pushShort((int8_t) popShort());
+		case JVM_LADD: LONG_ARITHMETIC_OP(+); break;
+		case JVM_LSUB: LONG_ARITHMETIC_OP(-); break;
+		case JVM_LMUL: LONG_ARITHMETIC_OP(*); break;
+		case JVM_LDIV: LONG_ARITHMETIC_OP(/); break;
+		case JVM_LNEG: pushLong(-popLong()); break;
+		case JVM_LSHR: LONG_ARITHMETIC_OP(>>); break;
+		case JVM_LUSHR:
+			ltemp2 = popShort() & 63;
+			ltemp1 = popLong();
+			pushLong(((uint64_t) ltemp1) >> ltemp2);
 			break;
-		case JVM_S2C:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_S2C\t=====\n");
-#endif
-			pushShort((int8_t) popShort());
-			break;
-		case JVM_S2I:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_S2I\t=====\n");
-#endif
-			pushInt((int32_t) popShort());
-			break;
+		case JVM_LSHL: LONG_ARITHMETIC_OP(<<); break;
+		case JVM_LREM: LONG_ARITHMETIC_OP(%); break;
+		case JVM_LAND: LONG_ARITHMETIC_OP(&); break;
+		case JVM_LOR: LONG_ARITHMETIC_OP(|); break;
+		case JVM_LXOR: LONG_ARITHMETIC_OP(^); break;
+
+		// TODO use peekInt/pokeInt
+		case JVM_S2B: pushShort((int8_t) popShort()); break;
+		case JVM_S2C: pushShort((int8_t) popShort()); break;
+		case JVM_S2I: pushInt((int32_t) popShort()); break;
+		case JVM_S2L: pushLong((int64_t) popShort()); break;
+
+		case JVM_I2B: pushShort((int8_t) popInt()); break;
+		case JVM_I2C: pushShort((int8_t) popInt()); break;
+		case JVM_I2S: pushShort((int16_t) popInt()); break;
+		case JVM_I2L: pushLong((int64_t) popInt()); break;
+
+		case JVM_L2I: pushInt((int32_t) popLong()); break;
+		case JVM_L2S: pushShort((int16_t) popLong()); break;
 
 		case JVM_B2C:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_B2C\t=====\n");
-#endif
 			// TODO keep this opcode?
 			break;
 
 		case JVM_IINC:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IINC\t=====\n");
-#endif
-
 			temp1 = fetch();
 			temp2 = (int8_t) fetch();
 			setLocalInt(temp1, getLocalInt(temp1) + temp2);
 			break;
 
 		case JVM_IINC_W:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IINC_W\t=====\n");
-#endif
-
 			temp1 = fetch();
 			temp2 = (int16_t) fetch16();
 			setLocalInt(temp1, getLocalInt(temp1) + temp2);
 			break;
 
 		case JVM_SINC:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SINC\t=====\n");
-#endif
-
 			temp1 = fetch();
 			temp2 = (int8_t) fetch();
 			setLocalShort(temp1, getLocalShort(temp1) + temp2);
 			break;
 
 		case JVM_SINC_W:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SINC_W\t=====\n");
-#endif
-
 			temp1 = fetch();
 			temp2 = (int16_t) fetch16();
 			setLocalShort(temp1, getLocalShort(temp1) + temp2);
 			break;
 
-			// stack and local variables
-		case JVM_ICONST_M1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_\t=====\n");
-#endif
-			pushInt(-1);
-			break;
-		case JVM_ICONST_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICONST_0\t=====\n");
-#endif
-			pushInt(0);
-			break;
-		case JVM_ICONST_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICONST_1\t=====\n");
-#endif
-			pushInt(1);
-			break;
-		case JVM_ICONST_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICONST_2\t=====\n");
-#endif
-			pushInt(2);
-			break;
-		case JVM_ICONST_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICONST_3\t=====\n");
-#endif
-			pushInt(3);
-			break;
-		case JVM_ICONST_4:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICONST_4\t=====\n");
-#endif
-			pushInt(4);
-			break;
-		case JVM_ICONST_5:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICONST_5\t=====\n");
-#endif
-			pushInt(5);
-			break;
+		// stack and local variables
+		case JVM_SCONST_M1: pushShort(-1); break;
+		case JVM_SCONST_0: pushShort(0); break;
+		case JVM_SCONST_1: pushShort(1); break;
+		case JVM_SCONST_2: pushShort(2); break;
+		case JVM_SCONST_3: pushShort(3); break;
+		case JVM_SCONST_4: pushShort(4); break;
+		case JVM_SCONST_5: pushShort(5); break;
 
-		case JVM_SCONST_M1:
-			pushShort(-1);
-			break;
-		case JVM_SCONST_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCONST_0\t=====\n");
-#endif
-			pushShort(0);
-			break;
-		case JVM_SCONST_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCONST_1\t=====\n");
-#endif
-			pushShort(1);
-			break;
-		case JVM_SCONST_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCONST_2\t=====\n");
-#endif
-			pushShort(2);
-			break;
-		case JVM_SCONST_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCONST_3\t=====\n");
-#endif
-			pushShort(3);
-			break;
-		case JVM_SCONST_4:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCONST_4\t=====\n");
-#endif
-			pushShort(4);
-			break;
-		case JVM_SCONST_5:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCONST_5\t=====\n");
-#endif
-			pushShort(5);
-			break;
+		case JVM_ICONST_M1: pushInt(-1); break;
+		case JVM_ICONST_0: pushInt(0); break;
+		case JVM_ICONST_1: pushInt(1); break;
+		case JVM_ICONST_2: pushInt(2); break;
+		case JVM_ICONST_3: pushInt(3); break;
+		case JVM_ICONST_4: pushInt(4); break;
+		case JVM_ICONST_5: pushInt(5); break;
 
-		case JVM_BIPUSH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_BIPUSH\t=====\n");
-#endif
-			pushInt((int8_t) fetch());
-			break;
-		case JVM_BSPUSH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_BSPUSH\t=====\n");
-#endif
-			pushShort((int8_t) fetch());
-			break;
-		case JVM_SIPUSH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SIPUSH\t=====\n");
-#endif
-			pushInt((int16_t) fetch16());
-			break;
-		case JVM_SSPUSH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSPUSH\t=====\n");
-#endif
-			pushShort((int16_t) fetch16());
-			break;
-		case JVM_IIPUSH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IIPUSH\t=====\n");
-#endif
-			pushInt((int32_t) fetch32());
-			break;
+		case JVM_LCONST_0: pushLong(0); break;
+		case JVM_LCONST_1: pushLong(1); break;
 
-		case JVM_LDS:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_LDS\t=====\n");
-#endif
-			LDS();
-			break;
+		case JVM_BIPUSH: pushInt((int8_t) fetch()); break;
+		case JVM_BSPUSH: pushShort((int8_t) fetch()); break;
+		case JVM_SIPUSH: pushInt((int16_t) fetch16()); break;
+		case JVM_SSPUSH: pushShort((int16_t) fetch16()); break;
+		case JVM_IIPUSH: pushInt((int32_t) fetch32()); break;
+		case JVM_LLPUSH: pushLong((int64_t) fetch64()); break;
 
-		case JVM_ISTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISTORE\t=====\n");
-#endif
-			setLocalInt(fetch(), popInt());
-			break;
-		case JVM_ISTORE_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_0\t=====\n");
-#endif
-			setLocalInt(0, popInt());
-			break;
-		case JVM_ISTORE_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_1\t=====\n");
-#endif
-			setLocalInt(1, popInt());
-			break;
-		case JVM_ISTORE_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_2\t=====\n");
-#endif
-			setLocalInt(2, popInt());
-			break;
-		case JVM_ISTORE_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ISTORE_3\t=====\n");
-#endif
-			setLocalInt(3, popInt());
-			break;
+		case JVM_LDS: LDS(); break;
 
-		case JVM_ILOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ILOAD\t=====\n");
-#endif
-			pushInt(getLocalInt(fetch()));
-			break;
-		case JVM_ILOAD_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_0\t=====\n");
-#endif
-			pushInt(getLocalInt(0));
-			break;
-		case JVM_ILOAD_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_1\t=====\n");
-#endif
-			pushInt(getLocalInt(1));
-			break;
-		case JVM_ILOAD_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_2\t=====\n");
-#endif
-			pushInt(getLocalInt(2));
-			break;
-		case JVM_ILOAD_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ILOAD_3\t=====\n");
-#endif
-			pushInt(getLocalInt(3));
-			break;
+		case JVM_SLOAD: pushShort(getLocalShort(fetch())); break;
+		case JVM_SLOAD_0: pushShort(getLocalShort(0)); break;
+		case JVM_SLOAD_1: pushShort(getLocalShort(1)); break;
+		case JVM_SLOAD_2: pushShort(getLocalShort(2)); break;
+		case JVM_SLOAD_3: pushShort(getLocalShort(3)); break;
 
-		case JVM_SSTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSTORE\t=====\n");
-#endif
-			setLocalShort(fetch(), popShort());
-			break;
-		case JVM_SSTORE_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_0\t=====\n");
-#endif
-			setLocalShort(0, popShort());
-			break;
-		case JVM_SSTORE_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_1\t=====\n");
-#endif
-			setLocalShort(1, popShort());
-			break;
-		case JVM_SSTORE_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_2\t=====\n");
-#endif
-			setLocalShort(2, popShort());
-			break;
-		case JVM_SSTORE_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SSTORE_3\t=====\n");
-#endif
-			setLocalShort(3, popShort());
-			break;
+		case JVM_ILOAD: pushInt(getLocalInt(fetch())); break;
+		case JVM_ILOAD_0: pushInt(getLocalInt(0)); break;
+		case JVM_ILOAD_1: pushInt(getLocalInt(1)); break;
+		case JVM_ILOAD_2: pushInt(getLocalInt(2)); break;
+		case JVM_ILOAD_3: pushInt(getLocalInt(3)); break;
 
-		case JVM_SLOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SLOAD\t=====\n");
-#endif
-			pushShort(getLocalShort(fetch()));
-			break;
-		case JVM_SLOAD_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_0\t=====\n");
-#endif
-			pushShort(getLocalShort(0));
-			break;
-		case JVM_SLOAD_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_1\t=====\n");
-#endif
-			pushShort(getLocalShort(1));
-			break;
-		case JVM_SLOAD_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_2\t=====\n");
-#endif
-			pushShort(getLocalShort(2));
-			break;
-		case JVM_SLOAD_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SLOAD_3\t=====\n");
-#endif
-			pushShort(getLocalShort(3));
-			break;
+		case JVM_LLOAD: pushLong(getLocalLong(fetch())); break;
+		case JVM_LLOAD_0: pushLong(getLocalLong(0)); break;
+		case JVM_LLOAD_1: pushLong(getLocalLong(1)); break;
+		case JVM_LLOAD_2: pushLong(getLocalLong(2)); break;
+		case JVM_LLOAD_3: pushLong(getLocalLong(3)); break;
 
-		case JVM_ACONST_NULL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ACONST_NULL\t=====\n");
-#endif
-			pushRef(nullref);
-			break;
+		case JVM_ACONST_NULL: pushRef(nullref); break;
+		case JVM_ALOAD: pushRef(getLocalRef(fetch())); break;
+		case JVM_ALOAD_0: pushRef(getLocalRef(0)); break;
+		case JVM_ALOAD_1: pushRef(getLocalRef(1)); break;
+		case JVM_ALOAD_2: pushRef(getLocalRef(2)); break;
+		case JVM_ALOAD_3: pushRef(getLocalRef(3)); break;
 
-		case JVM_ALOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ALOAD\t=====\n");
-#endif
-			pushRef(getLocalRef(fetch()));
-			break;
-		case JVM_ALOAD_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_0\t=====\n");
-#endif
-			pushRef(getLocalRef(0));
-			break;
-		case JVM_ALOAD_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_1\t=====\n");
-#endif
-			pushRef(getLocalRef(1));
-			break;
-		case JVM_ALOAD_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_2\t=====\n");
-#endif
-			pushRef(getLocalRef(2));
-			break;
-		case JVM_ALOAD_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ALOAD_3\t=====\n");
-#endif
-			pushRef(getLocalRef(3));
-			break;
+		case JVM_SSTORE: setLocalShort(fetch(), popShort()); break;
+		case JVM_SSTORE_0: setLocalShort(0, popShort()); break;
+		case JVM_SSTORE_1: setLocalShort(1, popShort()); break;
+		case JVM_SSTORE_2: setLocalShort(2, popShort()); break;
+		case JVM_SSTORE_3: setLocalShort(3, popShort()); break;
 
-		case JVM_ASTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ASTORE\t=====\n");
-#endif
-			setLocalRef(fetch(), popRef());
-			break;
-		case JVM_ASTORE_0:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_0\t=====\n");
-#endif
-			setLocalRef(0, popRef());
-			break;
-		case JVM_ASTORE_1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_1\t=====\n");
-#endif
-			setLocalRef(1, popRef());
-			break;
-		case JVM_ASTORE_2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_2\t=====\n");
-#endif
-			setLocalRef(2, popRef());
-			break;
-		case JVM_ASTORE_3:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ASTORE_3\t=====\n");
-#endif
-			setLocalRef(3, popRef());
-			break;
+		case JVM_ISTORE: setLocalInt(fetch(), popInt()); break;
+		case JVM_ISTORE_0: setLocalInt(0, popInt()); break;
+		case JVM_ISTORE_1: setLocalInt(1, popInt()); break;
+		case JVM_ISTORE_2: setLocalInt(2, popInt()); break;
+		case JVM_ISTORE_3: setLocalInt(3, popInt()); break;
 
-			// Integer stack operations
-		case JVM_IPOP:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IPOP\t=====\n");
-#endif
-			intStack--;
-			break;
+		case JVM_LSTORE: setLocalLong(fetch(), popLong()); break;
+		case JVM_LSTORE_0: setLocalLong(0, popLong()); break;
+		case JVM_LSTORE_1: setLocalLong(1, popLong()); break;
+		case JVM_LSTORE_2: setLocalLong(2, popLong()); break;
+		case JVM_LSTORE_3: setLocalLong(3, popLong()); break;
 
-		case JVM_IPOP2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IPOP2\t=====\n");
-#endif
+		case JVM_ASTORE: setLocalRef(fetch(), popRef()); break;
+		case JVM_ASTORE_0: setLocalRef(0, popRef()); break;
+		case JVM_ASTORE_1: setLocalRef(1, popRef()); break;
+		case JVM_ASTORE_2: setLocalRef(2, popRef()); break;
+		case JVM_ASTORE_3: setLocalRef(3, popRef()); break;
 
-			intStack -= 2;
-			break;
+		// Integer stack operations
+		case JVM_IPOP: intStack--; break;
+		case JVM_IPOP2: intStack -= 2; break;
 
 		case JVM_IDUP:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IDUP\t=====\n");
-#endif
 			*intStack = *(intStack - 1);
 			intStack++;
 			break;
 
 		case JVM_IDUP2:
-
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IDUP2\t=====\n");
-			ASSEMBLY_DEBUG("intStack -1 : %d, intStack - 2 : %d\n", *(intStack - 1), *(intStack - 2));
-#endif
-
 			*(intStack + 1) = *(intStack - 1);
 			*(intStack) = *(intStack - 2);
-
 			intStack += 2;
 			break;
 
 		case JVM_IDUP_X:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IDUP_X\t=====\n");
-#endif
-
 			m = fetch();
 			n = m & 15;
 			m >>= 4;
@@ -1505,12 +1120,8 @@ int dj_exec_run(int nrOpcodes) {
 
 			break;
 
-			// TODO make faster
+		// TODO make faster
 		case JVM_IDUP_X1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IDUP_X1\t=====\n");
-#endif
-
 			temp1 = popShort();
 			temp2 = popShort();
 			pushShort(temp1);
@@ -1518,12 +1129,8 @@ int dj_exec_run(int nrOpcodes) {
 			pushShort(temp1);
 			break;
 
-			// TODO make faster
+		// TODO make faster
 		case JVM_IDUP_X2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IDUP_X2\t=====\n");
-#endif
-
 			temp1 = popShort();
 			temp2 = popShort();
 			temp3 = popShort();
@@ -1533,46 +1140,23 @@ int dj_exec_run(int nrOpcodes) {
 			pushShort(temp1);
 			break;
 
-			// Reference stack operations
-		case JVM_APOP:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_APOP\t=====\n");
-#endif
-
-			refStack++;
-			break;
-
-		case JVM_APOP2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_APOP2\t=====\n");
-#endif
-			refStack += 2;
-			break;
+		// Reference stack operations
+		case JVM_APOP: refStack++; break;
+		case JVM_APOP2:	refStack += 2; break;
 
 		case JVM_ADUP:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ADUP\t=====\n");
-#endif
 			refStack--;
 			*refStack = *(refStack + 1);
 			break;
 
 		case JVM_ADUP2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ADUP2\t=====\n");
-#endif
-
 			refStack -= 2;
 			*(refStack) = *(refStack + 2);
 			*(refStack + 1) = *(refStack + 3);
 			break;
 
-			// TODO make faster
+		// TODO make faster
 		case JVM_ADUP_X1:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ADUP_X1\t=====\n");
-#endif
-
 			rtemp1 = popRef();
 			rtemp2 = popRef();
 			pushRef(rtemp1);
@@ -1580,12 +1164,8 @@ int dj_exec_run(int nrOpcodes) {
 			pushRef(rtemp1);
 			break;
 
-			// TODO make faster
+		// TODO make faster
 		case JVM_ADUP_X2:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ADUP_X2\t=====\n");
-#endif
-
 			rtemp1 = popRef();
 			rtemp2 = popRef();
 			rtemp3 = popRef();
@@ -1595,502 +1175,134 @@ int dj_exec_run(int nrOpcodes) {
 			pushRef(rtemp1);
 			break;
 
-			// program flow
-		case JVM_GOTO:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GOTO\t=====\n");
-#endif
-			GOTO();
+		// program flow
+		case JVM_GOTO: GOTO(); break;
+
+		case JVM_IF_ICMPEQ: IF_ICMPEQ(); break;
+		case JVM_IF_ICMPNE:	IF_ICMPNE(); break;
+		case JVM_IF_ICMPLT:	IF_ICMPLT(); break;
+		case JVM_IF_ICMPGE:	IF_ICMPGE(); break;
+		case JVM_IF_ICMPGT:	IF_ICMPGT(); break;
+		case JVM_IF_ICMPLE:	IF_ICMPLE(); break;
+
+		case JVM_IF_SCMPEQ:	IF_SCMPEQ(); break;
+		case JVM_IF_SCMPNE:	IF_SCMPNE(); break;
+		case JVM_IF_SCMPLT:	IF_SCMPLT(); break;
+		case JVM_IF_SCMPGE:	IF_SCMPGE(); break;
+		case JVM_IF_SCMPGT:	IF_SCMPGT(); break;
+		case JVM_IF_SCMPLE:	IF_SCMPLE(); break;
+
+		case JVM_IIFEQ: IIFEQ(); break;
+		case JVM_IIFNE: IIFNE(); break;
+		case JVM_IIFLT: IIFLT(); break;
+		case JVM_IIFGE: IIFGE(); break;
+		case JVM_IIFGT: IIFGT(); break;
+		case JVM_IIFLE: IIFLE(); break;
+
+		case JVM_SIFEQ: SIFEQ(); break;
+		case JVM_SIFNE: SIFNE(); break;
+		case JVM_SIFLT: SIFLT(); break;
+		case JVM_SIFGE: SIFGE(); break;
+		case JVM_SIFGT: SIFGT(); break;
+		case JVM_SIFLE: SIFLE(); break;
+
+		case JVM_IF_ACMPEQ: IF_ACMPEQ(); break;
+		case JVM_IF_ACMPNE: IF_ACMPNE(); break;
+		case JVM_IFNULL: IFNULL(); break;
+		case JVM_IFNONNULL: IFNONNULL(); break;
+
+		case JVM_RETURN: RETURN(); break;
+		case JVM_SRETURN: SRETURN(); break;
+		case JVM_IRETURN: IRETURN(); break;
+		case JVM_LRETURN: LRETURN(); break;
+		case JVM_ARETURN: ARETURN(); break;
+
+		case JVM_INVOKESTATIC: INVOKESTATIC(); break;
+		case JVM_INVOKESPECIAL: INVOKESPECIAL(); break;
+		case JVM_INVOKEVIRTUAL:	INVOKEVIRTUAL(); break;
+		case JVM_INVOKEINTERFACE: INVOKEINTERFACE();break;
+
+		// Monitors
+		case JVM_MONITORENTER: MONITORENTER(); break;
+		case JVM_MONITOREXIT: MONITOREXIT(); break;
+
+		// Arrays and classes
+		case JVM_NEW: NEW(); break;
+		case JVM_INSTANCEOF: INSTANCEOF(); break;
+		case JVM_CHECKCAST: CHECKCAST(); break;
+
+		// Array operations
+		case JVM_NEWARRAY: NEWARRAY(); break;
+		case JVM_ANEWARRAY: ANEWARRAY(); break;
+		case JVM_ARRAYLENGTH: ARRAYLENGTH(); break;
+
+		case JVM_BASTORE: BASTORE(); break;
+		case JVM_CASTORE: CASTORE(); break;
+		case JVM_SASTORE: SASTORE(); break;
+		case JVM_IASTORE: IASTORE(); break;
+		case JVM_LASTORE: LASTORE(); break;
+		case JVM_AASTORE: AASTORE(); break;
+
+		case JVM_BALOAD: BALOAD(); break;
+		case JVM_CALOAD: CALOAD(); break;
+		case JVM_SALOAD: SALOAD(); break;
+		case JVM_IALOAD: IALOAD(); break;
+		case JVM_LALOAD: LALOAD(); break;
+		case JVM_AALOAD: AALOAD(); break;
+
+		// Static variables
+		case JVM_GETSTATIC_B: GETSTATIC_B(); break;
+		case JVM_GETSTATIC_C: GETSTATIC_C(); break;
+		case JVM_GETSTATIC_S: GETSTATIC_S(); break;
+		case JVM_GETSTATIC_I: GETSTATIC_I(); break;
+		case JVM_GETSTATIC_L: GETSTATIC_L(); break;
+		case JVM_GETSTATIC_A: GETSTATIC_A(); break;
+
+		case JVM_PUTSTATIC_B: PUTSTATIC_B(); break;
+		case JVM_PUTSTATIC_C: PUTSTATIC_C(); break;
+		case JVM_PUTSTATIC_S: PUTSTATIC_S(); break;
+		case JVM_PUTSTATIC_I: PUTSTATIC_I(); break;
+		case JVM_PUTSTATIC_L: PUTSTATIC_L(); break;
+		case JVM_PUTSTATIC_A: PUTSTATIC_A(); break;
+
+		// Field operations
+		case JVM_GETFIELD_B: GETFIELD_B(); break;
+		case JVM_GETFIELD_C: GETFIELD_C(); break;
+		case JVM_GETFIELD_S: GETFIELD_S(); break;
+		case JVM_GETFIELD_I: GETFIELD_I(); break;
+		case JVM_GETFIELD_L: GETFIELD_L(); break;
+		case JVM_GETFIELD_A: GETFIELD_A(); break;
+
+		case JVM_PUTFIELD_B: PUTFIELD_B(); break;
+		case JVM_PUTFIELD_C: PUTFIELD_C(); break;
+		case JVM_PUTFIELD_S: PUTFIELD_S(); break;
+		case JVM_PUTFIELD_I: PUTFIELD_I(); break;
+		case JVM_PUTFIELD_L: PUTFIELD_L(); break;
+		case JVM_PUTFIELD_A: PUTFIELD_A(); break;
+
+		// Case statements
+		case JVM_TABLESWITCH: TABLESWITCH(); break;
+		case JVM_LOOKUPSWITCH: LOOKUPSWITCH(); break;
+
+		// Exceptions
+		case JVM_ATHROW: ATHROW(); break;
+
+		// Long compare
+		case JVM_LCMP:
+			// TODO maybe find a smarter/quicker way of doing this
+			ltemp2 = popLong();
+			ltemp1 = popLong();
+			if (ltemp1>ltemp2)
+				pushShort(1);
+			else if (ltemp1<ltemp2)
+				pushShort(-1);
+			else
+				pushShort(0);
+
 			break;
 
-		case JVM_IF_ICMPEQ:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICMPEQ\t=====\n");
-#endif
-			IF_ICMPEQ();
-			break;
-		case JVM_IF_ICMPNE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICMPNE\t=====\n");
-#endif
-			IF_ICMPNE();
-			break;
-		case JVM_IF_ICMPLT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICMPLT\t=====\n");
-#endif
-			IF_ICMPLT();
-			break;
-		case JVM_IF_ICMPGE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICMPGE\t=====\n");
-#endif
-			IF_ICMPGE();
-			break;
-		case JVM_IF_ICMPGT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICMPGT\t=====\n");
-#endif
-			IF_ICMPGT();
-			break;
-		case JVM_IF_ICMPLE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ICMPLE\t=====\n");
-#endif
-			IF_ICMPLE();
-			break;
-
-		case JVM_IF_SCMPEQ:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCMPEQ\t=====\n");
-#endif
-			IF_SCMPEQ();
-			break;
-		case JVM_IF_SCMPNE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCMPNE\t=====\n");
-#endif
-			IF_SCMPNE();
-			break;
-		case JVM_IF_SCMPLT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCMPLT\t=====\n");
-#endif
-			IF_SCMPLT();
-			break;
-		case JVM_IF_SCMPGE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCMPGE\t=====\n");
-#endif
-			IF_SCMPGE();
-			break;
-		case JVM_IF_SCMPGT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCMPGT\t=====\n");
-#endif
-			IF_SCMPGT();
-			break;
-		case JVM_IF_SCMPLE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SCMPLE\t=====\n");
-#endif
-			IF_SCMPLE();
-			break;
-
-		case JVM_IIFEQ:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IIFEQ\t=====\n");
-#endif
-			IIFEQ();
-			break;
-		case JVM_IIFNE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IIFNE\t=====\n");
-#endif
-			IIFNE();
-			break;
-		case JVM_IIFLT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IIFLT\t=====\n");
-#endif
-			IIFLT();
-			break;
-		case JVM_IIFGE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IIFGE\t=====\n");
-#endif
-			IIFGE();
-			break;
-		case JVM_IIFGT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IIFGT\t=====\n");
-#endif
-			IIFGT();
-			break;
-		case JVM_IIFLE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IIFLE\t=====\n");
-#endif
-			IIFLE();
-			break;
-
-		case JVM_SIFEQ:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SIFEQ\t=====\n");
-#endif
-			SIFEQ();
-			break;
-		case JVM_SIFNE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SIFNE\t=====\n");
-#endif
-			SIFNE();
-			break;
-		case JVM_SIFLT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SIFLT\t=====\n");
-#endif
-			SIFLT();
-			break;
-		case JVM_SIFGE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SIFGE\t=====\n");
-#endif
-			SIFGE();
-			break;
-		case JVM_SIFGT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SIFGT\t=====\n");
-#endif
-			SIFGT();
-			break;
-		case JVM_SIFLE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SIFLE\t=====\n");
-#endif
-			SIFLE();
-			break;
-
-		case JVM_IF_ACMPEQ:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IF_ACMPEQ\t=====\n");
-#endif
-			IF_ACMPEQ();
-			break;
-		case JVM_IF_ACMPNE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IF_ACMPNE\t=====\n");
-#endif
-			IF_ACMPNE();
-			break;
-		case JVM_IFNULL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IFNULL\t=====\n");
-#endif
-			IFNULL();
-			break;
-		case JVM_IFNONNULL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IFNONNULL\t=====\n");
-#endif
-			IFNONNULL();
-			break;
-
-		case JVM_RETURN:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_RETURN\t=====\n");
-#endif
-			RETURN();
-			break;
-		case JVM_IRETURN:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IRETURN\t=====\n");
-#endif
-			IRETURN();
-			break;
-		case JVM_SRETURN:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SRETURN\t=====\n");
-#endif
-			SRETURN();
-			break;
-		case JVM_ARETURN:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ARETURN\t=====\n");
-#endif
-			ARETURN();
-			break;
-		case JVM_INVOKESTATIC:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_INVOKESTATIC\t=====\n");
-#endif
-			INVOKESTATIC();
-			break;
-		case JVM_INVOKESPECIAL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_INVOKESPECIAL\t=====\n");
-#endif
-			INVOKESPECIAL();
-			break;
-		case JVM_INVOKEVIRTUAL:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_INVOKEVIRTUAL\t=====\n");
-#endif
-
-			INVOKEVIRTUAL();
-			break;
-		case JVM_INVOKEINTERFACE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_INVOKEINTERFACE\t=====\n");
-#endif
-			INVOKEINTERFACE();
-			break;
-
-			// monitors
-		case JVM_MONITORENTER:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_MONITORENTER\t=====\n");
-#endif
-			MONITORENTER();
-			break;
-		case JVM_MONITOREXIT:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_MONITOREXIT\t=====\n");
-#endif
-			MONITOREXIT();
-			break;
-
-			// arrays and classes
-		case JVM_NEW:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_NEW\t=====\n");
-#endif
-			NEW();
-			break;
-		case JVM_INSTANCEOF:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_INSTANCEOF\t=====\n");
-#endif
-			INSTANCEOF();
-			break;
-		case JVM_CHECKCAST:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_CHECKCAST\t=====\n");
-#endif
-			CHECKCAST();
-			break;
-
-		case JVM_NEWARRAY:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_NEWARRAY\t=====\n");
-#endif
-			NEWARRAY();
-			break;
-		case JVM_ANEWARRAY:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ANEWARRAY\t=====\n");
-#endif
-			ANEWARRAY();
-			break;
-		case JVM_ARRAYLENGTH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ARRAYLENGTH\t=====\n");
-#endif
-			ARRAYLENGTH();
-			break;
-		case JVM_BASTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_BASTORE\t=====\n");
-#endif
-			BASTORE();
-			break;
-		case JVM_CASTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_CASTORE\t=====\n");
-#endif
-			CASTORE();
-			break;
-		case JVM_SASTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SASTORE\t=====\n");
-#endif
-			SASTORE();
-			break;
-		case JVM_IASTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IASTORE\t=====\n");
-#endif
-			IASTORE();
-			break;
-		case JVM_AASTORE:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_AASTORE\t=====\n");
-#endif
-			AASTORE();
-			break;
-
-		case JVM_BALOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_BALOAD\t=====\n");
-#endif
-			BALOAD();
-			break;
-		case JVM_CALOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_CALOAD\t=====\n");
-#endif
-			CALOAD();
-			break;
-		case JVM_SALOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_SALOAD\t=====\n");
-#endif
-			SALOAD();
-			break;
-		case JVM_IALOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_IALOAD\t=====\n");
-#endif
-			IALOAD();
-			break;
-		case JVM_AALOAD:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_AALOAD\t=====\n");
-#endif
-			AALOAD();
-			break;
-
-		case JVM_GETSTATIC_I:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_I\t=====\n");
-#endif
-			GETSTATIC_I();
-			break;
-		case JVM_GETSTATIC_A:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_A\t=====\n");
-#endif
-			GETSTATIC_A();
-			break;
-		case JVM_GETSTATIC_B:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_B\t=====\n");
-#endif
-			GETSTATIC_B();
-			break;
-		case JVM_GETSTATIC_C:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_C\t=====\n");
-#endif
-			GETSTATIC_C();
-			break;
-		case JVM_GETSTATIC_S:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETSTATIC_S\t=====\n");
-#endif
-			GETSTATIC_S();
-			break;
-
-		case JVM_PUTSTATIC_I:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_I\t=====\n");
-#endif
-			PUTSTATIC_I();
-			break;
-		case JVM_PUTSTATIC_A:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_A\t=====\n");
-#endif
-			PUTSTATIC_A();
-			break;
-		case JVM_PUTSTATIC_B:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_B\t=====\n");
-#endif
-			PUTSTATIC_B();
-			break;
-		case JVM_PUTSTATIC_C:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_C\t=====\n");
-#endif
-			PUTSTATIC_C();
-			break;
-		case JVM_PUTSTATIC_S:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTSTATIC_S\t=====\n");
-#endif
-			PUTSTATIC_S();
-			break;
-
-		case JVM_GETFIELD_I:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_I\t=====\n");
-#endif
-			GETFIELD_I();
-			break;
-		case JVM_GETFIELD_A:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_A\t=====\n");
-#endif
-			GETFIELD_A();
-			break;
-		case JVM_GETFIELD_B:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_B\t=====\n");
-#endif
-			GETFIELD_B();
-			break;
-		case JVM_GETFIELD_C:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_C\t=====\n");
-#endif
-			GETFIELD_C();
-			break;
-		case JVM_GETFIELD_S:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_GETFIELD_S\t=====\n");
-#endif
-			GETFIELD_S();
-			break;
-
-		case JVM_PUTFIELD_I:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_I\t=====\n");
-#endif
-			PUTFIELD_I();
-			break;
-		case JVM_PUTFIELD_A:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_A\t=====\n");
-#endif
-			PUTFIELD_A();
-			break;
-		case JVM_PUTFIELD_B:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_B\t=====\n");
-#endif
-			PUTFIELD_B();
-			break;
-		case JVM_PUTFIELD_C:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_C\t=====\n");
-#endif
-			PUTFIELD_C();
-			break;
-		case JVM_PUTFIELD_S:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_PUTFIELD_S\t=====\n");
-#endif
-			PUTFIELD_S();
-			break;
-
-		case JVM_TABLESWITCH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_TABLESWITCH\t=====\n");
-#endif
-			TABLESWITCH();
-			break;
-		case JVM_LOOKUPSWITCH:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_LOOKUPSWITCH\t=====\n");
-#endif
-			LOOKUPSWITCH();
-			break;
-
-		case JVM_ATHROW:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_ATHROW\t=====\n");
-#endif
-			ATHROW();
-			break;
-
-			// misc
-		case JVM_NOP:
-#ifdef ASSEMBLY_DEBUGGING
-			ASSEMBLY_DEBUG("=====\tJVM_NOP\t=====\n");
-#endif
-			/* do nothing */
-			break;
+		// misc
+		case JVM_NOP: /* do nothing :3 */ break;
 
 		default:
 			DEBUG_LOG("Unimplemented opcode %d at pc=%d: %s\n", opcode, oldPc, jvm_opcodes[opcode]);
@@ -2100,6 +1312,7 @@ int dj_exec_run(int nrOpcodes) {
 #ifdef DARJEELING_DEBUG_TRACE
 
 
+		dj_thread *currentThread = dj_exec_getCurrentThread();
 		dj_frame *current_frame = currentThread->frameStack;
 		if (current_frame==NULL) continue;
 

@@ -40,6 +40,7 @@ dj_int_array *dj_int_array_create(uint8_t type, uint16_t size)
 	if ( type==T_BOOLEAN || type==T_BYTE || type==T_CHAR) { byteSize = size; } else
 	if ( type==T_SHORT ) byteSize = size*sizeof(int16_t); else
 	if ( type==T_INT ) byteSize = size*sizeof(int32_t); else
+	if ( type==T_LONG ) byteSize = size*sizeof(int64_t); else
 	{
         DEBUG_LOG("Unsupported array type: %d\n", type);
 		dj_panic(DJ_PANIC_UNIMPLEMENTED_FEATURE);

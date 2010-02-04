@@ -50,6 +50,7 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 	staticFieldsSize += dj_di_staticFieldInfo_getNrBytes(staticFieldInfo) * sizeof(uint8_t);
 	staticFieldsSize += dj_di_staticFieldInfo_getNrShorts(staticFieldInfo) * sizeof(uint16_t);
 	staticFieldsSize += dj_di_staticFieldInfo_getNrInts(staticFieldInfo) * sizeof(uint32_t);
+	staticFieldsSize += dj_di_staticFieldInfo_getNrLongs(staticFieldInfo) * sizeof(uint64_t);
 
 	// allocate infusion struct, plus the memory needed for the static fields in
 	// one block to save on heap complexity (less chunks on the heap)
@@ -84,6 +85,10 @@ dj_infusion *dj_infusion_create(dj_di_pointer staticFieldInfo, int nrImportedInf
 	ret->staticShortFields = (uint16_t*)staticFields;
 	staticFields += dj_di_staticFieldInfo_getNrShorts(staticFieldInfo) * sizeof(uint16_t);
 	ret->staticIntFields = (uint32_t*)staticFields;
+	staticFields += dj_di_staticFieldInfo_getNrInts(staticFieldInfo) * sizeof(uint32_t);
+	ret->staticLongFields = (uint64_t*)staticFields;
+
+	printf("%d\n", staticFieldsSize);
 
 	// init static fields to 0
 	memset((void*)((size_t)ret + sizeof(dj_infusion)), 0, staticFieldsSize);
@@ -159,6 +164,7 @@ void dj_infusion_updatePointers(dj_infusion *infusion)
 	infusion->staticByteFields = (uint8_t*)((void*)infusion->staticByteFields - shift);
 	infusion->staticShortFields = (uint16_t*)((void*)infusion->staticShortFields - shift);
 	infusion->staticIntFields = (uint32_t*)((void*)infusion->staticIntFields - shift);
+	infusion->staticLongFields = (uint64_t*)((void*)infusion->staticLongFields - shift);
 	infusion->staticReferenceFields = (ref_t*)((void*)infusion->staticReferenceFields - shift);
 	infusion->referencedInfusions = (dj_infusion**)((void*)infusion->referencedInfusions - shift);
 	DEBUG_LOG("Infusion %p elemetns are shifted %d\n", infusion, shift);

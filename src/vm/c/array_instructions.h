@@ -63,6 +63,109 @@ static inline void ARRAYLENGTH()
 }
 
 /**
+ * Executes the BALOAD instruction. An index and array are popped from the stack. The byte value in the
+ * array at index is then pushed on the stack. When index is out of bounds, (outside
+ * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
+ */
+static inline void BALOAD()
+{
+	uint32_t index = popInt();
+	dj_int_array *arr = REF_TO_VOIDP(popRef());
+
+	if (arr==NULL)
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
+	else
+		if ((index>=0) && (index<((dj_array*)arr)->length))
+			pushShort((int16_t)arr->data.bytes[index]);
+		else
+			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+
+}
+
+/**
+ * Executes the CALOAD instruction. An index and array are popped from the stack. The char value in the
+ * array at index is then pushed on the stack. When index is out of bounds, (outside
+ * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
+ */
+static inline void CALOAD()
+{
+	BALOAD();
+}
+
+/**
+ * Executes the SALOAD instruction. An index and array are popped from the stack. The short value in the
+ * array at index is then pushed on the stack. When index is out of bounds, (outside
+ * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
+ */
+static inline void SALOAD()
+{
+	uint32_t index = popInt();
+	dj_int_array *arr = REF_TO_VOIDP(popRef());
+
+	if (arr==NULL)
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
+	else
+		if ((index>=0) && (index<((dj_array*)arr)->length))
+			pushShort((int16_t)arr->data.shorts[index]);
+		else
+			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+
+}
+
+/**
+ * Executes the IALOAD instruction. An index and array are popped from the stack. The integer value in the
+ * array at index is then pushed on the stack. When index is out of bounds, (outside
+ * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
+ */
+static inline void IALOAD()
+{
+	uint32_t index = popInt();
+	dj_int_array *arr = REF_TO_VOIDP(popRef());
+
+	if (arr==NULL)
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
+	else
+		if ((index>=0) && (index<((dj_array*)arr)->length))
+			pushInt((int32_t)arr->data.ints[index]);
+		else
+			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+}
+
+/**
+ * Executes the LALOAD instruction. An index and array are popped from the stack. The long value in the
+ * array at index is then pushed on the stack. When index is out of bounds, (outside
+ * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
+ */
+static inline void LALOAD()
+{
+	uint32_t index = popInt();
+	dj_int_array *arr = REF_TO_VOIDP(popRef());
+
+	if (arr==NULL)
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
+	else
+		if ((index>=0) && (index<((dj_array*)arr)->length))
+			pushLong((int64_t)arr->data.longs[index]);
+		else
+			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+}
+
+
+static inline void AALOAD()
+{
+	uint32_t index = popInt();
+	dj_ref_array *arr = REF_TO_VOIDP(popRef());
+
+	if (arr==NULL)
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
+	else
+		if ((index>=0) && (index<((dj_array*)arr)->length))
+			pushRef(arr->refs[index]);
+		else
+			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+}
+
+/**
  * Executes the BASTORE instruction. A byte value, index and array reference are popped from the stack.
  * The byte value is then stored in the array at index. When index is out of bounds,  (outside
  * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
@@ -92,36 +195,6 @@ static inline void CASTORE()
 }
 
 /**
- * Executes the BALOAD instruction. And index and array are popped from the stack. The byte value in the
- * array at index is then pushed on the stack. When index is out of bounds, (outside
- * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
- */
-static inline void BALOAD()
-{
-	uint32_t index = popInt();
-	dj_int_array *arr = REF_TO_VOIDP(popRef());
-
-	if (arr==NULL)
-		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
-	else
-		if ((index>=0) && (index<((dj_array*)arr)->length))
-			pushShort((int16_t)arr->data.bytes[index]);
-		else
-			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
-
-}
-
-/**
- * Executes the CALOAD instruction. And index and array are popped from the stack. The char value in the
- * array at index is then pushed on the stack. When index is out of bounds, (outside
- * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
- */
-static inline void CALOAD()
-{
-	BALOAD();
-}
-
-/**
  * Executes the SASTORE instruction. A short value, index and array reference are popped from the stack.
  * The short value is then stored in the array at index. When index is out of bounds,  (outside
  * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
@@ -139,47 +212,6 @@ static inline void SASTORE()
 			arr->data.shorts[index] = value;
 		else
 			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
-}
-
-/**
- * Executes the SALOAD instruction. And index and array are popped from the stack. The short value in the
- * array at index is then pushed on the stack. When index is out of bounds, (outside
- * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
- */
-static inline void SALOAD()
-{
-	uint32_t index = popInt();
-	dj_int_array *arr = REF_TO_VOIDP(popRef());
-
-	if (arr==NULL)
-		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
-	else
-		if ((index>=0) && (index<((dj_array*)arr)->length))
-			pushShort((int16_t)arr->data.shorts[index]);
-		else
-			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
-
-}
-
-/**
- * Executes the IASTORE instruction. An integer value, index and array reference are popped from the stack.
- * The integer value is then stored in the array at index. When index is out of bounds,  (outside
- * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
- */
-static inline void AASTORE()
-{
-	ref_t value = popRef();
-	uint32_t index = popInt();
-	dj_ref_array *arr = REF_TO_VOIDP(popRef());
-
-	if (arr==NULL)
-		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
-	else
-		if ((index>=0) && (index<((dj_array*)arr)->length))
-			arr->refs[index] = value;
-		else
-			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
-
 }
 
 /**
@@ -204,12 +236,13 @@ static inline void IASTORE()
 }
 
 /**
- * Executes the IALOAD instruction. And index and array are popped from the stack. The integer value in the
- * array at index is then pushed on the stack. When index is out of bounds, (outside
+ * Executes the LASTORE instruction. A long value, index and array reference are popped from the stack.
+ * The long value is then stored in the array at index. When index is out of bounds,  (outside
  * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
  */
-static inline void IALOAD()
+static inline void LASTORE()
 {
+	int64_t value = popLong();
 	uint32_t index = popInt();
 	dj_int_array *arr = REF_TO_VOIDP(popRef());
 
@@ -217,14 +250,20 @@ static inline void IALOAD()
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
 	else
 		if ((index>=0) && (index<((dj_array*)arr)->length))
-			pushInt((int32_t)arr->data.ints[index]);
+			arr->data.longs[index] = value;
 		else
 			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+
 }
 
-
-static inline void AALOAD()
+/**
+ * Executes the IASTORE instruction. An integer value, index and array reference are popped from the stack.
+ * The integer value is then stored in the array at index. When index is out of bounds,  (outside
+ * the [0..size-1] range) throwOutOfBoundsException() is called to handle the exception.
+ */
+static inline void AASTORE()
 {
+	ref_t value = popRef();
 	uint32_t index = popInt();
 	dj_ref_array *arr = REF_TO_VOIDP(popRef());
 
@@ -232,7 +271,8 @@ static inline void AALOAD()
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
 	else
 		if ((index>=0) && (index<((dj_array*)arr)->length))
-			pushRef(arr->refs[index]);
+			arr->refs[index] = value;
 		else
 			dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+
 }

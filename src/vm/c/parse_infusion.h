@@ -61,6 +61,7 @@ enum MethodImplementationFlags
 #define dj_di_staticFieldInfo_getNrBytes(pointer) dj_di_getU8(pointer + 2)
 #define dj_di_staticFieldInfo_getNrShorts(pointer) dj_di_getU8(pointer + 3)
 #define dj_di_staticFieldInfo_getNrInts(pointer) dj_di_getU8(pointer + 4)
+#define dj_di_staticFieldInfo_getNrLongs(pointer) dj_di_getU8(pointer + 5)
 
 // getters for the Header record
 #define dj_di_header_getMajorVersion(pointer) dj_di_getU8(pointer + 1)

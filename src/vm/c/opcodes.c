@@ -201,6 +201,43 @@
 #define JVM_SIFGE 179
 #define JVM_SIFGT 180
 #define JVM_SIFLE 181
+#define JVM_LCONST_0 182
+#define JVM_LCONST_1 183
+#define JVM_LLOAD 184
+#define JVM_LLOAD_0 185
+#define JVM_LLOAD_1 186
+#define JVM_LLOAD_2 187
+#define JVM_LLOAD_3 188
+#define JVM_LLPUSH 189
+#define JVM_LSTORE 190
+#define JVM_LSTORE_0 191
+#define JVM_LSTORE_1 192
+#define JVM_LSTORE_2 193
+#define JVM_LSTORE_3 194
+#define JVM_LALOAD 195
+#define JVM_LASTORE 196
+#define JVM_GETFIELD_L 197
+#define JVM_PUTFIELD_L 198
+#define JVM_GETSTATIC_L 199
+#define JVM_PUTSTATIC_L 200
+#define JVM_LADD 201
+#define JVM_LSUB 202
+#define JVM_LMUL 203
+#define JVM_LDIV 204
+#define JVM_LREM 205
+#define JVM_LNEG 206
+#define JVM_LSHL 207
+#define JVM_LSHR 208
+#define JVM_LUSHR 209
+#define JVM_LAND 210
+#define JVM_LOR 211
+#define JVM_LXOR 212
+#define JVM_LRETURN 213
+#define JVM_L2I 214
+#define JVM_L2S 215
+#define JVM_I2L 216
+#define JVM_S2L 217
+#define JVM_LCMP 218
 
 #ifdef DARJEELING_DEBUG
 
@@ -386,6 +423,43 @@ const char *jvm_opcodes[] = {
 "siflt",
 "sifge",
 "sifgt",
-"sifle"
+"sifle",
+"lconst_0",
+"lconst_1",
+"lload",
+"lload_0",
+"lload_1",
+"lload_2",
+"lload_3",
+"llpush",
+"lstore",
+"lstore_0",
+"lstore_1",
+"lstore_2",
+"lstore_3",
+"laload",
+"lastore",
+"getfield_l",
+"putfield_l",
+"getstatic_l",
+"putstatic_l",
+"ladd",
+"lsub",
+"lmul",
+"ldiv",
+"lrem",
+"lneg",
+"lshl",
+"lshr",
+"lushr",
+"land",
+"lor",
+"lxor",
+"lreturn",
+"l2i",
+"l2s",
+"i2l",
+"s2l",
+"lcmp"
 };
 #endif

@@ -29,6 +29,22 @@ static inline void RETURN()
 }
 
 /**
+ * Return from short/byte/boolean/char function
+ */
+static inline void SRETURN()
+{
+
+	// pop return value off the stack
+	int16_t ret = popShort();
+
+	// return
+	returnFromMethod();
+
+	// push return value on the runtime stack
+	pushShort(ret);
+}
+
+/**
  * Return from int function
  */
 static inline void IRETURN()
@@ -45,19 +61,19 @@ static inline void IRETURN()
 }
 
 /**
- * Return from short/byte/boolean/char function
+ * Return from long function
  */
-static inline void SRETURN()
+static inline void LRETURN()
 {
 
 	// pop return value off the stack
-	int16_t ret = popShort();
+	int64_t ret = popLong();
 
 	// return
 	returnFromMethod();
 
 	// push return value on the runtime stack
-	pushShort(ret);
+	pushLong(ret);
 }
 
 static inline void ARETURN()

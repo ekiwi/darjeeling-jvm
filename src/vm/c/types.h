@@ -199,6 +199,7 @@ struct _dj_infusion
 	uint8_t * staticByteFields;
 	uint16_t * staticShortFields;
 	uint32_t * staticIntFields;
+	uint64_t * staticLongFields;
 
 	// infusion mapping
 	dj_infusion ** referencedInfusions;
