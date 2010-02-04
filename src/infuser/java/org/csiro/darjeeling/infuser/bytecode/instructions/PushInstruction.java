@@ -26,15 +26,15 @@ import org.csiro.darjeeling.infuser.bytecode.Opcode;
 public abstract class PushInstruction extends Instruction
 {
 	
-	protected int value;
+	protected long value;
 
-	public PushInstruction(Opcode opcode, int value)
+	public PushInstruction(Opcode opcode, long value)
 	{
 		super(opcode);
 		this.value = value;
 	}
 	
-	public int getValue()
+	public long getValue()
 	{
 		return value;
 	}

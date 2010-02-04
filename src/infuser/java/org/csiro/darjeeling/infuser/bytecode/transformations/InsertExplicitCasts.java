@@ -43,7 +43,11 @@ public class InsertExplicitCasts extends CodeBlockTransformation
 	private Instruction createCastInstruction(BaseType fromType, BaseType toType)
 	{
 		if ((fromType.getTypeClass()==TypeClass.Short)&&(toType.getTypeClass()==TypeClass.Int)) return new ExplicitCastInstruction(Opcode.S2I);
+		if ((fromType.getTypeClass()==TypeClass.Short)&&(toType.getTypeClass()==TypeClass.Long)) return new ExplicitCastInstruction(Opcode.S2L);
 		if ((fromType.getTypeClass()==TypeClass.Int)&&(toType.getTypeClass()==TypeClass.Short)) return new ExplicitCastInstruction(Opcode.I2S);
+		if ((fromType.getTypeClass()==TypeClass.Int)&&(toType.getTypeClass()==TypeClass.Long)) return new ExplicitCastInstruction(Opcode.I2L);
+		if ((fromType.getTypeClass()==TypeClass.Long)&&(toType.getTypeClass()==TypeClass.Int)) return new ExplicitCastInstruction(Opcode.L2I);
+		if ((fromType.getTypeClass()==TypeClass.Long)&&(toType.getTypeClass()==TypeClass.Short)) return new ExplicitCastInstruction(Opcode.L2S);
 		throw new IllegalStateException(String.format("Cannot cast from %s to %s", fromType, toType));
 	}
 
@@ -71,7 +75,7 @@ public class InsertExplicitCasts extends CodeBlockTransformation
 			{
 				BaseType outputType = handle.getOutputType(j);
 
-				if (outputType.getTypeClass()==TypeClass.Short || outputType.getTypeClass()==TypeClass.Int)
+				if (outputType.getTypeClass()==TypeClass.Short || outputType.getTypeClass()==TypeClass.Int || outputType.getTypeClass()==TypeClass.Long)
 				{
 					// get the optimization hint
 					element = handle.getPostState().getStack().peek(j);

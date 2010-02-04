@@ -149,7 +149,7 @@ public enum Opcode
 	INEG((short)112,"ineg", BaseType.Int, BaseType.Int),
 	ISHL((short)113,"ishl", BaseType.Int, BaseType.Int, BaseType.Int),
 	ISHR((short)114,"ishr", BaseType.Int, BaseType.Int, BaseType.Int),
-	IUSHR((short)115,"iushr", BaseType.Int, BaseType.Int, BaseType.Int),
+	IUSHR((short)115,"iushr", BaseType.Int, BaseType.Int, BaseType.Short),
 	IAND((short)116,"iand", BaseType.Int, BaseType.Int, BaseType.Int),
 	IOR((short)117,"ior", BaseType.Int, BaseType.Int, BaseType.Int),
 	IXOR((short)118,"ixor", BaseType.Int, BaseType.Int, BaseType.Int),
@@ -160,12 +160,12 @@ public enum Opcode
 	S2I((short)123,"s2i", BaseType.Int, BaseType.Short),
 	I2B((short)124,"i2b", BaseType.Byte, BaseType.Int),
 	I2S((short)125,"i2s", BaseType.Short, BaseType.Int),
-	IIFEQ((short)126,"ifeq", null, BaseType.Int),
-	IIFNE((short)127,"ifne", null, BaseType.Int),
-	IIFLT((short)128,"iflt", null, BaseType.Int),
-	IIFGE((short)129,"ifge", null, BaseType.Int),
-	IIFGT((short)130,"ifgt", null, BaseType.Int),
-	IIFLE((short)131,"ifle", null, BaseType.Int),
+	IIFEQ((short)126,"iifeq", null, BaseType.Int),
+	IIFNE((short)127,"iifne", null, BaseType.Int),
+	IIFLT((short)128,"iiflt", null, BaseType.Int),
+	IIFGE((short)129,"iifge", null, BaseType.Int),
+	IIFGT((short)130,"iifgt", null, BaseType.Int),
+	IIFLE((short)131,"iifle", null, BaseType.Int),
 	IFNULL((short)132,"ifnull", null),
 	IFNONNULL((short)133,"ifnonnull", null),
 	IF_SCMPEQ((short)134,"if_scmpeq", null, BaseType.Short, BaseType.Short), // if_scmp{eq, ne, lt, ge, gt}
@@ -218,40 +218,76 @@ public enum Opcode
 	SIFGT((short)180,"sifgt", null, BaseType.Short),
 	SIFLE((short)181,"sifle", null, BaseType.Short),
 
-	// this is a dummy placeholder opcode, will not appear in the final output
-	S2S((short)-1,"s2s", BaseType.Short, BaseType.Short),
+	LCONST_0((short)182,"lconst_0", BaseType.Long),
+	LCONST_1((short)183,"lconst_1", BaseType.Long),
+	LLOAD((short)184,"lload", BaseType.Long),
+	LLOAD_0((short)185,"lload_0", BaseType.Long),
+	LLOAD_1((short)186,"lload_1", BaseType.Long),
+	LLOAD_2((short)187,"lload_2", BaseType.Long),
+	LLOAD_3((short)188,"lload_3", BaseType.Long),
+	LLPUSH((short)189,"llpush", BaseType.Long),
+	LSTORE((short)190,"lstore", null, BaseType.Long),
+	LSTORE_0((short)191,"lstore_0", null, BaseType.Long),
+	LSTORE_1((short)192,"lstore_1", null, BaseType.Long),
+	LSTORE_2((short)193,"lstore_2", null, BaseType.Long),
+	LSTORE_3((short)194,"lstore_3", null, BaseType.Long),
+	LALOAD((short)195,"laload", BaseType.Long, BaseType.Int),
+	LASTORE((short)196,"lastore", null, BaseType.Int, BaseType.Long),
+	GETFIELD_L((short)197,"getfield_l", BaseType.Long),
+	PUTFIELD_L((short)198,"putfield_l", null, BaseType.Long),
+	GETSTATIC_L((short)199,"getstatic_l", BaseType.Long),
+	PUTSTATIC_L((short)200,"putstatic_l", null, BaseType.Long),
+
+	LADD((short)201,"ladd", BaseType.Long, BaseType.Long, BaseType.Long),
+	LSUB((short)202,"lsub", BaseType.Long, BaseType.Long, BaseType.Long),
+	LMUL((short)203,"lmul", BaseType.Long, BaseType.Long, BaseType.Long),
+	LDIV((short)204,"ldiv", BaseType.Long, BaseType.Long, BaseType.Long),
+	LREM((short)205,"lrem", BaseType.Long, BaseType.Long, BaseType.Long),
+	LNEG((short)206,"lneg", BaseType.Long, BaseType.Long),
+	LSHL((short)207,"lshl", BaseType.Long, BaseType.Long, BaseType.Long),
+	LSHR((short)208,"lshr", BaseType.Long, BaseType.Long, BaseType.Long),
+	LUSHR((short)209,"lushr", BaseType.Long, BaseType.Long, BaseType.Short),
+	LAND((short)210,"land", BaseType.Long, BaseType.Long, BaseType.Long),
+	LOR((short)211,"lor", BaseType.Long, BaseType.Long, BaseType.Long),
+	LXOR((short)212,"lxor", BaseType.Long, BaseType.Long, BaseType.Long),
+
+	LRETURN((short)213,"lreturn", null, BaseType.Long),
 	
-	/*
-	LCONST_0((short)2,"lconst_0", BaseType.Long),
-	LCONST_1((short)3,"lconst_1", BaseType.Long),
-	LLOAD((short)22,"lload", BaseType.Long),
-	LLOAD_0((short)23,"lload_0", BaseType.Long),
-	LLOAD_1((short)24,"lload_1", BaseType.Long),
-	LLOAD_2((short)25,"lload_2", BaseType.Long),
-	LLOAD_3((short)26,"lload_3", BaseType.Long),
-	LLPUSH((short)20,"llpush", BaseType.Long),
-	LSTORE((short)37,"lstore", null, BaseType.Long),
-	LSTORE_0((short)38,"lstore_0", null, BaseType.Long),
-	LSTORE_1((short)39,"lstore_1", null, BaseType.Long),
-	LSTORE_2((short)40,"lstore_2", null, BaseType.Long),
-	LSTORE_3((short)41,"lstore_3", null, BaseType.Long),
-	LALOAD((short)55,"iaload", BaseType.Long, BaseType.Int),
-	LASTORE((short)57,"bastore", null, BaseType.Int, BaseType.Long),
-	*/
+	L2I((short)214,"l2i", BaseType.Int, BaseType.Long),
+	L2S((short)215,"l2s", BaseType.Short, BaseType.Long),
+	I2L((short)216,"i2l", BaseType.Long, BaseType.Int),
+	S2L((short)217,"s2l", BaseType.Long, BaseType.Short),
+
+	LCMP((short)218,"lcmp", BaseType.Short, BaseType.Long, BaseType.Long),
+	
+	// this is a dummy placeholder opcode, will not appear in the final output
+	S2S((short)-1,"s2s", BaseType.Short, BaseType.Short)
 	;
 	
 	// Defines the group of conditional branch instructions. Membership testing on this group is used in the isConditionalBranch method.
 	private static List<Opcode> conditionalBranchInstructions = 
-		Arrays.asList(new Opcode[] { IIFEQ, IIFNE, IIFLT, IIFGE, IIFGT, IIFLE, IFNULL, IFNONNULL, IF_SCMPEQ, IF_SCMPNE, IF_SCMPLT, IF_SCMPGE, IF_SCMPGT, 
-				IF_SCMPLE, IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ, IF_ACMPNE, SIFEQ, SIFNE, SIFLT, SIFGE, SIFGT, SIFLE});
+		Arrays.asList(new Opcode[] {
+				SIFEQ, SIFNE, SIFLT, SIFGE, SIFGT, SIFLE,
+				IIFEQ, IIFNE, IIFLT, IIFGE, IIFGT, IIFLE,
+				IFNULL, IFNONNULL,
+				IF_SCMPEQ, IF_SCMPNE, IF_SCMPLT, IF_SCMPGE, IF_SCMPGT, IF_SCMPLE,
+				IF_ICMPEQ, IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE,
+				IF_ACMPEQ, IF_ACMPNE,
+				});
 
 	// Defines the group of switch instructions. Membership testing on this group is used in the isSwitch method.
 	private static List<Opcode> switchInstructions = Arrays.asList(new Opcode[] { TABLESWITCH, LOOKUPSWITCH });
 
 	// Defines the group of integer load/store instructions. Membership testing on this group is used in the isIntLoadStore method.
 	private static List<Opcode> intLoadStoreInstructions = 
-		Arrays.asList(new Opcode[] { SLOAD, SLOAD_0, SLOAD_1, SLOAD_2, SLOAD_3, ILOAD, ILOAD_0, ILOAD_1, ILOAD_2, ILOAD_3,
-				SSTORE, SSTORE_0, SSTORE_1, SSTORE_2, SSTORE_3, ISTORE, ISTORE_0, ISTORE_1, ISTORE_2, ISTORE_3 });
+		Arrays.asList(new Opcode[] {
+				SLOAD, SLOAD_0, SLOAD_1, SLOAD_2, SLOAD_3, 
+				SSTORE, SSTORE_0, SSTORE_1, SSTORE_2, SSTORE_3,
+				ILOAD, ILOAD_0, ILOAD_1, ILOAD_2, ILOAD_3,
+				ISTORE, ISTORE_0, ISTORE_1, ISTORE_2, ISTORE_3,
+				LLOAD, LLOAD_0, LLOAD_1, LLOAD_2, LLOAD_3,
+				LSTORE, LSTORE_0, LSTORE_1, LSTORE_2, LSTORE_3,
+				});
 	
 	// Defines the group of reference load/store instructions. Membership testing on this group is used in the isIntLoadStore method.
 	private static List<Opcode> refLoadStoreInstructions = 
@@ -259,15 +295,23 @@ public enum Opcode
 	
 	// Defines the group of local variable store instructions. Membership testing on this group is used in the isStore method.
 	private static List<Opcode> storeInstructions = 
-		Arrays.asList(new Opcode[] { SSTORE, SSTORE_0, SSTORE_1, SSTORE_2, SSTORE_3, ISTORE, ISTORE_0, ISTORE_1, ISTORE_2, ISTORE_3, ASTORE, ASTORE_0, ASTORE_1, ASTORE_2, ASTORE_3 });
+		Arrays.asList(new Opcode[] {
+				SSTORE, SSTORE_0, SSTORE_1, SSTORE_2, SSTORE_3, 
+				ISTORE, ISTORE_0, ISTORE_1, ISTORE_2, ISTORE_3, 
+				LSTORE, LSTORE_0, LSTORE_1, LSTORE_2, LSTORE_3, 
+				ASTORE, ASTORE_0, ASTORE_1, ASTORE_2, ASTORE_3 });
 
 	// Defines the group of local variable load instructions. Membership testing on this group is used in the isStore method.
 	private static List<Opcode> loadInstructions = 
-		Arrays.asList(new Opcode[] { SLOAD, SLOAD_0, SLOAD_1, SLOAD_2, SLOAD_3, ILOAD, ILOAD_0, ILOAD_1, ILOAD_2, ILOAD_3, ALOAD, ALOAD_0, ALOAD_1, ALOAD_2, ALOAD_3 });
+		Arrays.asList(new Opcode[] {
+				SLOAD, SLOAD_0, SLOAD_1, SLOAD_2, SLOAD_3,
+				ILOAD, ILOAD_0, ILOAD_1, ILOAD_2, ILOAD_3,
+				LLOAD, LLOAD_0, LLOAD_1, LLOAD_2, LLOAD_3,
+				ALOAD, ALOAD_0, ALOAD_1, ALOAD_2, ALOAD_3 });
 	
 	// Defines the group of return instructions. Membership testing on this group is used in the isReturn method.
 	private static List<Opcode> returnInstructions = 
-		Arrays.asList(new Opcode[] { IRETURN, ARETURN, RETURN, SRETURN });
+		Arrays.asList(new Opcode[] { RETURN, SRETURN, IRETURN, LRETURN, ARETURN });
 	
 	// Defines the group of return instructions. Membership testing on this group is used in the isInvoke method.
 	private static List<Opcode> invokeInstructions = 

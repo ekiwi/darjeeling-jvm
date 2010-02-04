@@ -174,13 +174,12 @@ public class CodeBlock
 	 */
 	public static CodeBlock fromCode(Code code, InternalMethodImplementation methodImplementation, InternalInfusion infusion, ConstantPoolGen cpg)
 	{
-	
 		CodeBlock ret = new CodeBlock();
-		
+
 		ret.maxLocals = code.getMaxLocals();
 		ret.maxStack = code.getMaxStack();
 		ret.methodImplementation = methodImplementation;
-		
+
 		boolean isStatic = methodImplementation.isStatic();
 		
 		// create LocalVariable objects for each of the local variables
@@ -277,9 +276,6 @@ public class CodeBlock
 		
 		// add casts where needed
 		new InsertExplicitCasts(ret).transform();
-		
-		if (methodImplementation.getMethodDefinition().getName().equals("bubbleSort"))
-			ret.print();
 		
 		ret.instructions.reThreadStates();
 		ret.instructions.fixBranchAddresses();

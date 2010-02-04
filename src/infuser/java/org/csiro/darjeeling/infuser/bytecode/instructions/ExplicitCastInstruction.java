@@ -52,9 +52,11 @@ public class ExplicitCastInstruction extends SimpleInstruction
 				case I2S:
 					opcode = Opcode.NOP;
 					handle.setOptimisationHint(0, BaseType.Short);
-					break; 
+					break;
 			}
-		
+		else
+			super.setOptimisationHints(handle);
+			
 	}
 
 }

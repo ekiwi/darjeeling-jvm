@@ -39,7 +39,7 @@ public class ImmediateBytePushInstruction extends PushInstruction
 	public void dump(DataOutputStream out) throws IOException
 	{
 		out.write(opcode.getOpcode());
-		out.write(value);
+		out.write((byte)value);
 	}
 	
 	@Override

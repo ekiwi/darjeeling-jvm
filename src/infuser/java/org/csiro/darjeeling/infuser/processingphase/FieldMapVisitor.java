@@ -60,7 +60,7 @@ public class FieldMapVisitor extends DescendingVisitor
 	public void visit(AbstractStaticFieldList element)
 	{
 		// TODO: use the BaseType enum here
-		int counters[] = new int[4];
+		int counters[] = new int[5];
 		
 		for (AbstractField field : element.getChildren())
 		{
@@ -70,7 +70,8 @@ public class FieldMapVisitor extends DescendingVisitor
 				case 1: counterIndex = 0; break;
 				case 2: counterIndex = 1; break;
 				case 4: counterIndex = 2; break;
-				case -1: counterIndex = 3; break;
+				case 8: counterIndex = 3; break;
+				case -1: counterIndex = 4; break;
 				default:
 					throw new IllegalStateException("Unhandled field size: " + field.getSize());
 			}
@@ -82,7 +83,8 @@ public class FieldMapVisitor extends DescendingVisitor
 		element.setNrBytes(counters[0]);
 		element.setNrShorts(counters[1]);
 		element.setNrInts(counters[2]);
-		element.setNrRefs(counters[3]);
+		element.setNrLongs(counters[3]);
+		element.setNrRefs(counters[4]);
 	
 	}
 	

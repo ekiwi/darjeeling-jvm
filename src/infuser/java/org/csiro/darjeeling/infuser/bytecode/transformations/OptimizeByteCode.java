@@ -171,6 +171,8 @@ public class OptimizeByteCode extends CodeBlockTransformation
 				
 				case ISTORE:
 				case ILOAD:
+				case LSTORE:
+				case LLOAD:
 				case IINC:
 				case IINC_W:
 					LocalVariable localVariable = ((LocalVariableInstruction)instruction).getLocalVariable();
@@ -186,9 +188,9 @@ public class OptimizeByteCode extends CodeBlockTransformation
 						i=instructions.size()-1;
 					} else
 					{
-						// set hint to 'int' for store instructions
-						if (opcode==Opcode.ISTORE)
-							handle.setOptimisationHint(0, BaseType.Int);
+						// set hint for store instructions
+						if (opcode==Opcode.ISTORE) handle.setOptimisationHint(0, BaseType.Int);
+
 					}
 					break;
 					
@@ -274,10 +276,7 @@ public class OptimizeByteCode extends CodeBlockTransformation
 					// reset :3
 					i=instructions.size()-1;
 					break;
-					
-				default:
-					break;
-				
+
 			}
 			
 			// Propagate the optimisation hints upwards

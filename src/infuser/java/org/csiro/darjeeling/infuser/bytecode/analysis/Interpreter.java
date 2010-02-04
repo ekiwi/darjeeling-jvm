@@ -21,7 +21,6 @@
 package org.csiro.darjeeling.infuser.bytecode.analysis;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.csiro.darjeeling.infuser.bytecode.CodeBlock;
 import org.csiro.darjeeling.infuser.bytecode.DummyHandle;

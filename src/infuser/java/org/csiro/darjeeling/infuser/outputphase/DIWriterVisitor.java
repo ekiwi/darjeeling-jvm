@@ -257,6 +257,7 @@ public class DIWriterVisitor extends DescendingVisitor
 			out.writeUINT8(element.getNrBytes());
 			out.writeUINT8(element.getNrShorts());
 			out.writeUINT8(element.getNrInts());
+			out.writeUINT8(element.getNrLongs());
 		} catch (IOException ex)
 		{
 			throw new RuntimeException(ex);

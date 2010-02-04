@@ -39,7 +39,7 @@ public class ImmediateIntPushInstruction extends PushInstruction
 	public void dump(DataOutputStream out) throws IOException
 	{
 		out.write(opcode.getOpcode());
-		out.writeInt(value);
+		out.writeInt((int)value);
 	}
 	
 	@Override

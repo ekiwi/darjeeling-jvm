@@ -40,6 +40,16 @@ import static org.csiro.darjeeling.infuser.bytecode.Opcode.ISTORE_0;
 import static org.csiro.darjeeling.infuser.bytecode.Opcode.ISTORE_1;
 import static org.csiro.darjeeling.infuser.bytecode.Opcode.ISTORE_2;
 import static org.csiro.darjeeling.infuser.bytecode.Opcode.ISTORE_3;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LLOAD;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LLOAD_0;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LLOAD_1;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LLOAD_2;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LLOAD_3;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LSTORE;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LSTORE_0;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LSTORE_1;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LSTORE_2;
+import static org.csiro.darjeeling.infuser.bytecode.Opcode.LSTORE_3;
 import static org.csiro.darjeeling.infuser.bytecode.Opcode.SLOAD_0;
 import static org.csiro.darjeeling.infuser.bytecode.Opcode.SLOAD_1;
 import static org.csiro.darjeeling.infuser.bytecode.Opcode.SLOAD_2;
@@ -63,8 +73,8 @@ public class LoadStoreInstruction extends LocalVariableInstruction
 	public LoadStoreInstruction(Opcode opcode, LocalVariable localVariable)
 	{
 		super(opcode, localVariable);
-		if ((opcode!=ALOAD)&&(opcode!=ASTORE)&&(opcode!=ILOAD)&&(opcode!=ISTORE))
-			throw new IllegalStateException("LoadStoreInstruction should be constructed with ISTORE, ILOAD, ASTORE or ALOAD");
+		if ((opcode!=ALOAD)&&(opcode!=ASTORE)&&(opcode!=ILOAD)&&(opcode!=ISTORE)&&(opcode!=LLOAD)&&(opcode!=LSTORE))
+			throw new IllegalStateException("LoadStoreInstruction should be constructed with ISTORE, ILOAD, LSTORE, LLOAD, ASTORE or ALOAD");
 	}
 	
 	@Override
@@ -109,6 +119,18 @@ public class LoadStoreInstruction extends LocalVariableInstruction
 					if (index==1) out.write(ISTORE_1.getOpcode());
 					if (index==2) out.write(ISTORE_2.getOpcode());
 					if (index==3) out.write(ISTORE_3.getOpcode());
+					break;
+				case LLOAD:
+					if (index==0) out.write(LLOAD_0.getOpcode());
+					if (index==1) out.write(LLOAD_1.getOpcode());
+					if (index==2) out.write(LLOAD_2.getOpcode());
+					if (index==3) out.write(LLOAD_3.getOpcode());
+					break;
+				case LSTORE:
+					if (index==0) out.write(LSTORE_0.getOpcode());
+					if (index==1) out.write(LSTORE_1.getOpcode());
+					if (index==2) out.write(LSTORE_2.getOpcode());
+					if (index==3) out.write(LSTORE_3.getOpcode());
 					break;
 				case SLOAD:
 					if (index==0) out.write(SLOAD_0.getOpcode());

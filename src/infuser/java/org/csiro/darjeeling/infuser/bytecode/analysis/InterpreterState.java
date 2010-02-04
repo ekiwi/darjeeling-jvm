@@ -87,6 +87,8 @@ public class InterpreterState implements Comparable<InterpreterState>
 			case ICONST_4:
 			case ICONST_5:
 			case ACONST_NULL:
+			case LCONST_0:
+			case LCONST_1:
 				ret.getStack().push(handle);
 				break;
 
@@ -100,6 +102,9 @@ public class InterpreterState implements Comparable<InterpreterState>
 			case ILOAD_1:
 			case ILOAD_2:
 			case ILOAD_3:
+			case LLOAD:
+			case LLOAD_0:
+			case LLOAD_1:
 			case ALOAD:
 			case ALOAD_0:
 			case ALOAD_1:
@@ -118,6 +123,9 @@ public class InterpreterState implements Comparable<InterpreterState>
 			case ISTORE_1:
 			case ISTORE_2:
 			case ISTORE_3:
+			case LSTORE:
+			case LSTORE_0:
+			case LSTORE_1:
 			case ASTORE:
 			case ASTORE_0:
 			case ASTORE_1:
@@ -126,20 +134,22 @@ public class InterpreterState implements Comparable<InterpreterState>
 				ret.getStack().pop();
 				break;
 				
-			case IASTORE:
 			case BASTORE:
 			case CASTORE:
 			case SASTORE:
+			case IASTORE:
+			case LASTORE:
 			case AASTORE:
 				ret.getStack().pop();
 				ret.getStack().pop();
 				ret.getStack().pop();
 				break;
 			
-			case IALOAD:
 			case BALOAD:
 			case CALOAD:
 			case SALOAD:
+			case IALOAD:
+			case LALOAD:
 			case AALOAD:
 				ret.getStack().pop();
 				ret.getStack().pop();
@@ -154,47 +164,12 @@ public class InterpreterState implements Comparable<InterpreterState>
 				break;
 				
 			case BIPUSH:
-				ret.getStack().push(handle);
-				break;
-
 			case BSPUSH:
-				ret.getStack().push(handle);
-				break;
-
 			case SIPUSH:
-				ret.getStack().push(handle);
-				break;
-
 			case SSPUSH:
-				ret.getStack().push(handle);
-				break;
-
 			case IIPUSH:
-				ret.getStack().push(handle);
-				break;
-				
+			case LLPUSH:
 			case LDS:
-				ret.getStack().push(handle);
-				break;
-				
-			case IADD:
-			case ISUB:
-			case IMUL:
-			case IDIV:
-			case IREM:
-			case ISHL:
-			case ISHR:
-			case IUSHR:
-			case IAND:
-			case IOR:
-			case IXOR:
-				ret.getStack().pop();
-				ret.getStack().pop();
-				ret.getStack().push(handle);
-				break;
-				
-			case INEG:
-				ret.getStack().pop();
 				ret.getStack().push(handle);
 				break;
 				
@@ -209,12 +184,36 @@ public class InterpreterState implements Comparable<InterpreterState>
 			case SAND:
 			case SOR:
 			case SXOR:
+			case IADD:
+			case ISUB:
+			case IMUL:
+			case IDIV:
+			case IREM:
+			case ISHL:
+			case ISHR:
+			case IUSHR:
+			case IAND:
+			case IOR:
+			case IXOR:
+			case LADD:
+			case LSUB:
+			case LMUL:
+			case LDIV:
+			case LREM:
+			case LSHL:
+			case LSHR:
+			case LUSHR:
+			case LAND:
+			case LOR:
+			case LXOR:
 				ret.getStack().pop();
 				ret.getStack().pop();
 				ret.getStack().push(handle);
 				break;
 				
 			case SNEG:
+			case INEG:
+			case LNEG:
 				ret.getStack().pop();
 				ret.getStack().push(handle);
 				break;
@@ -253,45 +252,47 @@ public class InterpreterState implements Comparable<InterpreterState>
 				ret.getStack().pop();
 				ret.getStack().pop();
 				break;
+
+			case LCMP:
+				ret.getStack().pop();
+				ret.getStack().pop();
+				ret.getStack().push(handle);
+				break;
 				
-			case GETFIELD_A:
 			case GETFIELD_B:
 			case GETFIELD_C:
-			case GETFIELD_I:
 			case GETFIELD_S:
+			case GETFIELD_I:
+			case GETFIELD_L:
+			case GETFIELD_A:
 				ret.getStack().pop();
 				ret.getStack().push(handle);
 				break;
 
-			case PUTFIELD_A:
 			case PUTFIELD_B:
 			case PUTFIELD_C:
-			case PUTFIELD_I:
 			case PUTFIELD_S:
+			case PUTFIELD_I:
+			case PUTFIELD_L:
+			case PUTFIELD_A:
 				ret.getStack().pop();
 				ret.getStack().pop();
 				break;
 
-			case PUTSTATIC_A:
 			case PUTSTATIC_B:
 			case PUTSTATIC_C:
-			case PUTSTATIC_I:
 			case PUTSTATIC_S:
+			case PUTSTATIC_I:
+			case PUTSTATIC_L:
+			case PUTSTATIC_A:
 				ret.getStack().pop();
 				break;
 
 			case GETSTATIC_A:
-				ret.getStack().push(handle);
-				break;
 			case GETSTATIC_B:
-				ret.getStack().push(handle);
-				break;
 			case GETSTATIC_C:
-				ret.getStack().push(handle);
-				break;
 			case GETSTATIC_I:
-				ret.getStack().push(handle);
-				break;
+			case GETSTATIC_L:
 			case GETSTATIC_S:
 				ret.getStack().push(handle);
 				break;
@@ -384,9 +385,13 @@ public class InterpreterState implements Comparable<InterpreterState>
 			case S2C:
 			case S2S:
 			case S2I:
+			case S2L:
 			case I2S:
 			case I2B:
 			case I2C:
+			case I2L:
+			case L2I:
+			case L2S:
 				ret.getStack().pop();
 				ret.getStack().push(handle);
 				break;
@@ -438,11 +443,6 @@ public class InterpreterState implements Comparable<InterpreterState>
 	{
 		return new InterpreterState(stack.clone()/*, localVariables.clone()*/);
 	}
-	
-//	public InterpreterLocalVariableBlock getLocalVariables()
-//	{
-//		return localVariables;
-//	}
 	
 	public String toString()
 	{

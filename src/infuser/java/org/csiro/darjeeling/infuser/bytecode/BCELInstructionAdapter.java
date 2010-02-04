@@ -45,11 +45,13 @@ import org.csiro.darjeeling.infuser.bytecode.instructions.ExplicitCastInstructio
 import org.csiro.darjeeling.infuser.bytecode.instructions.FieldInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.ImmediateBytePushInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.ImmediateIntPushInstruction;
+import org.csiro.darjeeling.infuser.bytecode.instructions.ImmediateLongPushInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.ImmediateShortPushInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.IncreaseInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.IntegerConditionalBranchInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.LoadStoreInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.LocalIdInstruction;
+import org.csiro.darjeeling.infuser.bytecode.instructions.LongCompareInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.LookupSwitchInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.NewArrayInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.SimpleInstruction;
@@ -132,11 +134,13 @@ public class BCELInstructionAdapter
 		opcodeMap.put(Constants.CALOAD, Opcode.CALOAD);
 		opcodeMap.put(Constants.SALOAD, Opcode.SALOAD);
 		opcodeMap.put(Constants.IALOAD, Opcode.IALOAD);
+		opcodeMap.put(Constants.LALOAD, Opcode.LALOAD);
 		opcodeMap.put(Constants.AALOAD, Opcode.AALOAD);
 		opcodeMap.put(Constants.BASTORE, Opcode.BASTORE);
 		opcodeMap.put(Constants.CASTORE, Opcode.CASTORE);
 		opcodeMap.put(Constants.SASTORE, Opcode.SASTORE);
 		opcodeMap.put(Constants.IASTORE, Opcode.IASTORE);
+		opcodeMap.put(Constants.LASTORE, Opcode.LASTORE);
 		opcodeMap.put(Constants.AASTORE, Opcode.AASTORE);
 		opcodeMap.put(Constants.IADD, Opcode.IADD);
 		opcodeMap.put(Constants.ISUB, Opcode.ISUB);
@@ -188,7 +192,39 @@ public class BCELInstructionAdapter
 		opcodeMap.put(Constants.CHECKCAST, Opcode.CHECKCAST);
 		opcodeMap.put(Constants.INSTANCEOF, Opcode.INSTANCEOF);
 		opcodeMap.put(Constants.MONITORENTER, Opcode.MONITORENTER);
-		opcodeMap.put(Constants.MONITOREXIT, Opcode.MONITOREXIT);	}
+		opcodeMap.put(Constants.MONITOREXIT, Opcode.MONITOREXIT);
+
+		opcodeMap.put(Constants.LCONST_0, Opcode.LCONST_0);
+		opcodeMap.put(Constants.LCONST_1, Opcode.LCONST_1);
+		opcodeMap.put(Constants.LLOAD, Opcode.LLOAD);
+		opcodeMap.put(Constants.LLOAD_0, Opcode.LLOAD);
+		opcodeMap.put(Constants.LLOAD_1, Opcode.LLOAD);
+		opcodeMap.put(Constants.LLOAD_2, Opcode.LLOAD);
+		opcodeMap.put(Constants.LLOAD_3, Opcode.LLOAD);
+		opcodeMap.put(Constants.LSTORE, Opcode.LSTORE);
+		opcodeMap.put(Constants.LSTORE_0, Opcode.LSTORE);
+		opcodeMap.put(Constants.LSTORE_1, Opcode.LSTORE);
+		opcodeMap.put(Constants.LSTORE_2, Opcode.LSTORE);
+		opcodeMap.put(Constants.LSTORE_3, Opcode.LSTORE);
+
+		opcodeMap.put(Constants.LADD, Opcode.LADD);
+		opcodeMap.put(Constants.LSUB, Opcode.LSUB);
+		opcodeMap.put(Constants.LMUL, Opcode.LMUL);
+		opcodeMap.put(Constants.LDIV, Opcode.LDIV);
+		opcodeMap.put(Constants.LREM, Opcode.LREM);
+		opcodeMap.put(Constants.LNEG, Opcode.LNEG);
+		opcodeMap.put(Constants.LSHL, Opcode.LSHL);
+		opcodeMap.put(Constants.LSHR, Opcode.LSHR);
+		opcodeMap.put(Constants.LUSHR, Opcode.LUSHR);
+		opcodeMap.put(Constants.LAND, Opcode.LAND);
+		opcodeMap.put(Constants.LOR, Opcode.LOR);
+		opcodeMap.put(Constants.LXOR, Opcode.LXOR);
+		opcodeMap.put(Constants.LRETURN, Opcode.LRETURN);
+		opcodeMap.put(Constants.L2I, Opcode.L2I);
+		opcodeMap.put(Constants.I2L, Opcode.I2L);
+
+		opcodeMap.put(Constants.LCMP, Opcode.LCMP);
+	}
 	
 	/**
 	 * 
@@ -407,6 +443,7 @@ public class BCELInstructionAdapter
 		String className;
 		InstructionHandle[] targets;
 		int[] targetAdresses;
+		Object value;
 		
 		switch(instruction.getOpcode())
 		{
@@ -468,8 +505,9 @@ public class BCELInstructionAdapter
 				
 			// Load constant, results in IIPUSH for integer and LDS for string
 			case LDC:
+			case LDC_W:
 				org.apache.bcel.generic.LDC ldc = (org.apache.bcel.generic.LDC)instruction;
-				Object value = ldc.getValue(constantPoolGen);
+				value = ldc.getValue(constantPoolGen);
 				if (value instanceof Integer)
 				{
 					ret = new ImmediateIntPushInstruction(Opcode.IIPUSH, ((Integer)value).intValue()); 
@@ -480,9 +518,18 @@ public class BCELInstructionAdapter
 					if (id==null) id = infusion.getStringTable().addString(stringConstant);
 					
 					ret = new LocalIdInstruction(Opcode.LDS, id.resolve(infusion) );
-				} else {
+				} else
 					throw new IllegalStateException("Unsupported type for LDC: " + value.getClass());
-				}				       
+				break;
+
+			case LDC2_W:
+				org.apache.bcel.generic.LDC2_W ldc2 = (org.apache.bcel.generic.LDC2_W)instruction;
+				value = ldc2.getValue(constantPoolGen);
+				if (value instanceof Long)
+				{
+					ret = new ImmediateLongPushInstruction(Opcode.LLPUSH, ((Long)value).longValue());
+				} else
+					throw new IllegalStateException("Unsupported type for LDC: " + value.getClass());
 				break;
 
 			// Immediate value push instructions
@@ -490,6 +537,7 @@ public class BCELInstructionAdapter
 				push = (org.apache.bcel.generic.ConstantPushInstruction)instruction;
 				ret = new ImmediateBytePushInstruction(Opcode.BIPUSH, push.getValue().byteValue());
 				break;
+				
 			case SIPUSH:
 				push = (org.apache.bcel.generic.ConstantPushInstruction)instruction;
 				ret = new ImmediateShortPushInstruction(Opcode.SIPUSH, push.getValue().shortValue());
@@ -503,6 +551,8 @@ public class BCELInstructionAdapter
 			case ICONST_3: ret = new ConstantPushInstruction(Opcode.ICONST_3, 3); break;
 			case ICONST_4: ret = new ConstantPushInstruction(Opcode.ICONST_4, 4); break;
 			case ICONST_5: ret = new ConstantPushInstruction(Opcode.ICONST_5, 5); break;
+			case LCONST_0: ret = new ConstantPushInstruction(Opcode.LCONST_0, 0); break;
+			case LCONST_1: ret = new ConstantPushInstruction(Opcode.LCONST_1, 1); break;
 			
 			// local variable instructions with an index 
 			case ILOAD:
@@ -510,6 +560,11 @@ public class BCELInstructionAdapter
 			case ILOAD_1:
 			case ILOAD_2:
 			case ILOAD_3:
+			case LLOAD:
+			case LLOAD_0:
+			case LLOAD_1:
+			case LLOAD_2:
+			case LLOAD_3:
 			case ALOAD:
 			case ALOAD_0:
 			case ALOAD_1:
@@ -520,6 +575,11 @@ public class BCELInstructionAdapter
 			case ISTORE_1:
 			case ISTORE_2:
 			case ISTORE_3:
+			case LSTORE:
+			case LSTORE_0:
+			case LSTORE_1:
+			case LSTORE_2:
+			case LSTORE_3:
 			case ASTORE:
 			case ASTORE_0:
 			case ASTORE_1:
@@ -540,6 +600,7 @@ public class BCELInstructionAdapter
 					case Char: ret = new FieldInstruction(Opcode.PUTFIELD_C, field.getOffset()); break;
 					case Short: ret = new FieldInstruction(Opcode.PUTFIELD_S, field.getOffset()); break;
 					case Int: ret = new FieldInstruction(Opcode.PUTFIELD_I, field.getOffset()); break;
+					case Long: ret = new FieldInstruction(Opcode.PUTFIELD_L, field.getOffset()); break;
 					case Ref: ret = new FieldInstruction(Opcode.PUTFIELD_A, field.getOffset()); break;
 					default:
 						throw new IllegalStateException("Unsupported type for putfield");
@@ -555,6 +616,7 @@ public class BCELInstructionAdapter
 					case Char: ret = new FieldInstruction(Opcode.GETFIELD_C, field.getOffset()); break;
 					case Short: ret = new FieldInstruction(Opcode.GETFIELD_S, field.getOffset()); break;
 					case Int: ret = new FieldInstruction(Opcode.GETFIELD_I, field.getOffset()); break;
+					case Long: ret = new FieldInstruction(Opcode.GETFIELD_L, field.getOffset()); break;
 					case Ref: ret = new FieldInstruction(Opcode.GETFIELD_A, field.getOffset()); break;
 					default:
 						throw new IllegalStateException("Unsupported type for getfield");
@@ -573,6 +635,7 @@ public class BCELInstructionAdapter
 					case Char: ret = new LocalIdInstruction(Opcode.PUTSTATIC_C, localId); break;
 					case Short: ret = new LocalIdInstruction(Opcode.PUTSTATIC_S, localId); break;
 					case Int: ret = new LocalIdInstruction(Opcode.PUTSTATIC_I, localId); break;
+					case Long: ret = new LocalIdInstruction(Opcode.PUTSTATIC_L, localId); break;
 					case Ref: ret = new LocalIdInstruction(Opcode.PUTSTATIC_A, localId); break;
 					default:
 						throw new IllegalStateException("Unsupported type for putstatic");
@@ -589,6 +652,7 @@ public class BCELInstructionAdapter
 					case Char: ret = new LocalIdInstruction(Opcode.GETSTATIC_C, localId); break;
 					case Short: ret = new LocalIdInstruction(Opcode.GETSTATIC_S, localId); break;
 					case Int: ret = new LocalIdInstruction(Opcode.GETSTATIC_I, localId); break;
+					case Long: ret = new LocalIdInstruction(Opcode.GETSTATIC_L, localId); break;
 					case Ref: ret = new LocalIdInstruction(Opcode.GETSTATIC_A, localId); break;
 					default:
 						throw new IllegalStateException("Unsupported type for getstatic");
@@ -680,6 +744,18 @@ public class BCELInstructionAdapter
 			case IAND:
 			case IOR:
 			case IXOR:
+			case LADD:
+			case LSUB:
+			case LMUL:
+			case LDIV:
+			case LREM:
+			case LNEG:
+			case LSHL:
+			case LSHR:
+			case LUSHR:
+			case LAND:
+			case LOR:
+			case LXOR:
 				ret = new ArithmeticInstruction(map(instruction));
 				break;
 				
@@ -687,9 +763,14 @@ public class BCELInstructionAdapter
 			case I2C:
 			case I2B:
 			case I2S:
+			case L2I:
+			case I2L:
 				ret = new ExplicitCastInstruction(map(instruction));
 				break;
 				
+			case LCMP:
+				ret = new LongCompareInstruction(map(instruction));
+				break;
 
 			// simple 1-byte instructions
 			case NOP:
@@ -699,14 +780,17 @@ public class BCELInstructionAdapter
 			case CALOAD:
 			case SALOAD:
 			case IALOAD:
+			case LALOAD:
 			case AALOAD:
 			case BASTORE:
 			case CASTORE:
 			case SASTORE:
 			case IASTORE:
+			case LASTORE:
 			case AASTORE:
 			
 			case IRETURN:
+			case LRETURN:
 			case ARETURN:
 			case RETURN:
 

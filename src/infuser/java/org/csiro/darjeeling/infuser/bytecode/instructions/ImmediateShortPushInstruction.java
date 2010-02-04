@@ -39,7 +39,7 @@ public class ImmediateShortPushInstruction extends PushInstruction
 	public void dump(DataOutputStream out) throws IOException
 	{
 		out.write(opcode.getOpcode());
-		out.writeShort(value);
+		out.writeShort((short)value);
 	}
 	
 	@Override

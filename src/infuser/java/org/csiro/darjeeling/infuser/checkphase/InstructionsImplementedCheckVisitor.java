@@ -27,6 +27,7 @@ import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.csiro.darjeeling.infuser.logging.Logging;
+import org.csiro.darjeeling.infuser.structure.BaseType;
 import org.csiro.darjeeling.infuser.structure.Element;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodImplementation;
 
@@ -159,6 +160,43 @@ public class InstructionsImplementedCheckVisitor extends CheckVisitor
 				case Constants.ATHROW:
 				case Constants.TABLESWITCH:
 				case Constants.LOOKUPSWITCH:
+
+				case Constants.LCONST_0:
+				case Constants.LCONST_1:
+				case Constants.LLOAD:
+				case Constants.LLOAD_0:
+				case Constants.LLOAD_1:
+				case Constants.LLOAD_2:
+				case Constants.LLOAD_3:
+				case Constants.LSTORE:
+				case Constants.LSTORE_0:
+				case Constants.LSTORE_1:
+				case Constants.LSTORE_2:
+				case Constants.LSTORE_3:
+				case Constants.LALOAD:
+				case Constants.LASTORE:
+				case Constants.LADD:
+				case Constants.LSUB:
+				case Constants.LMUL:
+				case Constants.LDIV:
+				case Constants.LREM:
+				case Constants.LNEG:
+				case Constants.LSHL:
+				case Constants.LSHR:
+				case Constants.LUSHR:
+				case Constants.LAND:
+				case Constants.LOR:
+				case Constants.LXOR:
+
+				case Constants.LRETURN:
+
+				case Constants.L2I:
+				case Constants.I2L:
+
+				case Constants.LCMP:
+
+				case Constants.LDC2_W:
+					
 					// do nothing
 					break;
 				default:

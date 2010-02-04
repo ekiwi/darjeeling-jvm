@@ -100,15 +100,14 @@ public class AbstractField extends Element
 			return BaseType.Float;
 
 		// double, long
-		if (descriptor.startsWith("L"))
+		if (descriptor.startsWith("J"))
 			return BaseType.Long;
 		
 		// double, long
 		if (descriptor.startsWith("D"))
 			return BaseType.Double;
 		
-		assert(false) : "error getting size for field descriptor: " + descriptor; 
-		return BaseType.Ref;
+		throw new IllegalStateException("error getting size for field descriptor: " + descriptor);
 		
 	}
 

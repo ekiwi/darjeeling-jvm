@@ -30,6 +30,7 @@ public class AbstractStaticFieldList extends ParentElement<AbstractField>
 	protected int nrBytes;
 	protected int nrShorts;
 	protected int nrInts;
+	protected int nrLongs;
 	protected int nrRefs;
 	
 	protected AbstractStaticFieldList()
@@ -101,6 +102,16 @@ public class AbstractStaticFieldList extends ParentElement<AbstractField>
 	public void setNrInts(int nrInts)
 	{
 		this.nrInts = nrInts;
+	}
+	
+	public void setNrLongs(int nrLongs)
+	{
+		this.nrLongs = nrLongs;
+	}
+	
+	public int getNrLongs()
+	{
+		return nrLongs;
 	}
 
 	/**
