@@ -1,6 +1,7 @@
 <project>
 
 	<property environment="env"/>
+	<fail unless="env.CONTIKI" message="CONTIKI environment variable not set"/>
 
 	<path id="platform-includes">
 		<pathelement path="${env.CONTIKI}/core/"/>
