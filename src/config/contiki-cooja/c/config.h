@@ -20,6 +20,7 @@
  */
 #ifndef __config_h
 #define __config_h
+#include<stdio.h>
 
 // define heap size
 #define RUNSIZE 128
@@ -37,7 +38,7 @@
 //#define DARJEELING_DEBUG_TRACE
 //#define DARJEELING_DEBUG_CHECK_HEAP_SANITY
 //#define DARJEELING_DEBUG_PERFILE
-#define DARJEELING_PRINTF printf_P
+#define DARJEELING_PRINTF(...) printf(__VA_ARGS__)
 #define DARJEELING_PGMSPACE_MACRO PSTR
 
 #define IS_COOJA

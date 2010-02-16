@@ -28,6 +28,7 @@
 #include "execution.h"
 #include "heap.h"
 #include "djtimer.h"
+#include "array.h"
 #ifdef IS_COOJA
 //this is only to include node_id
 #include "node-id.h"
@@ -53,12 +54,15 @@ void javax_darjeeling_Darjeeling_void_gc()
 // void javax.darjeeling.Darjeeling.printBytesAsString(byte[])
 void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
 {
-	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
+	dj_int_array* byteStr = REF_TO_VOIDP(dj_exec_stackPopRef());
+	char* str = byteStr->data.bytes;
+
 #ifdef IS_COOJA
-	DARJEELING_PRINTF("\n(Node %d) ---> ", node_id);
-	ASSEMBLY_DEBUG("(Node %d) ---> ", node_id);
-#endif
+	DARJEELING_PRINTF("\n(Node %d) ---> %s", node_id, str);
+	ASSEMBLY_DEBUG("(Node %d) ---> %s", node_id, str);
+#else
 	printf("%s", str);
+#endif
 }
 
 // void javax.darjeeling.Darjeeling.print(int)

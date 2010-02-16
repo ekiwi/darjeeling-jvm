@@ -31,6 +31,7 @@
 #include "tosconfig.h"
 #include "panic.h"
 #include "tossim.h"
+#include "array.h"
 
 // void javax.darjeeling.Darjeeling.assertTrue(int, boolean)
 void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
@@ -62,7 +63,8 @@ void javax_darjeeling_Darjeeling_void_gc()
 // void javax.darjeeling.Darjeeling.printBytesAsString(byte[])
 void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
 {
-	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
+	dj_int_array* byteStr = REF_TO_VOIDP(dj_exec_stackPopRef());
+	char* str = byteStr->data.bytes;
 	tossim_printf(str);
 }
 

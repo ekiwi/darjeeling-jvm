@@ -83,7 +83,8 @@ void javax_darjeeling_Darjeeling_void_gc()
 // void javax.darjeeling.Darjeeling.printBytesAsString(byte[])
 void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
 {
-	char *str = REF_TO_VOIDP(dj_exec_stackPopRef());
+	dj_int_array* byteStr = REF_TO_VOIDP(dj_exec_stackPopRef());
+	char* str = byteStr->data.bytes;
 
 	if (nesc_printf(str)==0)
 		blockThreadForPrintf();
