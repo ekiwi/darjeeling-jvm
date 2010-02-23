@@ -42,6 +42,7 @@ public class AbstractField extends Element
 	protected Flags flags;
 	protected AbstractClassDefinition parentClass;
 	protected GlobalId globalId;
+	protected Object constantValue;
 	
 	protected AbstractField(String name, String descriptor, int size, Flags flags, AbstractClassDefinition parentClass)
 	{
@@ -165,6 +166,16 @@ public class AbstractField extends Element
 	public Flags getFlags()
 	{
 		return flags;
+	}
+	
+	public void setConstantValue(Object constantValue)
+	{
+		this.constantValue = constantValue;
+	}
+	
+	public Object getConstantValue()
+	{
+		return constantValue;
 	}
 	
 	/**

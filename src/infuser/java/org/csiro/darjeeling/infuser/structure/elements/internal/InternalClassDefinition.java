@@ -24,7 +24,6 @@ import org.apache.bcel.classfile.JavaClass;
 import org.csiro.darjeeling.infuser.structure.ElementVisitor;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractClassDefinition;
 
-
 public class InternalClassDefinition extends AbstractClassDefinition
 {
 	
@@ -103,10 +102,13 @@ public class InternalClassDefinition extends AbstractClassDefinition
 	
 	public void flattenInterfaceList()
 	{
-		for (AbstractClassDefinition interfaceDef : interfaces.values())
-		{
-			addInterfaces(interfaceDef);
-		}
+		// Clone interface list to avoid concurrent modification exception
+		AbstractClassDefinition[] interfaceList = new AbstractClassDefinition[interfaces.size()];
+		interfaces.values().toArray(interfaceList);
+		
+		// Walk over the interface list and recursively add each interface to the class
+		for (AbstractClassDefinition interfaceDefinition : interfaceList)
+			addInterfaces(interfaceDefinition);
 	}
 
 }

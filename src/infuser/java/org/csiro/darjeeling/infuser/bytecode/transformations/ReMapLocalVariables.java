@@ -31,6 +31,9 @@ import org.csiro.darjeeling.infuser.structure.BaseType;
 public class ReMapLocalVariables extends CodeBlockTransformation
 {
 	
+	/*
+	 * Private class that represents a single local variable slot. 
+	 */
 	@SuppressWarnings("serial")
 	private class Slot extends ArrayList<LocalVariable>
 	{
@@ -41,9 +44,11 @@ public class ReMapLocalVariables extends CodeBlockTransformation
 					return true;
 			
 			return false;
-		}
+		}		
 		
-		
+		/**
+		 * @return true iff the local variable overlaps with this local variable slot.
+		 */
 		public boolean overlaps(LocalVariable localVariable)
 		{
 			for (LocalVariable slotVariable : this)

@@ -195,11 +195,14 @@ public class CodeBlock
 			ret.localVariables.get(0).setType(BaseType.Ref);
 		
 		// We know the types of the parameters, so we can set these right away
+		// TODO refactor
 		BaseType[] parameterTypes = methodImplementation.getMethodDefinition().getArgumentTypes();
+		int pos = 0;
 		for (int i=0; i<parameterTypes.length; i++)
 		{
-			LocalVariable localVariable = ret.localVariables.get((isStatic?0:1)+i); 
+			LocalVariable localVariable = ret.localVariables.get((isStatic?0:1)+pos); 
 			localVariable.setType(parameterTypes[i]);
+			pos += parameterTypes[i].isLongSized()?2:1;
 		}
 		
 		// the first n local variables are parameters that are passed from the caller, so they are
@@ -323,6 +326,10 @@ public class CodeBlock
 		return methodImplementation;
 	}
 	
+	/**
+	 * Serialises the code block to a byte array.
+	 * @return this code block as a byte array.
+	 */
 	public byte[] toByteArray()
 	{
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -335,6 +342,10 @@ public class CodeBlock
 			outStream.close();
 		} catch (IOException ex)
 		{
+			throw new RuntimeException(ex);
+		} catch (Exception ex)
+		{
+			this.print();
 			throw new RuntimeException(ex);
 		}
 		

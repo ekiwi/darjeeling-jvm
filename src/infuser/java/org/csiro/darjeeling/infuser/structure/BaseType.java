@@ -156,6 +156,11 @@ public enum BaseType
 		return (this==Int)||(this==Float);
 	}
 	
+	public boolean isLongSized()
+	{
+		return (this==Long)||(this==Double);
+	}
+	
 	/**
 	 * Returns the 'largest' of the two types. The decision is made by size in bytes, so a Short is larger
 	 * than a Byte, but smaller than an Int. Note that behavior is undefined for non-integer types.  

@@ -279,9 +279,6 @@ public class OptimizeByteCode extends CodeBlockTransformation
 
 			}
 			
-			// Propagate the optimisation hints upwards
-			handle.getInstruction().setOptimisationHints(handle);
-			
 		}
 	}
 	

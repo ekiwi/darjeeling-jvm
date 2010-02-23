@@ -127,7 +127,7 @@ public class LocalVariable
 	@Override
 	public String toString()
 	{
-		return String.format("%d: (%d:%d) %s", slot, referenceIndex, integerIndex, types.toString());
+		return String.format("%d: (%d:%d) %s %s", slot, referenceIndex, integerIndex, types.toString(), isParameter?"(parameter)":"");
 	}
 	
 }

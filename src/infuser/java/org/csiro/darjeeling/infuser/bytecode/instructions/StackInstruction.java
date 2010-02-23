@@ -125,8 +125,15 @@ public class StackInstruction extends SimpleInstruction
 				
 			case IPOP2:
 				// since we're popping the operands, we don't care about their types type
-				handle.setOptimisationHint(0, BaseType.DontCare);
-				handle.setOptimisationHint(1, BaseType.DontCare);
+				// TODO cleanup
+				if (handle.getPreState().getStack().size()==1)
+				{
+					handle.setOptimisationHint(0, BaseType.DontCare);
+				} else
+				{
+					handle.setOptimisationHint(0, BaseType.DontCare);
+					handle.setOptimisationHint(1, BaseType.DontCare);
+				}
 				break;
 				
 			case IDUP:

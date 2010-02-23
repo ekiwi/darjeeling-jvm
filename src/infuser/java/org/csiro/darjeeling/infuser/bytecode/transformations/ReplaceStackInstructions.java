@@ -29,7 +29,7 @@ import org.csiro.darjeeling.infuser.bytecode.InstructionHandle;
 import org.csiro.darjeeling.infuser.bytecode.InstructionList;
 import org.csiro.darjeeling.infuser.bytecode.Opcode;
 import org.csiro.darjeeling.infuser.bytecode.analysis.InterpreterState;
-import org.csiro.darjeeling.infuser.bytecode.instructions.SimpleInstruction;
+import org.csiro.darjeeling.infuser.bytecode.instructions.StackInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.WideStackInstruction;
 import org.csiro.darjeeling.infuser.structure.BaseType;
 
@@ -65,20 +65,20 @@ public class ReplaceStackInstructions extends CodeBlockTransformation
 		{
 			case 0:
 				// shorthand opcodes for common case
-				if (m==1) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IDUP)));
-				if (m==2) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IDUP2)));
+				if (m==1) ret.add(new InstructionHandle(new StackInstruction(Opcode.IDUP)));
+				if (m==2) ret.add(new InstructionHandle(new StackInstruction(Opcode.IDUP2)));
 				// general case
 				if (m>=3) ret.add(new InstructionHandle(new WideStackInstruction(Opcode.IDUP_X, m, nn)));
 				break;
 			case 1:
 				// shorthand opcode for common case IDUP_X1
-				if (m==1) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IDUP_X1)));
+				if (m==1) ret.add(new InstructionHandle(new StackInstruction(Opcode.IDUP_X1)));
 				// general case
 				if (m>=2) ret.add(new InstructionHandle(new WideStackInstruction(Opcode.IDUP_X, m, nn)));
 				break;
 			case 2:
 				// shorthand opcode for common case IDUP_X2
-				if (m==1) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IDUP_X2)));
+				if (m==1) ret.add(new InstructionHandle(new StackInstruction(Opcode.IDUP_X2)));
 				if (m>=2) ret.add(new InstructionHandle(new WideStackInstruction(Opcode.IDUP_X, m, nn)));
 				break;
 			default:
@@ -97,18 +97,18 @@ public class ReplaceStackInstructions extends CodeBlockTransformation
 		{
 			case 0:
 				// shorthand opcodes for common case
-				if (m==1) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.ADUP)));
-				if (m==2) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.ADUP2)));
+				if (m==1) ret.add(new InstructionHandle(new StackInstruction(Opcode.ADUP)));
+				if (m==2) ret.add(new InstructionHandle(new StackInstruction(Opcode.ADUP2)));
 				if (m>=3) throw new IllegalStateException(String.format("Cannot formulate adup instruction for m:%d, n:%d", m, n));
 				break;
 			case 1:
 				// shorthand opcode for common case IDUP_X1
-				if (m==1) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.ADUP_X1)));
+				if (m==1) ret.add(new InstructionHandle(new StackInstruction(Opcode.ADUP_X1)));
 				if (m>=2) throw new IllegalStateException(String.format("Cannot formulate adup instruction for m:%d, n:%d", m, n));
 				break;
 			case 2:
 				// shorthand opcode for common case IDUP_X2
-				if (m==1) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.ADUP_X2)));
+				if (m==1) ret.add(new InstructionHandle(new StackInstruction(Opcode.ADUP_X2)));
 				if (m>=2) throw new IllegalStateException(String.format("Cannot formulate adup instruction for m:%d, n:%d", m, n));
 				break;
 			default:
@@ -128,14 +128,18 @@ public class ReplaceStackInstructions extends CodeBlockTransformation
 				// no elements to pop, return the empty list
 				break;
 			case 1:
-				ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IPOP)));
+				ret.add(new InstructionHandle(new StackInstruction(Opcode.IPOP)));
 				break;
 			case 2:
-				ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IPOP2)));
+				ret.add(new InstructionHandle(new StackInstruction(Opcode.IPOP2)));
 				break;
 			case 3:
-				ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IPOP)));
-				ret.add(new InstructionHandle(new SimpleInstruction(Opcode.IPOP2)));
+				ret.add(new InstructionHandle(new StackInstruction(Opcode.IPOP)));
+				ret.add(new InstructionHandle(new StackInstruction(Opcode.IPOP2)));
+				break;
+			case 4:
+				ret.add(new InstructionHandle(new StackInstruction(Opcode.IPOP2)));
+				ret.add(new InstructionHandle(new StackInstruction(Opcode.IPOP2)));
 				break;
 			default:
 				throw new IllegalStateException(String.format("Cannot formulate integer pop opcode for m=%d", m));
@@ -148,8 +152,8 @@ public class ReplaceStackInstructions extends CodeBlockTransformation
 	{
 		ArrayList<InstructionHandle> ret = new ArrayList<InstructionHandle>(); 
 
-		if (m==1) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.APOP)));
-		if (m==2) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.APOP2)));
+		if (m==1) ret.add(new InstructionHandle(new StackInstruction(Opcode.APOP)));
+		if (m==2) ret.add(new InstructionHandle(new StackInstruction(Opcode.APOP2)));
 		if (m>=3) throw new IllegalStateException(String.format("Cannot formulate reference pop opcode for m=%d", m));
 		
 		return ret;
@@ -168,7 +172,7 @@ public class ReplaceStackInstructions extends CodeBlockTransformation
 	{
 		ArrayList<InstructionHandle> ret = new ArrayList<InstructionHandle>(); 
 
-		if ((m==1)&&(n==1)) ret.add(new InstructionHandle(new SimpleInstruction(Opcode.ASWAP)));
+		if ((m==1)&&(n==1)) ret.add(new InstructionHandle(new StackInstruction(Opcode.ASWAP)));
 		
 		return ret;
 	}
@@ -225,12 +229,29 @@ public class ReplaceStackInstructions extends CodeBlockTransformation
 					break;
 					
 				case IPOP2:
-					type1 = preState.getStack().peek(0).getType();
-					type2 = preState.getStack().peek(1).getType();
-					
-					instructions.insertBefore(handle, getIPopInstructions(getNrIntegerSlots(type1, type2)));
-					instructions.insertBefore(handle, getAPopInstructions(getNrReferenceSlots(type1, type2)));
-					instructions.remove(handle);
+					try {
+						type1 = preState.getStack().peek().getType();
+					} catch (RuntimeException ex)
+					{
+						System.out.println(">>>> " + handle);
+						
+						for (InstructionHandle h : codeBlock.getInstructions().getInstructionHandles())
+							System.out.println(h);
+						throw ex;
+					}
+						
+					type1 = preState.getStack().peek().getType();
+					if (type1.isLongSized())
+					{
+						instructions.insertBefore(handle, getIPopInstructions(getNrIntegerSlots(type1)/2));
+						instructions.remove(handle);
+					} else
+					{
+						type2 = preState.getStack().peek(1).getType();
+						instructions.insertBefore(handle, getIPopInstructions(getNrIntegerSlots(type1, type2)));
+						instructions.insertBefore(handle, getAPopInstructions(getNrReferenceSlots(type1, type2)));
+						instructions.remove(handle);
+					}
 					
 					break;
 					

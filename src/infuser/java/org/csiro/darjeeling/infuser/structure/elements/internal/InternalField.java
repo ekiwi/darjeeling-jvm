@@ -20,6 +20,11 @@
  */
 package org.csiro.darjeeling.infuser.structure.elements.internal;
 
+import org.apache.bcel.classfile.Constant;
+import org.apache.bcel.classfile.ConstantInteger;
+import org.apache.bcel.classfile.ConstantLong;
+import org.apache.bcel.classfile.ConstantString;
+import org.apache.bcel.classfile.ConstantValue;
 import org.csiro.darjeeling.infuser.structure.ElementVisitor;
 import org.csiro.darjeeling.infuser.structure.Flags;
 import org.csiro.darjeeling.infuser.structure.GlobalId;
@@ -49,6 +54,15 @@ public class InternalField extends AbstractField
 				parentClass
 				);
 		
+		ConstantValue constant = field.getConstantValue();
+		if (constant!=null)
+		{
+			Constant value = constant.getConstantPool().getConstant(constant.getConstantValueIndex());
+			if (value instanceof ConstantInteger) ret.setConstantValue(((ConstantInteger)value).getBytes());
+			if (value instanceof ConstantLong) ret.setConstantValue(((ConstantLong)value).getBytes());
+			if (value instanceof ConstantString) ret.setConstantValue(((ConstantString)value).getStringIndex());
+		}
+
 		ret.setGlobalID(new GlobalId(infusion.getHeader().getInfusionName(),0));
 		
 		return ret;		

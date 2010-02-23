@@ -65,6 +65,12 @@ public class InterpreterState implements Comparable<InterpreterState>
 		InterpreterState ret = clone();
 		
 		Opcode opcode = handle.getInstruction().getOpcode();
+		BaseType type = null;
+		
+		// TODO FUGLY PLACEHOLDER :)
+		try {
+			type = handle.getPreState().getStack().peek().getLogicalType();
+		} catch (Exception ex) {}
 		
 		switch (opcode)
 		{
@@ -298,6 +304,7 @@ public class InterpreterState implements Comparable<InterpreterState>
 				break;
 				
 			case IRETURN:
+			case LRETURN:
 			case ARETURN:
 			case SRETURN:
 				ret.getStack().pop();
@@ -336,8 +343,14 @@ public class InterpreterState implements Comparable<InterpreterState>
 			case APOP:
 				ret.getStack().pop();
 				break;
-				
+
 			case IPOP2:
+				// Special case. If the element on the top of the stack is a long or double, then pop2 pops only that element.
+				// Otherwise two elements are popped.
+				ret.getStack().pop();
+				if (!type.isLongSized()) ret.getStack().pop();
+				break;
+				
 			case APOP2:
 				ret.getStack().pop();
 				ret.getStack().pop();
@@ -351,6 +364,24 @@ public class InterpreterState implements Comparable<InterpreterState>
 				break;
 
 			case IDUP2:
+				if (type.isLongSized())
+				{
+					ret.getStack().pop();
+					ret.getStack().push(handle, 1);
+					ret.getStack().push(handle, 0);
+				} else
+				{
+					ret.getStack().pop();
+					ret.getStack().pop();
+					ret.getStack().push(handle, 3);
+					ret.getStack().push(handle, 2);
+					ret.getStack().push(handle, 1);
+					ret.getStack().push(handle, 0);
+				}
+					
+				break;
+				
+				
 			case ADUP2:
 				ret.getStack().pop();
 				ret.getStack().pop();

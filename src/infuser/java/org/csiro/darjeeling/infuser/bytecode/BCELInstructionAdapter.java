@@ -628,6 +628,10 @@ public class BCELInstructionAdapter
 				field = lookupStaticField((org.apache.bcel.generic.FieldInstruction)instruction);
 				localId = field.getGlobalId().resolve(infusion);
 				type = AbstractField.classify(field.getDescriptor());
+				
+				if (field.getConstantValue()!=null)
+					throw new IllegalStateException("PUTSTATIC on a final static field");
+				
 				switch (type)
 				{
 					case Boolean:
@@ -642,9 +646,17 @@ public class BCELInstructionAdapter
 				}
 				break;
 			case GETSTATIC:
+				
 				field = lookupStaticField((org.apache.bcel.generic.FieldInstruction)instruction);
 				localId = field.getGlobalId().resolve(infusion);
 				type = AbstractField.classify(field.getDescriptor());
+
+				// If the field is final, we should convert the instruction to a constant push instruction.
+				// This saves ram by moving the constant to program memory, effectively treating
+				// final static fields as defines.
+				if (field.getConstantValue()!=null)
+					System.out.println("WARNING: final static field is not being converted to a constant");
+					
 				switch (type)
 				{
 					case Boolean:
@@ -657,6 +669,7 @@ public class BCELInstructionAdapter
 					default:
 						throw new IllegalStateException("Unsupported type for getstatic");
 				}
+				
 				break;
 			
 			// new
@@ -691,11 +704,12 @@ public class BCELInstructionAdapter
 				
 			// stack operations
 			case POP: ret = new StackInstruction(Opcode.IPOP); break;
+ 			case POP2: ret = new StackInstruction(Opcode.IPOP2); break;
 			case DUP: ret = new StackInstruction(Opcode.IDUP); break;
 			case DUP2: ret = new StackInstruction(Opcode.IDUP2); break;
 			case DUP_X1: ret = new StackInstruction(Opcode.IDUP_X1); break;
  			case DUP_X2: ret = new StackInstruction(Opcode.IDUP_X2); break;
- 			case SWAP: ret = new StackInstruction(Opcode.ISWAP_X);
+ 			case SWAP: ret = new StackInstruction(Opcode.ISWAP_X); break;
 				
 			// direct local variable increase
  			case IINC:
