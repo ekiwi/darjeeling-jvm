@@ -21,6 +21,7 @@
 package org.csiro.darjeeling.infuser.bytecode.analysis;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 import org.csiro.darjeeling.infuser.bytecode.CodeBlock;
 import org.csiro.darjeeling.infuser.bytecode.DummyHandle;
@@ -106,6 +107,9 @@ public class Interpreter
 		
 	}
 	
+	/**
+	 * 
+	 */
 	public void inferLiveRanges()
 	{
 		
@@ -119,26 +123,33 @@ public class Interpreter
 		if (codeBlock.getInstructions().size()==0) return;
 		
 		pendingHandles.clear();
-		//we first find thet last instructions in the method,
-		//then we add the last instruction in each try block,
-		//the reason to consider the try blocks separately is if
-		//a try block is followed by no instruction in a simple while loop,
-		//the bottom-to-top chain of incoming handle is lost in the catch instructions
+		
+		// we first find the last instructions in the method,
+		// then we add the last instruction in each try block,
+		// the reason to consider the try blocks separately is if
+		// a try block is followed by no instruction in a simple while loop,
+		// the bottom-to-top chain of incoming handle is lost in the catch instructions
 		// bootstrap the last instruction
 		pendingHandles.add(instructions.get(instructions.size()-1));
+		
 		// bootstrap the last instruction in all try blocks
-		for (ExceptionHandler exceptionHandler : codeBlock.getExceptionHandlers()){
-			pendingHandles.add(exceptionHandler.getEnd());
+		for (ExceptionHandler exceptionHandler : codeBlock.getExceptionHandlers())
+		{
+			InstructionHandle lastHandlerInstruction = codeBlock.getInstructions().previous(exceptionHandler.getEnd());
+			if (lastHandlerInstruction!=null)
+				pendingHandles.add(lastHandlerInstruction);
 		}
-		for (InstructionHandle currentHandle : pendingHandles){
+
+		for (InstructionHandle currentHandle : pendingHandles)
 			currentHandle.getLiveVariables().add(null);
-		}
-		// interpret
+
+		TreeSet<InstructionHandle> visitedHandles = new TreeSet<InstructionHandle>();
 
 		// interpret
 		InstructionHandle handle = pickNextState();
 		while ((handle=pickNextState())!=null)
 		{
+			visitedHandles.add(handle);
 			Instruction instruction = handle.getInstruction();
 			
 			// load or iinc instruction (mark this handle as live)
@@ -159,7 +170,7 @@ public class Interpreter
 			{
 				try {
 					boolean changed = incomingHandle.getLiveVariables().merge(handle.getLiveVariables());
-					if (changed) pendingHandles.add(incomingHandle);
+					if (!visitedHandles.contains(incomingHandle) || changed) pendingHandles.add(incomingHandle);
 				} catch (IllegalArgumentException ex)
 				{
 					throw new IllegalStateException(String.format("Unable to merge stacks at pc=%d: %s", handle.getPc(), ex.getMessage() ));
@@ -169,6 +180,7 @@ public class Interpreter
 			// hack hack hack
 			if (instruction.getOpcode().isStoreInstruction())
 				handle.getLiveVariables().add(((LocalVariableInstruction)instruction).getLocalVariable());
+			
 			
 			pendingHandles.remove(handle);
 		}
