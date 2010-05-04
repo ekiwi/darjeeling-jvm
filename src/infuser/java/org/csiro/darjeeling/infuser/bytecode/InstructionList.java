@@ -22,43 +22,88 @@ package org.csiro.darjeeling.infuser.bytecode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.csiro.darjeeling.infuser.bytecode.instructions.BranchInstruction;
 import org.csiro.darjeeling.infuser.bytecode.instructions.SwitchInstruction;
 
+/**
+ * An ordered list of instruction handles. Contains methods for automatically generating instruction offsets, various 'listy' functions such
+ * as getting by PC, getting the next/previous handle, inserting, etc. 
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class InstructionList
 {
 	
+	// The actual list
 	private ArrayList<InstructionHandle> instructions;
 	
+	/**
+	 * Constructs a new, empty instruction list. 
+	 */
 	public InstructionList()
 	{
 		instructions = new ArrayList<InstructionHandle>();
 	}
 	
-	private InstructionList(ArrayList<InstructionHandle> instructions)
+	/**
+	 * Constructs a new instruction list, containing the instruction handles in the given input list.
+	 * @param instructions collection of instruction handles 
+	 */
+	private InstructionList(List<InstructionHandle> instructions)
 	{
-		this.instructions = instructions;
+		this.instructions = new ArrayList<InstructionHandle>();
+		this.instructions.addAll(instructions);
 	}
 	
-	public Collection<InstructionHandle> getInstructionHandles()
+	/**
+	 * Gets the underlying list object containing the instructions.
+	 * @return list of instruction handles
+	 */
+	public List<InstructionHandle> getInstructionHandles()
 	{
 		return instructions;
 	}
 	
+	/**
+	 * Adds an instruction handle to the list.
+	 * @param handle instruction handle to add.
+	 */
 	public void addInstructionHandle(InstructionHandle handle)
 	{
 		instructions.add(handle);
 	}
-	
+
+	/**
+	 * @return the number of handles in the list.
+	 */
 	public int size()
 	{
 		return instructions.size();
 	}
-	
+
+	/**
+	 * Gets an instruction handle by index.
+	 * @param index index of the instruction handle in the list.
+	 * @return instruction handle at index [index].
+	 */
 	public InstructionHandle get(int index)
 	{
 		return instructions.get(index);
+	}
+
+	public int getIndex(InstructionHandle handle)
+	{
+		for (int i=0; i<instructions.size(); i++) if (instructions.get(i)==handle) return i; 
+		return -1;
+	}
+	
+	public InstructionHandle previous(InstructionHandle handle)
+	{
+		int index = getIndex(handle);
+		return index>0 ? instructions.get(index-1) : null;
 	}
 
 	public InstructionHandle getHandleByPc(int pc)
