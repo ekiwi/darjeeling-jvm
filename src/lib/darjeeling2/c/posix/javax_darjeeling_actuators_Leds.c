@@ -1,5 +1,5 @@
 /*
- *	java_lang_Integer.c
+ *	javax_darjeeling_actuators_Leds.c
  *
  *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  *
@@ -18,30 +18,30 @@
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <string.h>
 #include <stdio.h>
 
-#include "heap.h"
+#include "array.h"
 #include "execution.h"
-#include "panic.h"
-
 #include "jlib_base.h"
 
-// java.lang.String java.lang.Integer.toString(int)
-void java_lang_Integer_java_lang_String_toString_int()
+#define NUM_VIRTUAL_LEDS 3
+
+//short javax.darjeeling.actuators.Leds.getNrLeds()
+void javax_darjeeling_actuators_Leds_short_getNrLeds()
 {
-	char temp[8];
-	char *str;
-	int32_t value = dj_exec_stackPopInt();
-	sprintf(temp,"%ld", (long)value);
-	str = dj_mem_alloc(strlen(temp)+1, dj_vm_getSysLibClassRuntimeId(dj_exec_getVM(), BASE_CDEF_java_lang_String));
+	dj_exec_stackPushShort(NUM_VIRTUAL_LEDS);
+}
 
-	if(str == NULL)
-	{
-    	dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
-    	return;
-	}
+// void javax.darjeeling.actuators.Leds.set(short, boolean)
+void javax_darjeeling_actuators_Leds_void_set_short_boolean()
+{
+	uint16_t on = dj_exec_stackPopShort();
+	uint16_t nr = dj_exec_stackPopShort();
 
-	strcpy(str, temp);
-	dj_exec_stackPushRef(VOIDP_TO_REF(str));
+	// Check for out-of-bounds
+	if (nr>=0 && nr<NUM_VIRTUAL_LEDS)
+		printf(on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
+	else
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+
 }

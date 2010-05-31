@@ -1,10 +1,10 @@
 /*
- *	javax_fleck_leds.c
- *
- *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
- *
+ *	Leds.java
+ * 
+ *	Copyright (c) 2008, 2010 CSIRO, Delft University of Technology.
+ * 
  *	This file is part of Darjeeling.
- *
+ * 
  *	Darjeeling is free software: you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
  *	the Free Software Foundation, either version 3 of the License, or
@@ -14,34 +14,26 @@
  *	but WITHOUT ANY WARRANTY; without even the implied warranty of
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *	GNU General Public License for more details.
- *
+ * 
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stdint.h>
+package javax.darjeeling.actuators;
 
-#include "array.h"
-#include "execution.h"
-#include "jlib_base.h"
-
-#include "dev/leds.h"
-
-// void javax.fleck.Leds.setLed(int, boolean)
-void javax_fleck_Leds_void_setLed_int_boolean()
+public class Leds
 {
-	int16_t on = dj_exec_stackPopShort();
-	int32_t nr = dj_exec_stackPopInt();
-
-	switch (nr){
-		case 0:
-			if (on) leds_on(LEDS_BLUE); else leds_off(LEDS_BLUE);
-			break;
-		case 1:
-			if (on) leds_on(LEDS_GREEN); else leds_off(LEDS_GREEN);
-			break;
-		case 2:
-			if (on) leds_on(LEDS_RED); else leds_off(LEDS_RED);
-			break;
-	}
+	
+	/**
+	 * Returns the number of available leds on the device. 
+	 * @return number of available leds
+	 */
+	public static native short getNrLeds();
+	
+	/**
+	 * Sets the state of a specific led. 
+	 * @param nr led index. Should be in the range [0, nr_leds>. 
+	 * @param status status of the led. True means the led is to be turned on, false means off.
+	 */
+	public static native void set(short nr, boolean status);
 
 }

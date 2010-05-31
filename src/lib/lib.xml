@@ -61,7 +61,7 @@
 		before solving the problem for tinyOS
 	-->
 	<pathconvert property="cc-include-paths" pathsep=" ">
-		<filelist dir="/" files="base darjeeling radio ${lib-depends}"/>
+		<filelist dir="/" files="base darjeeling darjeeling2 radio ${lib-depends}"/>
 		<regexpmapper from="/(.*)" to="${libpath}/\1/build/"/>
 	</pathconvert>
 	
