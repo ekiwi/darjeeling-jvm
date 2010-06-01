@@ -112,10 +112,11 @@ void java_lang_Thread_void__setRunnable_short_java_lang_Runnable()
 	thread->runnable = REF_TO_VOIDP(runnable);
 }
 
-// void java.lang.Thread.sleep(int)
-void java_lang_Thread_void_sleep_int()
+// void java.lang.Thread.sleep(long)
+void java_lang_Thread_void_sleep_long()
 {
-	int32_t time = dj_exec_stackPopInt();
+	int64_t time = dj_exec_stackPopLong();
+
 	dj_thread *thread = dj_exec_getCurrentThread();
 	dj_thread_sleep(thread, time);
 	dj_exec_breakExecution();
