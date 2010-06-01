@@ -54,7 +54,6 @@
 				src="@{inputfile}"
 				dest="temp.c"
 				arrayname="di_archive"
-				progmem="false"
 			/>
 			<!-- compile -->
 			<cc
