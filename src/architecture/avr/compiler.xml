@@ -99,7 +99,7 @@
 				src="@{inputfile}"
 				dest="temp.c"
 				arrayname="di_archive"
-				keywords="PROGMEM"
+                                keywords="PROGMEM"
 			/>
 			<!-- compile -->
 			<cc

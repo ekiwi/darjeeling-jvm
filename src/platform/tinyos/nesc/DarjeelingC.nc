@@ -7,6 +7,7 @@
 
 #include "message.h"
 #include "platform_message.h"
+#include "AM.h"
 
 #include "dj_tos_message.h"
 
@@ -26,15 +27,14 @@ module DarjeelingC
 		interface Receive as RadioReceive;
 		interface Packet as RadioPacket;
 		interface PacketAcknowledgements;
-		interface CC1000Control as CC1000;
+		//interface CC1000Control as CC1000;
 #endif
 
 #ifdef TOS_SERIAL
 		interface StdControl as UartControl;
-		interface UartByte;
 		interface UartStream;
+		interface UartByte;
 #endif
-
 #ifdef WITH_RADIO
 		interface LowPowerListening;
 #endif
@@ -53,17 +53,19 @@ implementation
 	bool radioLocked, ackPending;
 	bool wasAcked;
 
+
 	int nesc_printf(char * msg) @C() @spontaneous()
 	{
 #ifdef TOS_SERIAL
-		if (call UartStream.send(msg, strlen(msg)) == SUCCESS)
-			return 0;
+                //blocking send
+                while (*msg != 0)
+                {
+                        call UartByte.send(*msg);
+                        msg++;
+                }
+//		call UartStream.send(msg, strlen(msg)) == SUCCESS);
 #endif
-
-#ifndef TOS_SERIAL
-		// notify the VM
-		dj_notifySerialSendDone();
-#endif
+                return -1;
 	}
 
 	void nesc_setLed(int nr, int on) @C() @spontaneous()
@@ -95,7 +97,6 @@ implementation
 	{
 #ifdef WITH_RADIO
 		tos_message_t * tosmessage;
-
 		// check for lock
 		if (radioLocked) return -1;
 
@@ -161,11 +162,15 @@ implementation
 #endif
 	task void run()
 	{
-		uint32_t sleepTime = dj_run();
+		int32_t sleepTime = dj_run();
 
-		if (sleepTime==0) post run(); else
-		if (sleepTime>0) call Timer.startOneShot(sleepTime); else
-		if (sleepTime<0) call Timer.startOneShot(1000);
+		if (sleepTime==0)
+                        post run();
+                else if (sleepTime > 0)
+                        //post run();
+                        call Timer.startOneShot(sleepTime);
+                else //sleepTime < 0
+                        call Timer.startOneShot(100);
 	}
 
 	event void Timer.fired()
@@ -185,8 +190,6 @@ implementation
 //if radio is not included nothing will invoke run(). this means that darjeeling will do nothing
 		post run();
 #endif
-		
-		while (1);
 
 	}
 
@@ -196,7 +199,8 @@ implementation
 		// set the RF power to 1 - our test bed is very dense :)
 //		call CC1000.setRFPower(1);
 //		call CC1000.setRFPower(2U);
-		call LowPowerListening.setLocalSleepInterval(85);
+//		call LowPowerListening.setLocalSleepInterval(85);
+
 		
 		post run();
 	}
@@ -225,19 +229,18 @@ implementation
 	{
 	    if (&radioPacket == bufPtr)
 	    {
-			radioLocked = FALSE;
+		radioLocked = FALSE;
 
-			// record whether the last message was acknowledged
-			if (ackPending)
-				wasAcked = call PacketAcknowledgements.wasAcked(&radioPacket);
+		// record whether the last message was acknowledged
+		if (ackPending)
+			wasAcked = call PacketAcknowledgements.wasAcked(&radioPacket);
 
-			dj_notifyRadioSendDone();
-			post run();
+		dj_notifyRadioSendDone();
+		post run();
 	    }
 
 	}
 #endif
-
 #ifdef TOS_SERIAL
 	/**
 	 * Uart 'send done' event. Signals that the last serial write command completed succesfully. The VM has to be notified
@@ -250,7 +253,8 @@ implementation
 		dj_notifySerialSendDone();
 
 		// wake up the VM if it was sleeping
-		post run();
+                // Can cause problems when sending only a few bytes!
+		//post run();
 	}
 
 	async event void UartStream.receivedByte( uint8_t byte )
@@ -266,4 +270,3 @@ implementation
 #endif
 
 }
-

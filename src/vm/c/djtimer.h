@@ -1,7 +1,7 @@
 /*
  *	djtimer.h
  *
- *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -23,7 +23,7 @@
 
 #include "types.h"
 
-int64_t dj_timer_getTimeMillis();
+int32_t dj_timer_getTimeMillis();
 void dj_timer_init();
 
 #endif

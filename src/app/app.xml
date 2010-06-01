@@ -71,6 +71,7 @@
 			name="${name}"
 			infusionfile="${build}/${name}.di"
 			headerfile="${build}/${name}.dih"
+			hfile="${build}/${name}.h"
 		>
 			<!-- Include the classes -->
 			<fileset dir="${classes}" ><include name="**/*.class"/></fileset>

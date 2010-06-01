@@ -57,9 +57,12 @@ int main()
 		{ PSTR("darjeeling"), &darjeeling_native_handler }
 	};
 
-	dj_vm_loadInfusionArchive(vm,
-			(dj_di_pointer)di_archive_data,
-			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, 2);
+	int length = sizeof(handlers)/ sizeof(handlers[0]);
+        dj_archive archive;
+        archive.start = (dj_di_pointer)di_archive_data;
+        archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
+
+        dj_vm_loadInfusionArchive(vm, &archive, handlers, length);
 
 	// dj_vm_loadInfusionArchive(vm, (dj_di_pointer)&_binary_infusions_start, (dj_di_pointer)&_binary_infusions_end, handlers, 2);
 

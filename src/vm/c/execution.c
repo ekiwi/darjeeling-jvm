@@ -1,7 +1,7 @@
 /*
  *	execution.c
  *
- *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -152,7 +152,6 @@ static inline void dj_exec_loadLocalState(dj_frame *frame) {
 	dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(
 			frame->method);
 	code = dj_di_methodImplementation_getData(methodImpl);
-	DEBUG_LOG("\told pc %d to current pc %d\n", pc, frame->pc);
 	pc = frame->pc;
 
 	intStack = dj_frame_getIntegerStack(frame);
@@ -437,8 +436,7 @@ static inline ref_t peekDeepRef(int depth) {
  * running program.
  * @param value the integer value to push.
  */
-void dj_exec_stackPushShort(int16_t value)
-{
+void dj_exec_stackPushShort(int16_t value) {
 	pushShort(value);
 }
 
@@ -467,8 +465,7 @@ void dj_exec_stackPushLong(int64_t value)
  * running program. Corruping the stack can lead to crashes, use with care!
  * @param value the reference value to push.
  */
-void dj_exec_stackPushRef(ref_t value)
-{
+void dj_exec_stackPushRef(ref_t value) {
 	pushRef(value);
 }
 
@@ -477,8 +474,7 @@ void dj_exec_stackPushRef(ref_t value)
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
  */
-int16_t dj_exec_stackPopShort()
-{
+int16_t dj_exec_stackPopShort() {
 	return popShort();
 }
 
@@ -487,8 +483,7 @@ int16_t dj_exec_stackPopShort()
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
  */
-int32_t dj_exec_stackPopInt()
-{
+int32_t dj_exec_stackPopInt() {
 	return popInt();
 }
 
@@ -497,8 +492,7 @@ int32_t dj_exec_stackPopInt()
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
  */
-int64_t dj_exec_stackPopLong()
-{
+int64_t dj_exec_stackPopLong() {
 	return popLong();
 }
 
@@ -899,7 +893,7 @@ int dj_exec_run(int nrOpcodes)
 	int i;
 	nrOpcodesLeft = nrOpcodes;
 	int32_t temp1, temp2, temp3;
-	int64_t ltemp1, ltemp2, ltemp3;
+	int64_t ltemp1, ltemp2;
 	ref_t rtemp1, rtemp2, rtemp3;
 
 	while (nrOpcodesLeft > 0) {
@@ -907,6 +901,9 @@ int dj_exec_run(int nrOpcodes)
 		opcode = fetch();
 
 #ifdef DARJEELING_DEBUG
+
+		DEBUG_LOG("%-15s", jvm_opcodes[opcode]);
+
 		totalNrOpcodes++;
 		oldPc = pc;
 #endif
@@ -1316,17 +1313,13 @@ int dj_exec_run(int nrOpcodes)
 
 #ifdef DARJEELING_DEBUG_TRACE
 
-
 		dj_thread *currentThread = dj_exec_getCurrentThread();
 		dj_frame *current_frame = currentThread->frameStack;
 		if (current_frame==NULL) continue;
 
-		DEBUG_LOG("%*s%03d->%03d   %-15s",
-               oldCallDepth*2,
-               "",
-               oldPc,
-               pc,
-               jvm_opcodes[opcode]);
+		// DEBUG_LOG("%*s", oldCallDepth*2, "");
+		DEBUG_LOG("%03d->%03d   ", oldPc, pc);
+		DEBUG_LOG("%-15s", jvm_opcodes[opcode]);
 
 		DEBUG_LOG("R<");
 
@@ -1346,14 +1339,18 @@ int dj_exec_run(int nrOpcodes)
 		DEBUG_LOG(">");
 		DEBUG_LOG("\tR(");
 
+
 		// abuse this method to calculate nr_int_stack and nr_ref_stack for us
 		dj_exec_saveLocalState(current_frame);
+
 
 		ref_t *refStackStart = (ref_t*)((int)dj_frame_getStackEnd(current_frame) - current_frame->nr_ref_stack * sizeof(ref_t));
 		for (i=0; i<current_frame->nr_ref_stack; i++)
 			DEBUG_LOG("%-6d,", refStackStart[i]);
 
 		DEBUG_LOG(")");
+
+		/*
 		DEBUG_LOG("\tI(");
 
 		int16_t *intStackStart = dj_frame_getStackStart(current_frame);
@@ -1363,10 +1360,12 @@ int dj_exec_run(int nrOpcodes)
 		DEBUG_LOG(")");
 
 		DEBUG_LOG("\t(%d,%d)", current_frame->nr_ref_stack, current_frame->nr_int_stack);
+		*/
 
 		DEBUG_LOG("\n");
 
 		oldCallDepth = callDepth;
+
 #endif
 
 

@@ -1,7 +1,7 @@
 /*
  *	field_instructions.h
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008,2010 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -18,6 +18,8 @@
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "config.h"
+
 
 static inline void GETSTATIC_B()
 {
@@ -129,7 +131,12 @@ static inline void GETFIELD_S()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
+#ifdef ALIGN_16
+		uint8_t* p = ((uint8_t*)((size_t)object+index));
+		pushShort( (uint16_t)p[1]<<8 | p[0] );
+#else
 		pushShort( *((int16_t*)((size_t)object+index)) );
+#endif
 	}
 
 }
@@ -144,7 +151,12 @@ static inline void GETFIELD_I()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
+#ifdef ALIGN_16
+		uint8_t* p = ((uint8_t*)((size_t)object+index));
+		pushInt( (uint32_t)p[3]<<24 | (uint32_t)p[2]<<16 | (uint32_t)p[1]<<8 | p[0] );
+#else
 		pushInt( *((int32_t*)((size_t)object+index)) );
+#endif
 	}
 
 }
@@ -159,14 +171,19 @@ static inline void GETFIELD_L()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
+#ifdef ALIGN_16
+		uint8_t* p = ((uint8_t*)((size_t)object+index));
+		pushLong( (uint64_t)p[7]<<56 | (uint64_t)p[6]<<48 | (uint64_t)p[5]<<40 | (uint64_t)p[4]<<32|
+		          (uint64_t)p[3]<<24 | (uint64_t)p[2]<<16 | (uint64_t)p[1]<<8  | p[0] );
+#else
 		pushLong( *((int64_t*)((size_t)object+index)) );
+#endif
 	}
 
 }
 
 static inline void GETFIELD_A()
 {
-	dj_di_pointer classDef;
 	dj_object *object = REF_TO_VOIDP(popRef());
 
 	if (object==NULL)
@@ -175,13 +192,7 @@ static inline void GETFIELD_A()
 		dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_ClassUnloadedException);
 	else {
 		uint16_t index = (fetch()<<8) + fetch();
-
-		// resolve class
-		// TODO: is there a faster way to do this?
-		classDef = dj_vm_getRuntimeClassDefinition(dj_exec_getVM(), dj_mem_getChunkId(object));
-
-		ref_t* refs =(ref_t*) ( ((char*)object) + dj_di_classDefinition_getOffsetOfFirstReference(classDef));
-		pushRef( refs[index] );
+		pushRef( dj_object_getReferences(object)[index] );
 	}
 
 }
@@ -211,7 +222,7 @@ static inline void PUTFIELD_C()
 
 static inline void PUTFIELD_S()
 {
-	int16_t value = popShort();
+	uint16_t value = popShort();
 	dj_object *object = REF_TO_VOIDP(popRef());
 
 	if (object==NULL)
@@ -221,13 +232,18 @@ static inline void PUTFIELD_S()
 	else
 	{
 		uint16_t index = (fetch()<<8) + fetch();
-		*(int16_t*)((char*)object+index) = value;
+#ifdef ALIGN_16
+		uint8_t* p = ((uint8_t*)((size_t)object+index));
+                p[1]=value>>8;p[0]=value;
+#else
+		*(uint16_t*)((char*)object+index) = value;
+#endif
 	}
 }
 
 static inline void PUTFIELD_I()
 {
-	int32_t value = popInt();
+	uint32_t value = popInt();
 	dj_object *object = REF_TO_VOIDP(popRef());
 
 	if (object==NULL)
@@ -237,14 +253,20 @@ static inline void PUTFIELD_I()
 	else
 	{
 		uint16_t index = (fetch()<<8) + fetch();
-		*(int32_t*)((char*)object+index) = value;
+#ifdef ALIGN_16
+		uint8_t* p = ((uint8_t*)((size_t)object+index));
+                p[3]=value>>24;p[2]=value>>16;
+                p[1]=value>>8; p[0]=value;
+#else
+		*(uint32_t*)((char*)object+index) = value;
+#endif
 	}
 
 }
 
 static inline void PUTFIELD_L()
 {
-	int64_t value = popLong();
+	uint64_t value = popLong();
 	dj_object *object = REF_TO_VOIDP(popRef());
 
 	if (object==NULL)
@@ -254,7 +276,15 @@ static inline void PUTFIELD_L()
 	else
 	{
 		uint16_t index = (fetch()<<8) + fetch();
-		*(int64_t*)((char*)object+index) = value;
+#ifdef ALIGN_16
+		uint8_t* p = ((uint8_t*)((size_t)object+index));
+                p[7]=value>>56;p[6]=value>>48;
+                p[5]=value>>40;p[4]=value>>32;
+                p[3]=value>>24;p[2]=value>>16;
+                p[1]=value>>8; p[0]=value;
+#else
+		*(uint64_t*)((char*)object+index) = value;
+#endif
 	}
 
 }
@@ -262,7 +292,6 @@ static inline void PUTFIELD_L()
 static inline void PUTFIELD_A()
 {
 	ref_t value = popRef();
-	dj_di_pointer classDef;
 	dj_object *object = REF_TO_VOIDP(popRef());
 
 	if (object==NULL)
@@ -272,13 +301,7 @@ static inline void PUTFIELD_A()
 	else
 	{
 		uint16_t index = (fetch()<<8) + fetch();
-
-		// resolve class
-		// TODO: is there a faster way to do this?
-		classDef = dj_vm_getRuntimeClassDefinition(dj_exec_getVM(), dj_mem_getChunkId(object));
-
-        ref_t* refs =(ref_t*)( ((char*)object) + dj_di_classDefinition_getOffsetOfFirstReference(classDef) );
-        refs[index] = value;
+		dj_object_getReferences(object)[index] = value;
 	}
 
 }

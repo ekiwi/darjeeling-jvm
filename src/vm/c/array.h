@@ -21,8 +21,8 @@
 #ifndef __array__
 #define __array__
 
-#include "types.h"
 #include "config.h"
+#include "types.h"
 
 /**
  * Array types, these are taken straight from the Java specification. Unsupported types float, double and long

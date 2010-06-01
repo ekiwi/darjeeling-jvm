@@ -8,12 +8,14 @@
 
 #include "avr.h"
 
+int32_t ticks;
+
 void dj_timer_init()
 {
 	avr_timerInit();
 }
 
-int64_t dj_timer_getTimeMillis()
+int32_t dj_timer_getTimeMillis()
 {
-	return (int64_t)avr_millis();
+	return (int32_t)avr_millis();
 }

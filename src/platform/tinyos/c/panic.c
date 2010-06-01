@@ -26,5 +26,6 @@ void dj_panic(int32_t panictype)
 			nesc_printf("PANIC: UNKNOWN TYPE\n");
 			break;
 	}
-	exit(-1);
+//	exit(-1);
+	while(1) {};
 }

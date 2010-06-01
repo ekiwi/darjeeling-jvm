@@ -14,16 +14,15 @@ implementation
 
 #ifdef WITH_RADIO
 	components ActiveMessageC as Radio;
-	components CC1000ControlP as CC1000;
-	components CC1000CsmaRadioC;
+	//components CC1000ControlP as CC1000;
+	//components CC1000CsmaRadioC;
 #endif
-
 #ifdef TOS_SERIAL
-	components Atm128Uart0C as Uart;
+	components PlatformSerialC as Uart;
 #endif
 	components new TimerMilliC();
 
-	DarjeelingC -> MainC.Boot;
+	DarjeelingC.Boot -> MainC;
 #ifdef TOS_LEDS
 	DarjeelingC.Leds -> LedsC;
 #endif
@@ -36,14 +35,13 @@ implementation
 	DarjeelingC.RadioControl -> Radio;
 	DarjeelingC.PacketAcknowledgements -> Radio;
 
-	DarjeelingC.CC1000 -> CC1000;
-	DarjeelingC.LowPowerListening -> CC1000CsmaRadioC;
+	//DarjeelingC.CC1000 -> CC1000;
+	//DarjeelingC.LowPowerListening -> CC1000CsmaRadioC;
 #endif
-
 #ifdef TOS_SERIAL
-	DarjeelingC.UartControl -> Uart.StdControl;
-	DarjeelingC.UartByte -> Uart.UartByte;
-	DarjeelingC.UartStream -> Uart.UartStream;
+	DarjeelingC.UartControl -> Uart;
+	DarjeelingC.UartStream -> Uart;
+	DarjeelingC.UartByte -> Uart;
 #endif
 
 }

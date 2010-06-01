@@ -7,7 +7,7 @@ typedef nx_struct tos_message
 } tos_message_t;
 
 enum {
-	  DJ_TOS_MESSAGE = 0xf1,
+	  DJ_TOS_MESSAGE = 0x11,
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
- *	object.h
+ *	pointerwidth.h
  *
  *	Copyright (c) 2008 CSIRO, Delft University of Technology.
  *
@@ -18,30 +18,17 @@
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef __object__
-#define __object__
+#ifndef __pointerwidth_h
+#define __pointerwidth_h
 
-#include "config.h"
-#include "types.h"
-#include "vm.h"
-#include "global_id.h"
-#include "heap.h"
-#include "parse_infusion.h"
+typedef void* ref_t;
+#define nullref ((ref_t)0)
 
-dj_object *dj_object_create(runtime_id_t type, int nr_refs, int non_ref_size);
-runtime_id_t dj_object_getRuntimeId(dj_object * object);
+#define REF_TO_VOIDP(ref)  ((void*)ref)
+#define VOIDP_TO_REF(ref)  ((void*)ref)
 
-dj_vm * dj_exec_getVM();
+#define REF_TO_UINT32(ref) ((uint32_t)((uint32_t)ref))
+#define UINT32_TO_REF(ref) ((void *)((uint32_t)ref))
 
-static inline ref_t * dj_object_getReferences(dj_object * object)
-{
-	uint16_t refOffset = dj_di_classDefinition_getOffsetOfFirstReference(dj_vm_getRuntimeClassDefinition(dj_exec_getVM(), dj_mem_getChunkId(object)));
 
-#ifdef ALIGN_16
-	if (refOffset&1) refOffset++;
-#endif
-	
-	return (ref_t*)((size_t)object + refOffset);
-}
-
-#endif
+#endif // __pointerwidth_h

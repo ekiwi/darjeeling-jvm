@@ -21,5 +21,10 @@
 package java.lang;
 
 public class Byte {
+        private byte value_;
 
+        public static Byte valueOf(byte b) {return new Byte(b);}
+
+        public Byte(byte value) {value_ = value;}
+        public byte byteValue() {return value_;}
 }

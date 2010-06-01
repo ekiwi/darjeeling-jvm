@@ -1,9 +1,9 @@
 #ifndef __heap_h
 #define __heap_h
 
+#include "config.h"
 #include "types.h"
 
-#include "config.h"
 
 #define SAFE_POINTER_POOL_SIZE 4
 

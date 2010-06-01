@@ -1,6 +1,5 @@
 #ifndef __nesc_h__
 #define __nesc_h__
-#include "program_mem.h"
 int nesc_printf(char * msg);
 uint32_t nesc_getTime();
 void nesc_setLed(int nr, int on);

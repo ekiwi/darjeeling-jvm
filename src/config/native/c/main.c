@@ -45,6 +45,8 @@ int main(int argc,char* argv[])
 
 	// initialise memory manager
 	void *mem = malloc(MEMSIZE);
+        if ((uint32_t)(mem)&1)
+                mem++;
 	dj_mem_init(mem, MEMSIZE);
 
 	ref_t_base_address = (char*)mem - 42;
@@ -61,10 +63,11 @@ int main(int argc,char* argv[])
 		};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
+        dj_archive archive;
+        archive.start = (dj_di_pointer)di_archive_data;
+        archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
 
-	dj_vm_loadInfusionArchive(vm,
-			(dj_di_pointer)di_archive_data,
-			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, length);
+	dj_vm_loadInfusionArchive(vm, &archive, handlers, length);
 
 	DARJEELING_PRINTF("%d infusions loaded\n", dj_vm_countInfusions(vm));
 

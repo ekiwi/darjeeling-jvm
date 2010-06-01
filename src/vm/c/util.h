@@ -22,5 +22,6 @@
 #define __util__
 
 char dj_di_strEquals(dj_di_pointer str1, dj_di_pointer str2);
+char dj_di_strEqualsDirectStr(dj_di_pointer str1, char* str2);
 
 #endif

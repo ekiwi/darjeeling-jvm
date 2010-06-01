@@ -1,0 +1,49 @@
+<project default="all">
+
+	<property name="configuration" value="g301-tos"/>
+	
+	<!-- include native code for libraries -->
+	<property name="libs" value="base,darjeeling,radio"/>
+        <property name="apps" value="testsuite"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="tinyos"/>
+	<property name="architecture" value="msp430x"/>
+	
+	<!-- Architecture specific stuff -->
+	<property name="mcu" value="msp430x2418"/>
+	<property name="TOS_MCU" value="msp430x2418"/>
+	<property name="TOS_PLATFORM" value="LNODE"/>
+	<property name="TOS_GCC" value="msp430-gcc"/>
+	<property name="TOS_TARGET" value="msp430"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	
+	<target name="test">
+		<subant target="compile-ncc" inheritall="true">
+			<fileset includes="build.xml" dir="../../platform/${platform}"/>
+		</subant>
+	</target>
+        <target name="darjeeling_hex" depends="all">
+                <exec executable="msp430-objcopy">
+                        <arg value="-O"/>
+                        <arg value="ihex"/>
+                        <arg value="darjeeling.elf"/>
+                        <arg value="darjeeling.hex"/>
+                </exec>
+        </target>
+        <target name="install" depends="darjeeling_hex">
+                <exec executable="lnode-bsl">
+                        <arg value="-c"/>
+                        <arg value="/dev/ttyUSB0"/>
+                        <arg value="-r"/>
+                        <arg value="-e"/>
+                        <arg value="-I"/>
+                        <arg value="-p"/>
+                        <arg value="darjeeling.hex"/>
+                </exec>
+        </target>
+	
+	
+</project>

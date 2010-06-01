@@ -49,6 +49,7 @@
 
 #include <string.h>
 
+#include "config.h"
 #include "heap.h"
 
 #include "vm.h"
@@ -276,7 +277,7 @@ static inline void dj_mem_markObject(dj_vm *vm, heap_chunk * chunk)
 	if (chunk->id>=CHUNKID_JAVA_START)
 	{
 		classDef = dj_vm_getRuntimeClassDefinition(vm, chunk->id);
-		refs = (ref_t*)(object + dj_di_classDefinition_getOffsetOfFirstReference(classDef));
+		refs = dj_object_getReferences(object);
 		for (i=0; i<dj_di_classDefinition_getNrRefs(classDef); i++)
 			dj_mem_setRefGrayIfWhite(refs[i]);
 	}
@@ -391,8 +392,9 @@ static inline void dj_mem_updateManagedReference(dj_vm * vm, heap_chunk *chunk)
 	if (chunk->id>=CHUNKID_JAVA_START)
 	{
 		// object
-		classDef = dj_vm_getRuntimeClassDefinition(vm, chunk->id);
-		refs = (ref_t*)(dj_mem_getData(chunk) + dj_di_classDefinition_getOffsetOfFirstReference(classDef));
+                classDef = dj_vm_getRuntimeClassDefinition(vm, chunk->id);
+                //refs = dj_object_getReferences((dj_object*)chunk);
+		refs = dj_object_getReferences(dj_mem_getData(chunk));
 		for (i=0; i<dj_di_classDefinition_getNrRefs(classDef); i++)
 			refs[i] = dj_mem_getUpdatedReference(refs[i]);
 	}

@@ -1,5 +1,6 @@
 #include "darjeeling.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include "debug.h"
 #include "vm.h"
@@ -10,11 +11,17 @@
 #include "djtimer.h"
 #include "execution.h"
 
-
-#include "jlib_base.h"
-#include "jlib_darjeeling2.h"
 #include "tosconfig.h"
 
+#include "jlib_base.h"
+#include "jlib_darjeeling.h"
+#ifdef WITH_RADIO
+#include "jlib_radio.h"
+#endif
+
+#ifdef WITH_RADIO
+#include "jlib_radio.h"
+#endif
 extern unsigned char di_archive_data[];
 extern size_t di_archive_size;
 static unsigned char mem[HEAPSIZE];
@@ -24,6 +31,7 @@ static dj_vm *vm;
 
 void dj_init()
 {
+
 	// initialise memory manager
 	dj_mem_init(mem, HEAPSIZE);
 
@@ -37,16 +45,21 @@ void dj_init()
 	dj_exec_setVM(vm);
 
 	// load the embedded infusions
+
 	dj_named_native_handler handlers[] = {
-			{ PSTR("base"), &base_native_handler },
-			{ PSTR("darjeeling2"), &darjeeling2_native_handler }
-		};
+			{ "base", &base_native_handler },
+			{ "darjeeling", &darjeeling_native_handler }
+#ifdef WITH_RADIO
+			,{ "radio", &radio_native_handler }
+#endif
+        };
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
+        dj_archive archive;
+        archive.start = (dj_di_pointer)di_archive_data;
+        archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
 
-	dj_vm_loadInfusionArchive(vm,
-			(dj_di_pointer)di_archive_data,
-			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, length);	// load the embedded infusions
+	dj_vm_loadInfusionArchive(vm, &archive, handlers, length);	// load the embedded infusions
 
 	// pre-allocate an OutOfMemoryError object
 	dj_object *obj = dj_vm_createSysLibObject(vm, BASE_CDEF_java_lang_OutOfMemoryError);

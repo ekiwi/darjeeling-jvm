@@ -25,18 +25,22 @@
 #define MEMSIZE 4096
 
 // 'Time slices' are 128 instructions
-#define RUNSIZE 128
+#define RUNSIZE 32
 
-#define PACK_STRUCTS
-// #define ALIGN_16
+//#define PACK_STRUCTS
+#define ALIGN_16
 
 /* Please see common/debug.h */
 
-// #define DARJEELING_DEBUG
+//#define DARJEELING_DEBUG
 // #define DARJEELING_DEBUG_TRACE
 // #define DARJEELING_DEBUG_CHECK_HEAP_SANITY
 // #define DARJEELING_DEBUG_PERFILE
 #define DARJEELING_PRINTF printf
+#define DARJEELING_PRINTD(x) printf("%d", x)
+//#define ASSEMBLY_DEBUGGING 1
+//#define ASSEMBLY_DEBUG printf
+
 #define DARJEELING_PGMSPACE_MACRO
 #define IS_SIMULATOR
 

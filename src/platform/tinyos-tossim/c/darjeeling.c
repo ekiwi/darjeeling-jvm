@@ -62,9 +62,11 @@ void dj_init()
 		};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
-	dj_vm_loadInfusionArchive(dj_exec_getVM(),
-			(dj_di_pointer)di_archive_data,
-			(dj_di_pointer)(di_archive_data + di_archive_size), handlers, length);	// load the embedded infusions
+        archive.start = (dj_di_pointer)di_archive_data;
+        archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
+
+        dj_vm_loadInfusionArchive(vm, &archive, handlers, length);      // load the embedded infusions
+
 
 	DARJEELING_PRINTF("%d infusions loaded\n", dj_vm_countInfusions(dj_exec_getVM()));
 

@@ -88,8 +88,11 @@ PROCESS_THREAD(blink_process, ev, data)
 	};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
+        dj_archive archive;
+        archive.start = (dj_di_pointer)&_binary_infusions_start;
+        archive.end = (dj_di_pointer)&_binary_infusions_end;
 
-	dj_vm_loadInfusionArchive(vm, (dj_di_pointer)&_binary_infusions_start, (dj_di_pointer)&_binary_infusions_end, handlers, length);
+        dj_vm_loadInfusionArchive(vm, &archive, handlers, length);      // load the embedded infusions
 
 	printf("%d infusions loaded\n", dj_vm_countInfusions(vm));
 

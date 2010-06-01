@@ -99,7 +99,7 @@ public class Thread implements Runnable
 	{
 	}
 
-	public static native void sleep(long time);
+	public static native void sleep(int time);
 
 	public static native int activeCount();
 

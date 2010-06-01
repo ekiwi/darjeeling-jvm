@@ -55,6 +55,7 @@ public class Darjeeling
 	
 	public static native short getNrThreads();
 	public static native Thread getThread(short nr);
+	//public static native void setLed();
     
     public static native short getEcho(short chan);
     public static native short getHumidity();

@@ -26,8 +26,8 @@
 #include "jlib_base.h"
 
 #include "execution.h"
-#include "array.h"
 #include "heap.h"
+#include "array.h"
 #include "djtimer.h"
 
 #include "nesc.h"
@@ -63,15 +63,16 @@ void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 	// pop argument from the stack
 	int16_t value = dj_exec_stackPopShort();
 	int32_t id = dj_exec_stackPopInt();
-	char temp[32];
+
+#warning FIX THIS :)
+
 	if (value==0)
-		snprintf(temp, 32, "ASSERT[%3ld] FAILED\n", id);
+		DARJEELING_PRINTF("ASSERT[%3ld] FAILED\n", id);
 	else
-		snprintf(temp, 32, "ASSERT[%3ld] passed\n", id);
+		DARJEELING_PRINTF("ASSERT[%3ld] passed\n", id);
 
-	if (nesc_printf(temp)==0);
+//	if (nesc_printf(temp)==0)
 //		blockThreadForPrintf();
-
 }
 
 // void javax.darjeeling.Darjeeling.gc()
@@ -84,9 +85,13 @@ void javax_darjeeling_Darjeeling_void_gc()
 void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
 {
 	dj_int_array* byteStr = REF_TO_VOIDP(dj_exec_stackPopRef());
-	char* str = byteStr->data.bytes;
+	// check null
+	if (byteStr==nullref){
+		dj_exec_createAndThrow(BASE_CDEF_java_lang_NullPointerException);
+	}
 
-	if (nesc_printf(str)==0)
+	//nesc_printf(byteStr->data.bytes);
+	if (nesc_printf(byteStr->data.bytes)==0)
 		blockThreadForPrintf();
 }
 
@@ -235,6 +240,11 @@ void javax_darjeeling_Darjeeling_java_lang_Thread_getThread_short()
 		thread = dj_vm_getThread(dj_exec_getVM(), index);
 		dj_exec_stackPushRef(VOIDP_TO_REF(thread));
 	}
+}
+//
+// void javax.darjeeling.Darjeeling.setLed()
+void javax_darjeeling_Darjeeling_void_setLed()
+{
 }
 
 // short java.lang.Darjeeling.getEcho()
