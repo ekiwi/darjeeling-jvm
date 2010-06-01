@@ -34,6 +34,7 @@ module DarjeelingC
 		interface UartByte;
 		interface UartStream;
 #endif
+
 #ifdef WITH_RADIO
 		interface LowPowerListening;
 #endif
@@ -184,6 +185,8 @@ implementation
 //if radio is not included nothing will invoke run(). this means that darjeeling will do nothing
 		post run();
 #endif
+		
+		while (1);
 
 	}
 
@@ -222,18 +225,19 @@ implementation
 	{
 	    if (&radioPacket == bufPtr)
 	    {
-		radioLocked = FALSE;
+			radioLocked = FALSE;
 
-		// record whether the last message was acknowledged
-		if (ackPending)
-			wasAcked = call PacketAcknowledgements.wasAcked(&radioPacket);
+			// record whether the last message was acknowledged
+			if (ackPending)
+				wasAcked = call PacketAcknowledgements.wasAcked(&radioPacket);
 
-		dj_notifyRadioSendDone();
-		post run();
+			dj_notifyRadioSendDone();
+			post run();
 	    }
 
 	}
 #endif
+
 #ifdef TOS_SERIAL
 	/**
 	 * Uart 'send done' event. Signals that the last serial write command completed succesfully. The VM has to be notified

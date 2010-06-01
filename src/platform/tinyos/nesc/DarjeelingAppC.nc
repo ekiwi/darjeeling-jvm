@@ -17,6 +17,7 @@ implementation
 	components CC1000ControlP as CC1000;
 	components CC1000CsmaRadioC;
 #endif
+
 #ifdef TOS_SERIAL
 	components Atm128Uart0C as Uart;
 #endif
