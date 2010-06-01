@@ -1,7 +1,7 @@
 /*
  *	FieldList.java
  * 
- *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
  *	This file is part of Darjeeling.
  * 
@@ -27,7 +27,7 @@ import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 
 /**
  * 
- * List of fields inside a class.
+ * Ordered list of fields inside a class.
  * 
  * @author Niels Brouwers
  *
@@ -35,7 +35,7 @@ import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 public class FieldList
 {
 
-	// field list
+	// Internal list.
 	private ArrayList<AbstractField> fields;
 	
 	/**
@@ -46,11 +46,20 @@ public class FieldList
 		fields = new ArrayList<AbstractField>();
 	}
 	
+	/**
+	 * Adds a field to the list.
+	 * @param field field to add.
+	 */
 	public void addField(AbstractField field)
 	{
 		fields.add(field);
 	}
 	
+	/**
+	 * Does a field look-up by name.
+	 * @param name name of the field to find.
+	 * @return the field object or null if not found.
+	 */
 	public AbstractField getFieldByName(String name)
 	{
 		for (AbstractField field : fields)
@@ -60,6 +69,10 @@ public class FieldList
 		return null;
 	}
 
+	/**
+	 * Returns the internal arraylist of fields.
+	 * @return the internal arraylist of fields.
+	 */
 	public List<AbstractField> getFields()
 	{
 		return fields;

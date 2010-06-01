@@ -1,7 +1,7 @@
 /*
  *	InternalField.java
  * 
- *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
  *	This file is part of Darjeeling.
  * 
@@ -31,16 +31,37 @@ import org.csiro.darjeeling.infuser.structure.GlobalId;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractClassDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 
+/**
+ * 
+ * Represents a field inside and output infusion.  
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class InternalField extends AbstractField
 {
 
+	/**
+	 * Constructs a new InternalField instance. 
+	 * @param name field name
+	 * @param descriptor field descriptor (refer to the JVM specification for a detailed explanation on descriptors)
+	 * @param size size in bytes
+	 * @param flags flags as a Flags object
+	 * @param parentClass java class the field is a member of 
+	 */
 	private InternalField(String name, String descriptor, int size, Flags flags, AbstractClassDefinition parentClass)
 	{
 		super(name, descriptor, size, flags, parentClass);
 	}
 	
-	public static InternalField fromField(org.apache.bcel.classfile.Field field, 
-			AbstractClassDefinition parentClass, InternalInfusion infusion)
+	/**
+	 * Constructs a new InternalField instance from a BCEL Field object. 
+	 * @param field the BCEL Field object
+	 * @param parentClass java class the field is a member of
+	 * @param infusion infusion the field belongs to
+	 * @return a new InternalField instance
+	 */
+	public static InternalField fromField(org.apache.bcel.classfile.Field field, AbstractClassDefinition parentClass, InternalInfusion infusion)
 	{
 		InternalField ret;
 		String signature = field.getSignature();

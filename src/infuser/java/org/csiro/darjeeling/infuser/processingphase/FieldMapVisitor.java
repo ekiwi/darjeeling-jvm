@@ -1,7 +1,7 @@
 /*
  *	FieldMapVisitor.java
  * 
- *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
  *	This file is part of Darjeeling.
  * 
@@ -26,10 +26,19 @@ import org.csiro.darjeeling.infuser.structure.elements.AbstractClassDefinition;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractField;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractStaticFieldList;
 
+/**
+ * The field map visitor assigns offsets to static and non-static fields. 
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class FieldMapVisitor extends DescendingVisitor
 {
 	
 	@Override
+	/**
+	 * Processes non-static fields.
+	 */
 	public void visit(AbstractClassDefinition element)
 	{
 		int nonRefOffset = 0;
@@ -38,8 +47,8 @@ public class FieldMapVisitor extends DescendingVisitor
 		AbstractClassDefinition superClass = element.getSuperClass();
 		if (superClass!=null)
 		{
-			nonRefOffset += superClass.getNonRefSize();
-			refOffset += superClass.getNrRefs();
+			nonRefOffset += superClass.getNonReferenceFieldsSize();
+			refOffset += superClass.getReferenceFieldCount();
 		}
 		
 		for (AbstractField field : element.getFieldList().getFields())
@@ -57,6 +66,9 @@ public class FieldMapVisitor extends DescendingVisitor
 	}
 	
 	@Override
+	/**
+	 * Processes static fields.
+	 */
 	public void visit(AbstractStaticFieldList element)
 	{
 		// TODO: use the BaseType enum here

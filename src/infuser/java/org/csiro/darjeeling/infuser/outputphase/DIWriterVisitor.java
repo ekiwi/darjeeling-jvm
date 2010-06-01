@@ -1,7 +1,7 @@
 /*
  *	DIWriterVisitor.java
  * 
- *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
  *	This file is part of Darjeeling.
  * 
@@ -136,8 +136,8 @@ public class DIWriterVisitor extends DescendingVisitor
 	{
 		try {
 			
-			out.writeUINT8(element.getNrRefs());
-			out.writeUINT8(element.getNonRefSize());
+			out.writeUINT8(element.getReferenceFieldCount());
+			out.writeUINT8(element.getNonReferenceFieldsSize());
 			
 			LocalId superClassId = new LocalId(0,0);
 			if (element.getSuperClass()!=null)
@@ -157,7 +157,7 @@ public class DIWriterVisitor extends DescendingVisitor
 
 			// write interface list
 			out.writeUINT8(element.getInterfaces().size());
-			for (AbstractClassDefinition classDef : element.getInterfaces().values())
+			for (AbstractClassDefinition classDef : element.getInterfaces())
 				writeLocalId(out, classDef.getGlobalId().resolve(rootInfusion));
 			
 			// write method table

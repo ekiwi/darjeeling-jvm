@@ -1,7 +1,7 @@
 /*
  *	InternalClassDefinition.java
  * 
- *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
  *	This file is part of Darjeeling.
  * 
@@ -88,27 +88,6 @@ public class InternalClassDefinition extends AbstractClassDefinition
 	public void accept(ElementVisitor visitor)
 	{
 		visitor.visit(this);
-	}
-	
-	private void addInterfaces(AbstractClassDefinition interfaceDef)
-	{
-		for (AbstractClassDefinition iDef : interfaceDef.getInterfaces().values())
-			interfaces.put(iDef.getName(), iDef);
-
-		// recurse
-		if (interfaceDef.getSuperClass()!=null)
-			addInterfaces(interfaceDef.getSuperClass());
-	}
-	
-	public void flattenInterfaceList()
-	{
-		// Clone interface list to avoid concurrent modification exception
-		AbstractClassDefinition[] interfaceList = new AbstractClassDefinition[interfaces.size()];
-		interfaces.values().toArray(interfaceList);
-		
-		// Walk over the interface list and recursively add each interface to the class
-		for (AbstractClassDefinition interfaceDefinition : interfaceList)
-			addInterfaces(interfaceDefinition);
 	}
 
 }

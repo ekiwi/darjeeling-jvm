@@ -1,7 +1,7 @@
 /*
  *	AbstractClassDefinition.java
  * 
- *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
  *	This file is part of Darjeeling.
  * 
@@ -108,6 +108,15 @@ public abstract class AbstractClassDefinition extends ParentElement<AbstractMeth
 	}
 	
 	/**
+	 * Returns the name of the file the class was defined in. Used for error/warning reporting.
+	 * @return name of the file the class was defined in
+	 */
+	public String getFileName()
+	{
+		return fileName;
+	}
+
+	/**
 	 * @return the superClass
 	 */
 	public AbstractClassDefinition getSuperClass()
@@ -123,30 +132,40 @@ public abstract class AbstractClassDefinition extends ParentElement<AbstractMeth
 		this.superClass = superClass;
 	}
 	
+	/**
+	 * @return field list.
+	 */
 	public FieldList getFieldList()
 	{
 		return fieldList;
 	}
 	
-	public int getNonRefSize()
+	/**
+	 * @return the size in bytes of all non-reference fields in this class.
+	 */
+	public int getNonReferenceFieldsSize()	
 	{
 		int ret = 0;
 
 		if (superClass!=null)
-			ret += superClass.getNonRefSize();
+			ret += superClass.getNonReferenceFieldsSize();
 		
 		for (AbstractField field : fieldList.getFields())
 			if (!field.isRef())
 				ret += field.getSize();
+		
 		return ret;
 	}
 	
-	public int getNrRefs()
+	/**
+	 * @return the number of reference-type fields in this class. 
+	 */
+	public int getReferenceFieldCount()
 	{
 		int ret = 0;
 		
 		if (superClass!=null)
-			ret += superClass.getNrRefs();
+			ret += superClass.getReferenceFieldCount();
 		
 		for (AbstractField field : fieldList.getFields())
 			if (field.isRef()) ret ++;
@@ -154,19 +173,58 @@ public abstract class AbstractClassDefinition extends ParentElement<AbstractMeth
 		return ret;
 	}
 	
+	/**
+	 * @return a list of interfaces implemented by this class.
+	 */
 	public Collection<String> getInterfaceNames()
 	{
 		return interfaces.keySet();
 	}
 	
-	public HashMap<String, AbstractClassDefinition> getInterfaces()
+	/**
+	 * @return a list of interfaces implemented by this class.
+	 */
+	public Collection<AbstractClassDefinition> getInterfaces()
 	{
-		return interfaces;
+		return interfaces.values();
 	}
 	
-	public String getFileName()
+	/**
+	 * Adds an interface to the class. To avoid complexity in the VM, the interface list is flattened automatically later in the process.
+	 * @param interfaceDefinition interface to be added
+	 */
+	public void addInterface(AbstractClassDefinition interfaceDefinition)
 	{
-		return fileName;
+		// Add the interface itself
+		interfaces.put(interfaceDefinition.getName(), interfaceDefinition);
 	}
+	
+	// Helper function for flattenInterfaceList
+	private void addInterfaces(AbstractClassDefinition interfaceDef)
+	{
+		// Add all interfaces implemented by the given interface.
+		for (AbstractClassDefinition iDef : interfaceDef.interfaces.values())
+			interfaces.put(iDef.getName(), iDef);
 
+		// Add the parent interface of the given interface, if any (recurse).
+		if (interfaceDef.getSuperClass()!=null)
+			addInterfaces(interfaceDef.getSuperClass());
+	}
+	
+	/**
+	 * To avoid complexity in the VM, the set of interfaces implemented by a class is stored as a flat list. This method 'flattens' the 
+	 * hierarchy of interfaces by walking the implementation/inheritance tree of each implemented interface. For example, if class C1 implements
+	 * interface I1 and I2, and I1 implements I3, then after this method completes the interface list of C1 will include I1, I2, and I3. 
+	 */
+	public void flattenInterfaceList()
+	{
+		// Clone interface list to avoid concurrent modification exception
+		AbstractClassDefinition[] interfaceList = new AbstractClassDefinition[interfaces.size()];
+		interfaces.values().toArray(interfaceList);
+		
+		// Walk over the interface list and recursively add each interface to the class
+		for (AbstractClassDefinition interfaceDefinition : interfaceList)
+			addInterfaces(interfaceDefinition);
+	}
+	
 }

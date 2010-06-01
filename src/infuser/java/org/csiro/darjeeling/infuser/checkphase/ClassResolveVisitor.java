@@ -1,7 +1,7 @@
 /*
  *	ClassResolveVisitor.java
  * 
- *	Copyright (c) 2008-2009 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
  *	This file is part of Darjeeling.
  * 
@@ -45,32 +45,32 @@ public class ClassResolveVisitor extends CheckVisitor
 		resolveClass(element);
 	}
 	
-	private void resolveClass(AbstractClassDefinition classDef)
+	private void resolveClass(AbstractClassDefinition classDefinition)
 	{
 		// resolve superclass
-		AbstractClassDefinition superClass = infusion.lookupClassByName(classDef.getSuperClassName());
+		AbstractClassDefinition superClass = infusion.lookupClassByName(classDefinition.getSuperClassName());
 		
 		// if the current class is the base class, java.lang.Object, set the superclass to null
 		// to avoid a circular reference (java.lang.Object should not inherit from java.lang.Object :)
-		if ("java.lang.Object".equals(classDef.getName()))
+		if ("java.lang.Object".equals(classDefinition.getName()))
 			superClass = null;
 		else
 			if (superClass==null)
 			{
-				Logging.instance.error(String.format("Superclass %s not found for class %s", classDef.getSuperClassName(), classDef.getName()));
+				Logging.instance.error(String.format("Superclass %s not found for class %s", classDefinition.getSuperClassName(), classDefinition.getName()));
 				return;
 			}
 
-		classDef.setSuperClass(superClass);
+		classDefinition.setSuperClass(superClass);
 		
 		// resolve interfaces interfaces
-		for (String interfaceName : classDef.getInterfaceNames())
+		for (String interfaceName : classDefinition.getInterfaceNames())
 		{
 			AbstractClassDefinition interf = infusion.lookupClassByName(interfaceName);
 			if (interf==null)
-				Logging.instance.error(String.format("Interface %s not found for class %s", interfaceName, classDef.getName()));
+				Logging.instance.error(String.format("Interface %s not found for class %s", interfaceName, classDefinition.getName()));
 			else
-				classDef.getInterfaces().put(interfaceName, interf);
+				classDefinition.addInterface(interf);
 		}
 	}
 
