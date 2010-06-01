@@ -25,6 +25,7 @@
 
 #include "jlib_base.h"
 #include "jlib_darjeeling.h"
+#include "jlib_radio.h"
 
 #include "types.h"
 #include "vm.h"
@@ -45,8 +46,6 @@ int main(int argc,char* argv[])
 
 	// initialise memory manager
 	void *mem = malloc(MEMSIZE);
-        if ((uint32_t)(mem)&1)
-                mem++;
 	dj_mem_init(mem, MEMSIZE);
 
 	ref_t_base_address = (char*)mem - 42;
@@ -57,20 +56,19 @@ int main(int argc,char* argv[])
 	// tell the execution engine to use the newly created VM instance
 	dj_exec_setVM(vm);
 
+
 	dj_named_native_handler handlers[] = {
 			{ "base", &base_native_handler },
 			{ "darjeeling", &darjeeling_native_handler },
 		};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
-        dj_archive archive;
-        archive.start = (dj_di_pointer)di_archive_data;
-        archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
+	dj_archive archive;
+	archive.start = (dj_di_pointer)di_archive_data;
+	archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
 
 	dj_vm_loadInfusionArchive(vm, &archive, handlers, length);
-
-	DARJEELING_PRINTF("%d infusions loaded\n", dj_vm_countInfusions(vm));
-
+	
 	// pre-allocate an OutOfMemoryError object
 	obj = dj_vm_createSysLibObject(vm, BASE_CDEF_java_lang_OutOfMemoryError);
 	dj_mem_setPanicExceptionObject(obj);
