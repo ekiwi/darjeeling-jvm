@@ -28,7 +28,7 @@
 #define RUNSIZE 32
 
 //#define PACK_STRUCTS
-#define ALIGN_16
+//#define ALIGN_16
 
 /* Please see common/debug.h */
 

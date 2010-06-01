@@ -1,4 +1,4 @@
-<!-- 
+	<!-- 
 	don't forget to mention default targets to point to ../platform.xml 'all' target.
 	This should precede any other targets you shall want to use
 	otherwise, the consequence is that you will not see have the platform.a created by
@@ -15,8 +15,6 @@
 	<fail unless="TOS_PLATFORM" message="TOS_PLATFORM property undefined"/>
 	<fail unless="TOS_GCC" message="TOS_GCC property undefined"/>
 	<fail unless="TOS_CHIP" message="TOS_CHIP property undefined"/-->
-
-
 
 	<property name="nesc-src" value="${tinyosbuildpath}/nesc"/>
 	<property name="tinyos-c-src" value="${tinyosbuildpath}/c"/>

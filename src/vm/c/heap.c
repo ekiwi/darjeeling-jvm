@@ -136,7 +136,7 @@ void * dj_mem_alloc(uint16_t size, uint16_t id)
 
 	left_pointer += size;
 
-	return (void*)(ret + 1);
+	return (void*)((size_t)ret + sizeof(heap_chunk));
 }
 
 /**

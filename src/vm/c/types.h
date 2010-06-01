@@ -1,7 +1,7 @@
 /*
  *	types.h
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -122,7 +122,7 @@ __attribute__ ((__packed__))
 
 struct _dj_thread
 {
-	uint32_t scheduleTime;
+	uint64_t scheduleTime;
 	int16_t id;								// unique thread id
 	uint8_t status;
 	uint8_t priority;

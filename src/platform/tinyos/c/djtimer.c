@@ -9,7 +9,7 @@ void dj_timer_init()
 {
 }
 
-int32_t dj_timer_getTimeMillis()
+int64_t dj_timer_getTimeMillis()
 {
-	return nesc_getTime();
+	return (int64_t)nesc_getTime();
 }

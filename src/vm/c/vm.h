@@ -1,7 +1,7 @@
 /*
  *	vm.h
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -57,7 +57,7 @@ dj_thread *dj_vm_getThread(dj_vm * vm, int index);
 dj_thread *dj_vm_getThreadById(dj_vm * vm, int id);
 void dj_vm_removeThread(dj_vm * vm, dj_thread * thread);
 char dj_vm_activateThread(dj_vm * vm, dj_thread * selectedThread);
-int32_t dj_vm_getVMSleepTime(dj_vm * vm);
+int64_t dj_vm_getVMSleepTime(dj_vm * vm);
 
 dj_monitor * dj_vm_getMonitor(dj_vm * vm, dj_object * object);
 void dj_vm_removeMonitor(dj_vm * vm, dj_monitor * monitor);

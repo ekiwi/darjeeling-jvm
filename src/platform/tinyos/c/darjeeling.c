@@ -31,7 +31,6 @@ static dj_vm *vm;
 
 void dj_init()
 {
-
 	// initialise memory manager
 	dj_mem_init(mem, HEAPSIZE);
 

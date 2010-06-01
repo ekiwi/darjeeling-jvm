@@ -72,6 +72,7 @@ public class TestSuite
 
 	public static void main(String[] args)
 	{
-		test();
+		for (int i=0; i<10; i++) 
+			test();
 	}
 }
