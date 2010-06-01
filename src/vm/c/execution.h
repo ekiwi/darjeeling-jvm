@@ -1,7 +1,7 @@
 /*
  *	execution.h
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -40,10 +40,12 @@ void dj_exec_createAndThrow(int exceptionId);
 
 void dj_exec_stackPushShort(int16_t value);
 void dj_exec_stackPushInt(int32_t value);
+void dj_exec_stackPushLong(int64_t value);
 void dj_exec_stackPushRef(ref_t value);
 
 int16_t dj_exec_stackPopShort();
 int32_t dj_exec_stackPopInt();
+int64_t dj_exec_stackPopLong();
 ref_t dj_exec_stackPopRef();
 
 int16_t dj_exec_stackPeekShort();

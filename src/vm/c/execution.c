@@ -1,7 +1,7 @@
 /*
  *	execution.c
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -437,7 +437,8 @@ static inline ref_t peekDeepRef(int depth) {
  * running program.
  * @param value the integer value to push.
  */
-void dj_exec_stackPushShort(int16_t value) {
+void dj_exec_stackPushShort(int16_t value)
+{
 	pushShort(value);
 }
 
@@ -466,7 +467,8 @@ void dj_exec_stackPushLong(int64_t value)
  * running program. Corruping the stack can lead to crashes, use with care!
  * @param value the reference value to push.
  */
-void dj_exec_stackPushRef(ref_t value) {
+void dj_exec_stackPushRef(ref_t value)
+{
 	pushRef(value);
 }
 
@@ -475,7 +477,8 @@ void dj_exec_stackPushRef(ref_t value) {
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
  */
-int16_t dj_exec_stackPopShort() {
+int16_t dj_exec_stackPopShort()
+{
 	return popShort();
 }
 
@@ -484,7 +487,8 @@ int16_t dj_exec_stackPopShort() {
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
  */
-int32_t dj_exec_stackPopInt() {
+int32_t dj_exec_stackPopInt()
+{
 	return popInt();
 }
 
@@ -493,7 +497,8 @@ int32_t dj_exec_stackPopInt() {
  * running program. Corruping the stack can lead to crashes, use with care!
  * @return the top value of the runtime stack.
  */
-int64_t dj_exec_stackPopLong() {
+int64_t dj_exec_stackPopLong()
+{
 	return popLong();
 }
 

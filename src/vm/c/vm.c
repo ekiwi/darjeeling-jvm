@@ -1,7 +1,7 @@
 /*
  *	vm.c
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -18,7 +18,6 @@
  *	You should have received a copy of the GNU General Public License
  *	along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "vm.h"
 #include "heap.h"
 #include "global_id.h"
 #include "execution.h"
@@ -26,15 +25,14 @@
 #include "infusion.h"
 #include "debug.h"
 #include "panic.h"
+#include "djtimer.h"
+#include "vm.h"
 
 /**
  *
  *
  * @author Niels Brouwers
  */
-
-// TODO WTF!!
-int32_t dj_timer_getTimeMillis();
 
 /**
  * Constructs a new virtual machine context.
@@ -437,7 +435,7 @@ void dj_vm_loadInfusionArchive(dj_vm * vm, dj_di_pointer archive_start, dj_di_po
 			else
 				infusion = dj_vm_loadInfusion(vm, archive_start + AR_EHEADER_SIZE);
 
-			//if infusion is not loaded a critical error has occured
+			// If infusion is not loaded a critical error has occured
 			if (infusion == NULL){
 				DARJEELING_PRINTF("Not enough space to create the infusion : %c%c%c%c%c%c%c%c\n",
 						dj_di_getU8(archive_start+0),
@@ -451,11 +449,14 @@ void dj_vm_loadInfusionArchive(dj_vm * vm, dj_di_pointer archive_start, dj_di_po
 				);
 		        dj_panic(DJ_PANIC_OUT_OF_MEMORY);
 			}
+			/*
 			else
 				DARJEELING_PRINTF("[%s.di] %ld\n",
 						(char *) dj_di_header_getInfusionName(infusion->header),
 						size
 						);
+						*/
+
 			for (i=0; i<numHandlers; i++)
 				if (dj_di_strEquals(dj_di_header_getInfusionName(infusion->header), native_handlers[i].name))
 					infusion->native_handler = native_handlers[i].handler;
@@ -592,13 +593,13 @@ void dj_vm_wakeThreads(dj_vm *vm)
 	dj_thread *thread = vm->threads;
 	dj_monitor * monitor;
 
-	int32_t time = dj_timer_getTimeMillis();
+	int64_t time = dj_timer_getTimeMillis();
 
 	while (thread!=NULL)
 	{
 		// wake sleeping threads
 		if (thread->status==THREADSTATUS_SLEEPING)
-			if ((int32_t)thread->scheduleTime <= (int32_t)time)
+			if ((int64_t)thread->scheduleTime <= (int64_t)time)
 				thread->status=THREADSTATUS_RUNNING;
 
 		// wake waiting threads that timed out
@@ -752,9 +753,9 @@ int dj_vm_countLiveThreads(dj_vm *vm)
 	return ret;
 }
 
-int32_t dj_vm_getVMSleepTime(dj_vm * vm)
+int64_t dj_vm_getVMSleepTime(dj_vm * vm)
 {
-	int32_t ret = -1, scheduleTime, time;
+	int64_t ret = -1, scheduleTime, time;
 	dj_thread *thread = vm->threads;
 
 	time = dj_timer_getTimeMillis();
@@ -1122,8 +1123,6 @@ dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 
 		if (methodImplId.entity_id!=255)
 		{
-		DEBUG_LOG("\nInfusion is %p->%d\n", infusion, infusion->classList);
-
 			// create a frame to run the initialiser in
 			methodImplId.infusion = infusion;
 			frame = dj_frame_create(methodImplId);
@@ -1148,7 +1147,6 @@ dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 				// running the CLINIT method may trigger garbage collection
 				dj_exec_run(RUNSIZE);
 			}
-			DEBUG_LOG("\nInfusion changed to %p->%d\n", infusion, infusion->classList);
 		}
 	}
 
