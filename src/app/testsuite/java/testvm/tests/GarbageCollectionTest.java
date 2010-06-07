@@ -40,7 +40,7 @@ public class GarbageCollectionTest //implements Runnable
 			A a = new A(i,i*2);
 		}
 
-		Darjeeling.gc();
+		System.gc();
         
 		Darjeeling.assertTrue(testBase +  0, true);
 		Darjeeling.assertTrue(testBase +  1, localA.getX()==12);
@@ -83,7 +83,7 @@ public class GarbageCollectionTest //implements Runnable
 		
 		// should leave tree intact since we have a ref to the rootnode
 		// in the current frame
-		Darjeeling.gc();
+		System.gc();
 		recurseTree(rootNode, 0, numbers);
 		
 		boolean isAscending = true;

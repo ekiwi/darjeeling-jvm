@@ -72,7 +72,11 @@ public class TestSuite
 
 	public static void main(String[] args)
 	{
-		for (int i=0; i<10; i++) 
+		try {
 			test();
+		} catch (Throwable t)
+		{
+			Darjeeling.print(t.toString());
+		}
 	}
 }

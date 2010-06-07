@@ -65,7 +65,7 @@ public class MemoryUsageTest implements Runnable
 		
 		// should leave tree intact since we have a ref to the rootnode
 		// in the current frame
-		Darjeeling.gc();
+		System.gc();
 		recurseTree(rootNode, 0, numbers);
 		
 		boolean isAscending = true;

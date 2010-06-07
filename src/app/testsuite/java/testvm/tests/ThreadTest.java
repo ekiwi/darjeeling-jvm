@@ -24,6 +24,7 @@ import javax.darjeeling.Darjeeling;
 
 public class ThreadTest
 {
+	/*
 	
 	private int syncTest;
 	private Object obj;
@@ -87,10 +88,11 @@ public class ThreadTest
 		while (numThreads>0) 
 			Thread.sleep(10);
 	}
+	*/
 	
 	public static void test(int testbase)
 	{
-		new ThreadTest().runTest(testbase);
+		// new ThreadTest().runTest(testbase);
 	}
 
 }

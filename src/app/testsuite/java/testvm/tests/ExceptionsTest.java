@@ -186,7 +186,15 @@ public class ExceptionsTest
 		{
 			Darjeeling.assertTrue(testBase+90, fin);
 		}
-
+		
+		// ClassCastException test (submitted by François Revol)
+		Object o = new Object();
+		try {
+			String s = (String)o;
+			Darjeeling.assertTrue(testBase+91, false);
+		} catch (Exception e) {
+			Darjeeling.assertTrue(testBase+91, true);
+		}
 
         int counterIntuitive = returnsMinusOne();
         Darjeeling.assertTrue(testBase+91,counterIntuitive == -1);
