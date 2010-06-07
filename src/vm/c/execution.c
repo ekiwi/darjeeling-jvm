@@ -660,13 +660,19 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall) {
 			methodImplId);
 
 	// check if the method is a native methods
-	if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_NATIVE) != 0) {
+	if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_NATIVE) != 0)
+	{
+
+		DEBUG_LOG("Invoking native method ... \n");
+
 		// the method is native, check if we have a native handler for the infusion the method is in
 		handler = methodImplId.infusion->native_handler;
 		if (handler != NULL)
 			// we can execute the method by calling the infusion's native handler
 			handler(methodImplId);
-		else{
+		else
+		{
+			DEBUG_LOG("No native method handler for this infusion! \n");
 			// there is no native handler for this method's infusion. Throw an exception
 			dj_exec_createAndThrow(
 					BASE_CDEF_javax_darjeeling_vm_NativeMethodNotImplementedError);
@@ -794,7 +800,14 @@ void dj_exec_throw(dj_object *obj, uint16_t throw_pc)
 	runtime_id_t classRuntimeId = dj_mem_getChunkId(obj);
 	dj_global_id classGlobalId = dj_vm_getRuntimeClass(vm, classRuntimeId);
 
-	DEBUG_LOG("Throwing exception at pc=%d, object entity id=%d\n", pc, dj_mem_getChunkId(obj));
+#ifdef DARJEELING_DEBUG
+
+	char name[64];
+	dj_infusion_getName(classGlobalId.infusion, name, 64);
+
+	DARJEELING_PRINTF("Throwing exception, infusion=%s, entity_id=%d\n", name, classGlobalId.entity_id);
+
+#endif
 
 	throw_pc = pc;
 	while (!caught && dj_exec_getCurrentThread()->frameStack != NULL)
@@ -906,9 +919,6 @@ int dj_exec_run(int nrOpcodes)
 		opcode = fetch();
 
 #ifdef DARJEELING_DEBUG
-
-		DEBUG_LOG("%-15s", jvm_opcodes[opcode]);
-
 		totalNrOpcodes++;
 		oldPc = pc;
 #endif

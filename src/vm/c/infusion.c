@@ -165,7 +165,22 @@ void dj_infusion_updatePointers(dj_infusion *infusion)
 	infusion->staticLongFields = (uint64_t*)((void*)infusion->staticLongFields - shift);
 	infusion->staticReferenceFields = (ref_t*)((void*)infusion->staticReferenceFields - shift);
 	infusion->referencedInfusions = (dj_infusion**)((void*)infusion->referencedInfusions - shift);
-	// DEBUG_LOG("Infusion %p elemetns are shifted %d\n", infusion, shift);
+}
+
+void dj_infusion_getName(dj_infusion * infusion, char * str, int strLength)
+{
+	int i;
+	uint8_t ch;
+
+	dj_di_pointer name = dj_di_header_getInfusionName(infusion->header);
+
+	for (i=0; i<strLength; i++)
+	{
+		str[i] = ch = (char)dj_di_getU8(name);
+		if (ch==0) break;
+		name ++;
+	}
+
 }
 
 dj_di_pointer dj_infusion_getClassDefinition(dj_infusion * infusion, int entity_id)

@@ -1,7 +1,7 @@
 /*
  *	global_id.c
  *
- *	Copyright (c) 2008 CSIRO, Delft University of Technology.
+ *	Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  *
  *	This file is part of Darjeeling.
  *
@@ -122,15 +122,9 @@ static inline char dj_global_id_implementsDirectly(dj_global_id class, dj_global
  */
 char dj_global_id_implements(dj_global_id class, dj_global_id interface)
 {
-	dj_global_id finger;
+	dj_global_id finger = class;
 
-	// if the class itself implements the interface, return true
-	if (dj_global_id_implementsDirectly(class, interface))
-		return 1;
-
-	// check if any of class's parents implements interface
-	finger = dj_global_id_getParent(class);
-
+	// java.lang.Object doesn't implement any interface and has no parent
 	while (!dj_global_id_isJavaLangObject(finger))
 	{
 		if (dj_global_id_implementsDirectly(finger, interface))
@@ -157,7 +151,14 @@ char dj_global_id_isEqualToOrChildOf(dj_global_id child, dj_global_id parent)
                          parent.infusion,parent.entity_id);
 
     // if equal return true
-	if (dj_global_id_equals(child, parent))
+    if (dj_global_id_isJavaLangObject(parent))
+	{
+		DEBUG_EXIT_NEST_LOG("Parent is of type java.lang.Object, don't check child\n");
+		return 1;
+	}
+
+
+    if (dj_global_id_equals(child, parent))
     {
         DEBUG_EXIT_NEST_LOG("True: child equals parent\n");
 		return 1;
@@ -167,7 +168,7 @@ char dj_global_id_isEqualToOrChildOf(dj_global_id child, dj_global_id parent)
 	if (dj_global_id_isJavaLangObject(child))
     {
         DEBUG_EXIT_NEST_LOG("Object is of type java.lang.Object, don't check parent\n");
-		return 1;
+		return 0;
     }
 
 	// check child is a subclass of parent
@@ -196,7 +197,7 @@ char dj_global_id_isEqualToOrChildOf(dj_global_id child, dj_global_id parent)
 
 /**
  * Tests wether the class <pre>refClass</pre> is of the type <pre>testType</pre>.
- * This method tests is refClass implements testType (if testType is an interface)
+ * This method tests if refClass implements testType (if testType is an interface)
  * and whether refClass implements testType (if testType is a class)
  * @param refClass class to test
  * @param testType class to test against.
@@ -210,7 +211,7 @@ char dj_global_id_testClassType(dj_global_id refClass, dj_global_id testType)
                          refClass.infusion,refClass.entity_id,
                          testType.infusion,testType.entity_id);
 
-	// check if refClass is equal to, or sunclass of testType
+	// check if refClass is equal to, or subclass of testType
 	if (dj_global_id_isEqualToOrChildOf(refClass, testType))
     {
         DEBUG_EXIT_NEST("true !");

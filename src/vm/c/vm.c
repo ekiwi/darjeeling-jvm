@@ -460,11 +460,26 @@ void dj_vm_loadInfusionArchive(dj_vm * vm, dj_archive* archive, dj_named_native_
 						);
 						*/
 
+#ifdef DARJEELING_DEBUG
+			char name[64];
+
+			dj_infusion_getName(infusion, name, 64);
+
+			DEBUG_LOG("Loaded infusion %s.", name);
+#endif
+
 			for (i=0; i<numHandlers; i++)
-                        {
-				if (dj_di_strEqualsDirectStr(dj_di_header_getInfusionName(infusion->header), (char*)native_handlers[i].name))
+			{
+
+				if (dj_di_strEqualsDirectStr(dj_di_header_getInfusionName(infusion->header), native_handlers[i].name))
+				{
 					infusion->native_handler = native_handlers[i].handler;
-                        }
+
+#ifdef DARJEELING_DEBUG
+					DEBUG_LOG("Attached native handler to infusion %s.", name);
+#endif
+				}
+			}
 
 			// run class initialisers for this infusion
 			infusion = dj_vm_runClassInitialisers(vm, infusion);
@@ -534,8 +549,11 @@ void dj_vm_addThread(dj_vm *vm, dj_thread *thread)
 		tail = tail->next;
 
 	if (tail==NULL)
+	{
 		// list is empty, add as first element
+		thread->id = 0;
 		vm->threads = thread;
+	}
 	else
 	{
 		// add to the end of the list
@@ -543,8 +561,7 @@ void dj_vm_addThread(dj_vm *vm, dj_thread *thread)
 		tail->next = thread;
 	}
 
-	// the new infusion is the last element,
-	// so its next should be NULL
+	// The new thread is the last element so its next should be NULL.
 	thread->next = NULL;
 }
 
@@ -690,7 +707,6 @@ void dj_vm_checkFinishedThreads(dj_vm *vm)
 
 /**
  * Gets a thread from the virtual machine by index. The index is not equal to the thread ID.
- * TODO: NB: 8-10: this method does not return NULL if out of bounds, and might crash instead
  * @param vm the virtual machine context
  * @param index the index of the thread
  * @return the requested thread, or NULL if the index is out of bounds
@@ -701,7 +717,7 @@ dj_thread * dj_vm_getThread(dj_vm * vm, int index)
 	int i=0;
 
 	finger = vm->threads;
-	while (index>i)
+	while ((index>i)&&finger)
 	{
 		finger = finger->next;
 		i++;
@@ -1094,7 +1110,7 @@ dj_infusion *dj_vm_getSystemInfusion(dj_vm *vm)
 // TODO niels clean up this function
 dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 {
-	int i;
+	int i, threadId;
 	dj_thread * thread;
 	dj_frame * frame;
 	dj_global_id methodImplId;
@@ -1113,8 +1129,9 @@ dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 		DARJEELING_PRINTF("Not enough space for class initializer in infusion %s\n", (char *) dj_di_header_getInfusionName(infusion->header));
 		dj_panic(DJ_PANIC_OUT_OF_MEMORY);
 	}
-	thread->id = -1;
+
 	dj_vm_addThread(dj_exec_getVM(), thread);
+	threadId = thread->id;
 
 	// iterate over the class list and execute any class initialisers that are encountered
 	int size = dj_di_parentElement_getListSize(infusion->classList);
@@ -1140,14 +1157,14 @@ dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 		        dj_panic(DJ_PANIC_OUT_OF_MEMORY);
 		    }
 
-		    // thread ID -1 is the thread we're running the class initialisers in.
-		    thread = dj_vm_getThreadById(dj_exec_getVM(),-1);
+		    // the thread we're running the class initialisers in.
+		    thread = dj_vm_getThreadById(dj_exec_getVM(), threadId);
 		    thread->frameStack = frame;
 		    thread->status = THREADSTATUS_RUNNING;
 			dj_exec_activate_thread(thread);
 
 			// execute the method
-			while (dj_vm_getThreadById(dj_exec_getVM(),-1)->status!=THREADSTATUS_FINISHED)
+			while (dj_vm_getThreadById(dj_exec_getVM(), threadId)->status!=THREADSTATUS_FINISHED)
 			{
 				// running the CLINIT method may trigger garbage collection
 				dj_exec_run(RUNSIZE);
@@ -1156,7 +1173,7 @@ dj_infusion* dj_vm_runClassInitialisers(dj_vm *vm, dj_infusion *infusion)
 	}
 
 	// clean up the thread
-	thread = dj_vm_getThreadById(dj_exec_getVM(),-1);
+	thread = dj_vm_getThreadById(dj_exec_getVM(), threadId);
 	dj_vm_removeThread(vm, thread);
 	dj_thread_destroy(thread);
 	vm->currentThread = NULL;

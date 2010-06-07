@@ -277,6 +277,7 @@ static inline void MONITOREXIT()
     // if the monitor wasn't found, raise an error
 	if(monitor == NULL)
 	{
+		DEBUG_LOG("Monitor is NULL at MONITOREXIT\n");
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
 		return;
 	}

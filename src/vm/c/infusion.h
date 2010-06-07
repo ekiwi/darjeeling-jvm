@@ -32,6 +32,7 @@ void dj_infusion_destroy(dj_infusion *infusion);
 void dj_infusion_markRootSet(dj_infusion *infusion);
 void dj_infusion_updatePointers(dj_infusion *infusion);
 int dj_infusion_getReferencedInfusionIndex(dj_infusion *infusion, dj_infusion *searchInfusion);
+void dj_infusion_getName(dj_infusion * infusion, char * str, int strLength);
 
 dj_di_pointer dj_infusion_getMethodImplementation(dj_infusion *infusion, int entity_id);
 dj_di_pointer dj_infusion_getClassDefinition(dj_infusion * infusion, int entity_id);

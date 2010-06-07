@@ -91,7 +91,7 @@ typedef void (*dj_native_handler)(dj_global_id);
 
 struct _dj_named_native_handler
 {
-	dj_di_pointer name;
+	char * name;
 	dj_native_handler handler;
 };
 

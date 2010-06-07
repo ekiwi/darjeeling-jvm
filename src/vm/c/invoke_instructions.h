@@ -140,7 +140,7 @@ static inline void INVOKEVIRTUAL()
 	if (methodImplId.infusion==NULL)
 	{
 //		dj_global_id id = dj_vm_getRuntimeClass(dj_exec_getVM(), dj_mem_getChunkId(object));
-//		DEBUG_LOG("Shouldn't happen! %d: %d, %d\n", id.entity_id, dj_local_id.infusion_id, dj_local_id.entity_id);
+		DEBUG_LOG("methodImplId.infusion is NULL at INVOKEVIRTUAL\n");
 		dj_exec_throwHere(dj_vm_createSysLibObject(dj_exec_getVM(), BASE_CDEF_java_lang_VirtualMachineError));
 	} else
 	{
