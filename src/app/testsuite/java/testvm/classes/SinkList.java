@@ -20,6 +20,8 @@
  */
 package testvm.classes;
 
+import javax.util.ArrayBag;
+
 
 public class SinkList extends ArrayBag<Sink>
 {

@@ -1,6 +1,6 @@
 package testvm.tests;
 
-import javax.darjeeling.actuators.Leds;
+import javax.fleck.Leds;
 
 public class TryCatchTest
 {
@@ -13,7 +13,7 @@ public class TryCatchTest
 			{
 				for (short i = 0; i < 3; i++)
 				{
-					Leds.set(i, state);
+					Leds.setLed(i, state);
 					Thread.sleep(1000);
 				}
 				state = !state;

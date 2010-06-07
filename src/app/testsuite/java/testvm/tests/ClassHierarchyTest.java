@@ -21,12 +21,12 @@
 package testvm.tests;
 
 import javax.darjeeling.Darjeeling;
+import javax.util.ArrayBag;
+import javax.util.Bag;
 
 import testvm.classes.A;
 import testvm.classes.AInterface;
-import testvm.classes.ArrayBag;
 import testvm.classes.B;
-import testvm.classes.Bag;
 import testvm.classes.C;
 import testvm.classes.CInterface;
 import testvm.classes.D;
