@@ -215,14 +215,14 @@ void dj_thread_updatePointers(dj_thread * thread)
  * @param thread the thread to sleep
  * @param time the number of milliseconds to sleep
  */
-void dj_thread_sleep(dj_thread *thread, int64_t time)
+void dj_thread_sleep(dj_thread *thread, dj_time_t time)
 {
-	int64_t sleepTime = dj_timer_getTimeMillis() + time;
+	dj_time_t sleepTime = dj_timer_getTimeMillis() + time;
 	thread->status = THREADSTATUS_SLEEPING;
 	thread->scheduleTime = sleepTime;
 }
 
-void dj_thread_wait(dj_thread * thread, dj_object * object, int64_t time)
+void dj_thread_wait(dj_thread * thread, dj_object * object, dj_time_t time)
 {
 	thread->status = THREADSTATUS_WAITING_FOR_MONITOR;
 	thread->scheduleTime = time==0?0:(dj_timer_getTimeMillis() + time);

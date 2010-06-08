@@ -23,7 +23,7 @@
 
 #include "types.h"
 
-int64_t dj_timer_getTimeMillis();
+dj_time_t dj_timer_getTimeMillis();
 void dj_timer_init();
 
 #endif

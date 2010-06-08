@@ -37,7 +37,7 @@
 #include "jlib_base.h"
 
 // TODO remove this?
-int64_t dj_timer_getTimeMillis();
+dj_time_t dj_timer_getTimeMillis();
 
 // int java.lang.System.currentTimeMillis()
 void java_lang_System_long_currentTimeMillis()

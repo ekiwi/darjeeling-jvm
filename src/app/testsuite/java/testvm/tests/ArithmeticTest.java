@@ -209,7 +209,6 @@ public class ArithmeticTest
 	private static void testLong(int testBase)
 	{
 		long a,b;
-		
 		a = 64;
 		b = 2;
 		
@@ -217,6 +216,7 @@ public class ArithmeticTest
 		Darjeeling.assertTrue(testBase+ 0, a+b==66);
 		Darjeeling.assertTrue(testBase+ 1, a-b==62);
 		Darjeeling.assertTrue(testBase+ 2, a/b==32);
+		//Darjeeling.printf("Result is: "+a/b);
 		Darjeeling.assertTrue(testBase+ 3, a*b==128);
 
 		Darjeeling.assertTrue(testBase+ 4, -a==-64);
@@ -262,11 +262,9 @@ public class ArithmeticTest
 
 	public static void test(int testBase)
 	{
-		/*
 		testByte(testBase);
 		testShort(testBase+25);
 		testInt(testBase+50);
-		*/
 		testLong(testBase+80);
 	}
 

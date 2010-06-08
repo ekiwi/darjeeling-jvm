@@ -20,6 +20,7 @@
  */
 #ifndef __config_h
 #define __config_h
+#include <sys/types.h>
 
 // Allocate 4k heap for the VM
 #define MEMSIZE 4096
@@ -28,8 +29,10 @@
 #define RUNSIZE 32
 
 //#define PACK_STRUCTS
-//#define ALIGN_16
+#define ALIGN_16
 
+//Use 64-bit values to store time
+typedef int64_t dj_time_t;
 /* Please see common/debug.h */
 
 //#define DARJEELING_DEBUG

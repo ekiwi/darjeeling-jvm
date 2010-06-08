@@ -64,6 +64,7 @@ void dj_init()
 	dj_object *obj = dj_vm_createSysLibObject(vm, BASE_CDEF_java_lang_OutOfMemoryError);
 	dj_mem_setPanicExceptionObject(obj);
 
+
 }
 
 uint32_t dj_run()

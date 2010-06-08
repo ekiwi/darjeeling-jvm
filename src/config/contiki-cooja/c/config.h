@@ -21,6 +21,7 @@
 #ifndef __config_h
 #define __config_h
 #include<stdio.h>
+#include <sys/types.h>
 
 // define heap size
 #define RUNSIZE 128
@@ -30,6 +31,8 @@
 // don't pack structs on MSP430 targets
 // #define PACK_STRUCTS
 #define ALIGN_16
+//Use 64-bit values to store time
+typedef int64_t dj_time_t;
 
 // #define HAS_USART
 

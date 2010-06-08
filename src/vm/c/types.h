@@ -122,7 +122,7 @@ __attribute__ ((__packed__))
 
 struct _dj_thread
 {
-	uint64_t scheduleTime;
+	dj_time_t scheduleTime;
 	int16_t id;								// unique thread id
 	uint8_t status;
 	uint8_t priority;

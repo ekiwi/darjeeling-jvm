@@ -13,7 +13,7 @@ void dj_timer_init()
 	avr_timerInit();
 }
 
-int64_t dj_timer_getTimeMillis()
+dj_time_t dj_timer_getTimeMillis()
 {
-	return (int64_t)avr_millis();
+	return (dj_time_t)avr_millis();
 }

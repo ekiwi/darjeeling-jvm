@@ -1365,7 +1365,6 @@ int dj_exec_run(int nrOpcodes)
 
 		DEBUG_LOG(")");
 
-		/*
 		DEBUG_LOG("\tI(");
 
 		int16_t *intStackStart = dj_frame_getStackStart(current_frame);
@@ -1375,7 +1374,6 @@ int dj_exec_run(int nrOpcodes)
 		DEBUG_LOG(")");
 
 		DEBUG_LOG("\t(%d,%d)", current_frame->nr_ref_stack, current_frame->nr_int_stack);
-		*/
 
 		DEBUG_LOG("\n");
 

@@ -615,13 +615,13 @@ void dj_vm_wakeThreads(dj_vm *vm)
 	dj_thread *thread = vm->threads;
 	dj_monitor * monitor;
 
-	int64_t time = dj_timer_getTimeMillis();
+	dj_time_t time = dj_timer_getTimeMillis();
 
 	while (thread!=NULL)
 	{
 		// wake sleeping threads
 		if (thread->status==THREADSTATUS_SLEEPING)
-			if ((int64_t)thread->scheduleTime <= (int64_t)time)
+			if (thread->scheduleTime <= time)
 				thread->status=THREADSTATUS_RUNNING;
 
 		// wake waiting threads that timed out
@@ -774,9 +774,9 @@ int dj_vm_countLiveThreads(dj_vm *vm)
 	return ret;
 }
 
-int64_t dj_vm_getVMSleepTime(dj_vm * vm)
+dj_time_t dj_vm_getVMSleepTime(dj_vm * vm)
 {
-	int64_t ret = -1, scheduleTime, time;
+	dj_time_t scheduleTime, time, ret=-1;
 	dj_thread *thread = vm->threads;
 
 	time = dj_timer_getTimeMillis();

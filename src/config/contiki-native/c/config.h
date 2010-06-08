@@ -20,12 +20,15 @@
  */
 #ifndef __config_h
 #define __config_h
+#include <sys/types.h>
 
 #define MEMSIZE 4096
 #define RUNSIZE 128
 
 #define PACK_STRUCTS
 // #define ALIGN_16
+//Use 64-bit values to store time
+typedef int64_t dj_time_t;
 
 /* Please see common/debug.h */
 

@@ -49,8 +49,8 @@ void dj_thread_destroy(dj_thread *thread);
 void dj_thread_pushFrame(dj_thread *thread, dj_frame *frame);
 dj_frame *dj_thread_popFrame(dj_thread *thread);
 char dj_thread_scanRootSetForRef(dj_thread *thread, ref_t ref);
-void dj_thread_sleep(dj_thread *thread, int64_t time);
-void dj_thread_wait(dj_thread * thread, dj_object * object, int64_t time);
+void dj_thread_sleep(dj_thread *thread, dj_time_t time);
+void dj_thread_wait(dj_thread * thread, dj_object * object, dj_time_t time);
 
 void dj_thread_markRootSet(dj_thread *thread);
 void dj_frame_updatePointers(dj_frame *frame);

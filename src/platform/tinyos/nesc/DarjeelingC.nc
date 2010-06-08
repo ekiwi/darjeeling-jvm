@@ -81,7 +81,7 @@ implementation
 #endif
 	}
 
-	uint32_t nesc_getTime() @C() @spontaneous()
+	int32_t nesc_getTime() @C() @spontaneous()
 	{
 		return call Timer.getNow();
 	}
@@ -191,9 +191,6 @@ implementation
 //if radio is not included nothing will invoke run(). this means that darjeeling will do nothing
 		post run();
 #endif
-		
-		while (1);
-
 	}
 
 #ifdef WITH_RADIO

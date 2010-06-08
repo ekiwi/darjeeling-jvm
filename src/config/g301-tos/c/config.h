@@ -10,8 +10,11 @@
 // #define PACK_STRUCTS
 #define ALIGN_16
 
-#include<stdarg.h>
+//use 32-bit time as int64_t support is broken for the msp430x compiler
+#include<sys/types.h>
+typedef int32_t dj_time_t;
 
+#include<stdarg.h>
 void g301_serialVPrint(char * format, va_list arg);
 void g301_serialPrintf(char * format, ...);
 

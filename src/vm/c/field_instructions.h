@@ -236,7 +236,7 @@ static inline void PUTFIELD_S()
 		uint8_t* p = ((uint8_t*)((size_t)object+index));
                 p[1]=value>>8;p[0]=value;
 #else
-		*(uint16_t*)((char*)object+index) = value;
+		*(uint16_t*)((size_t)object+index) = value;
 #endif
 	}
 }
@@ -258,7 +258,7 @@ static inline void PUTFIELD_I()
                 p[3]=value>>24;p[2]=value>>16;
                 p[1]=value>>8; p[0]=value;
 #else
-		*(uint32_t*)((char*)object+index) = value;
+		*(uint32_t*)((size_t)object+index) = value;
 #endif
 	}
 
@@ -283,7 +283,7 @@ static inline void PUTFIELD_L()
                 p[3]=value>>24;p[2]=value>>16;
                 p[1]=value>>8; p[0]=value;
 #else
-		*(uint64_t*)((char*)object+index) = value;
+		*(uint64_t*)((size_t)object+index) = value;
 #endif
 	}
 
