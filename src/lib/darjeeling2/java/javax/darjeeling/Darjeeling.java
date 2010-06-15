@@ -39,7 +39,7 @@ public class Darjeeling
 	 */
 	public static native void assertTrue(int testNr, boolean success);
 
-    // underlying function for print(String)
+	// underlying function for print(String)
 	private static native void printBytesAsString(byte[] str);
 
 	/**
@@ -77,5 +77,4 @@ public class Darjeeling
 	 * @return thread at index [nr].
 	 */
 	public static native Thread getThread(short nr);
-    
 }

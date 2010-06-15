@@ -40,21 +40,22 @@ void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 	int32_t value = dj_exec_stackPopShort();
 	int32_t id = dj_exec_stackPopInt();
 	if (value==0)
-		printf("%c[31mASSERT[%3d] FAILED%c[0m\n", 0x1b, (int)id, 0x1b);
+		DARJEELING_PRINTF("%c[31mASSERT[%3d] FAILED%c[0m\n", 0x1b, (int)id, 0x1b);
 	else
-		printf("%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
+		DARJEELING_PRINTF("%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
 }
 
 // void javax.darjeeling.Darjeeling.printBytesAsString(byte[])
 void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
 {
 	dj_int_array* byteStr = REF_TO_VOIDP(dj_exec_stackPopRef());
-	printf("%s", byteStr->data.bytes);
+	DARJEELING_PRINTF("%s", byteStr->data.bytes);
 }
 
 // int javax.darjeeling.Darjeeling.getNodeId()
 void javax_darjeeling_Darjeeling_int_getNodeId()
 {
+	//TODO: implement
 	dj_exec_stackPushInt(0);
 
 }
