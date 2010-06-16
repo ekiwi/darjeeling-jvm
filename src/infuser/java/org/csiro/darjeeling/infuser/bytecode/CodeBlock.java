@@ -277,7 +277,7 @@ public class CodeBlock
 		new OptimizeByteCode(ret).transform();
 		ret.instructions.reThreadStates();
 		ret.instructions.fixBranchAddresses();
-		
+			
 		// add casts where needed
 		new InsertExplicitCasts(ret).transform();
 		

@@ -112,8 +112,9 @@ public class OptimizeByteCode extends CodeBlockTransformation
 			boolean forceOptimise = false;
 			
 			// Propagate the optimisation hints upwards
+			handle.propagateOptimisationHints();
 			handle.getInstruction().setOptimisationHints(handle);
-			
+				
 			switch (opcode)
 			{
 				

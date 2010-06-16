@@ -211,6 +211,19 @@ public class InstructionHandle implements Comparable<InstructionHandle>
 		return preState.getStack().peek(nr);
 	}
 	
+	public void propagateOptimisationHints()
+	{
+		int size = Math.min(preState.getStack().size(), postState.getStack().size());
+		for (int i=0; i<size; i++)
+		{
+			GeneratedValueSet pre = preState.getStack().get(i);
+			GeneratedValueSet post = postState.getStack().get(i);
+			if (pre.compareTo(post)==0 && post.getOptimizationHint()!=null && pre.getOptimizationHint()==null)
+				pre.setOptimizationHint(post.getOptimizationHint());
+			
+		}
+	}
+	
 	public void setOptimisationHint(int nr, BaseType type, boolean force)
 	{
 		preState.getStack().peek(nr).setOptimizationHint(type, force);

@@ -61,6 +61,11 @@ public class InterpreterStack implements Comparable<InterpreterStack>
 		return peek(0);
 	}
 	
+	public GeneratedValueSet get(int index)
+	{
+		return stack.get(index);
+	}
+	
 	public GeneratedValueSet peek(int depth)
 	{
 		return stack.get(size()-1-depth);
