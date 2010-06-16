@@ -63,7 +63,7 @@ public class CFileVisitor extends DescendingVisitor
 		
 		for (AbstractMethodImplementation methodImplementation : element.getMethodImplementationList().getChildren())
 		{
-			if (((InternalMethodImplementation)methodImplementation).getCode()==null)
+			if (((InternalMethodImplementation)methodImplementation).isNative())
 			{
 				writer.printf("\t\tcase %d: %s(); break;\n",
 						methodImplementation.getGlobalId().getEntityId(),
