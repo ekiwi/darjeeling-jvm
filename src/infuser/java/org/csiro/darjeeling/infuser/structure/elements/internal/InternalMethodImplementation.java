@@ -40,6 +40,7 @@ public class InternalMethodImplementation extends AbstractMethodImplementation
 	protected CodeBlock codeBlock;
 	
 	private boolean isSynchronized;
+	private boolean isNative;
 
 	protected InternalMethodImplementation()
 	{
@@ -60,6 +61,7 @@ public class InternalMethodImplementation extends AbstractMethodImplementation
 		methodImpl.referenceArgumentCount = 0;
 		
 		methodImpl.isSynchronized = method.isSynchronized();		
+		methodImpl.isNative = method.isNative();		
 
 		for (Type type : method.getArgumentTypes())
 		{
@@ -95,7 +97,7 @@ public class InternalMethodImplementation extends AbstractMethodImplementation
 
 	public boolean isNative()
 	{
-		return code==null;
+		return isNative;
 	}
 	
 	public int getReferenceLocalVariableCount()

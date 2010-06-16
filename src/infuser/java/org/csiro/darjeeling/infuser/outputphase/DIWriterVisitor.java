@@ -201,7 +201,7 @@ public class DIWriterVisitor extends DescendingVisitor
 			out.writeUINT8(flags);
 			
 			// write code block
-			if (element.isNative())
+			if (element.getCode()==null)
 			{
 				out.writeUINT16(0);
 			} else
