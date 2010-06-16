@@ -111,7 +111,7 @@ public class CFileVisitor extends DescendingVisitor
 	
 	public void visit(InternalMethodImplementation element)
 	{
-		if (element.getCode()==null)
+		if (element.isNative()==null)
 		{
 			Type argTypes[] = Type.getArgumentTypes(element.getMethodDefinition().getSignature());
 			String args = "";
