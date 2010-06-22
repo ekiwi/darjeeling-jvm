@@ -20,10 +20,24 @@
  */
  
 #include <stdint.h>
+#include <string.h>
 
 #include "array.h"
 #include "execution.h"
 #include "jlib_base.h"
+
+
+//declarations of nesc functions
+void nesc_setLed(int nr, int on);
+int32_t nesc_getTime();
+int32_t nesc_getNodeId();
+uint16_t nesc_getMaxPayloadLength();
+int nesc_send(const char * message, int16_t receiverId, uint16_t length);
+uint16_t nesc_peekMessageLength();
+void * nesc_popMessageBuffer();
+int nesc_getNrMessages();
+int nesc_wasAcked();
+
 
 static short sendThreadId = -1, receiveThreadId = -1;
 
@@ -62,7 +76,7 @@ void notify_radio_receive()
 //called from tinyos
 void notify_radio_sendDone()
 {
-	dj_thread * sendThread;
+	dj_thread * sendThread = NULL;
 	if (sendThreadId!=-1) sendThread = dj_vm_getThreadById(dj_exec_getVM(), sendThreadId);
 
 	// unblock the thread that was waiting for send

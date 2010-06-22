@@ -33,6 +33,7 @@
 #include "panic.h"
 #include "array.h"
 
+int32_t nesc_getNodeId();
 // void javax.darjeeling.Darjeeling.assertTrue(int, boolean)
 void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 {
@@ -52,12 +53,11 @@ void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
 	DARJEELING_PRINTF("%s", byteStr->data.bytes);
 }
 
+
 // int javax.darjeeling.Darjeeling.getNodeId()
 void javax_darjeeling_Darjeeling_int_getNodeId()
 {
-	//TODO: implement
-	dj_exec_stackPushInt(0);
-
+	dj_exec_stackPushInt(nesc_getNodeId());
 }
 
 //int javax.darjeeling.Darjeeling.getMemFree()

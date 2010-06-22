@@ -27,6 +27,17 @@
 
 #define NUM_VIRTUAL_LEDS 3
 
+//declarations of nesc functions
+void nesc_setLed(int nr, int on);
+int32_t nesc_getTime();
+int32_t nesc_getNodeId();
+uint16_t nesc_getMaxPayloadLength();
+int nesc_send(const char * message, int16_t receiverId, uint16_t length);
+uint16_t nesc_peekMessageLength();
+void * nesc_popMessageBuffer();
+int nesc_getNrMessages();
+int nesc_wasAcked();
+
 //short javax.darjeeling.actuators.Leds.getNrLeds()
 void javax_darjeeling_actuators_Leds_short_getNrLeds()
 {
