@@ -363,4 +363,9 @@ implementation
 #endif		
 	}
 	
+	int nesc_getNodeId() @C() @spontaneous()
+	{
+		return 0;
+	}
+	
 }

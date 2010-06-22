@@ -26,6 +26,8 @@
 #include "stdint.h"
 #include "config.h"
 
+int nesc_getNodeId();
+
 // Standard output
 int nesc_printf(char * msg);
 
