@@ -13,7 +13,7 @@
 	<!-- Architecture specific stuff -->
 	<property name="mcu" value="msp430x2418"/>
 	<property name="TOS_MCU" value="msp430x2418"/>
-	<property name="TOS_PLATFORM" value="LNODE"/>
+	<property name="TOS_PLATFORM" value="GNODE"/>
 	<property name="TOS_GCC" value="msp430-gcc"/>
 	<property name="TOS_TARGET" value="msp430"/>
 

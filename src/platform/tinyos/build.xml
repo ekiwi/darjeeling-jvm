@@ -32,41 +32,37 @@
 	  <case value="TNODE">
 		<property name="TOS_INCLUDES" value="sensorboards/none platforms/tnode platforms/tnode/chips/cc1000 platforms/tnode/chips/at45db platforms/mica2 platforms/mica platforms/mica2/chips/cc1000 chips/cc1000 platforms/mica2/chips/at45db platforms/mica/chips/at45db chips/at45db chips/atm128 chips/atm128/adc chips/atm128/i2c chips/atm128/pins chips/atm128/spi chips/atm128/timer lib/printf lib/timer lib/serial lib/power interfaces types system"/>
 	  </case>
-	  <case value="LNODE">
+	  <case value="GNODE">
                   <property name="TOS_INCLUDES" value="sensorboards/none
-                          ../../sownet-lib/Assert
-                          ../../sownet-lib/Assert/msp430
-                          ../../sownet-lib/Reboot
-                          ../../sownet-lib/Reboot/msp430
-                          ../../sownet-lib/Printf
-                          platforms/lnode/
-                          platforms/lnode/lnode_msp2
-                          platforms/lnode/chips
-                          platforms/lnode/chips/cc1101
-                          platforms/lnode/chips/msp430
-                          platforms/lnode/chips/msp430/pins
-                          platforms/lnode/chips/msp430/timer
-                          platforms/lnode/chips/msp430/flash
-                          platforms/lnode/chips/msp430/usci
-                          platforms/lnode/chips/ccpacket
-                          platforms/lnode/chips/ccpacket/rxtx
-                          platforms/lnode/chips/ccpacket/packet
-                          platforms/lnode/chips/ccpacket/ack
-                          platforms/lnode/chips/ccpacket/hal
-                          platforms/lnode/chips/ccpacket/lpl
-                          platforms/lnode/chips/ccpacket/spi
-                          platforms/lnode/chips/ccpacket/am
-                          platforms/lnode/interfaces
+                          platforms/gnode/
+                          platforms/gnode/lnode_msp2
+                          platforms/gnode/chips
+                          platforms/gnode/chips/cc1101
+                          platforms/gnode/chips/msp430
+                          platforms/gnode/chips/msp430/pins
+                          platforms/gnode/chips/msp430/timer
+                          platforms/gnode/chips/msp430/flash
+                          platforms/gnode/chips/msp430/usci
+                          platforms/gnode/chips/ccpacket
+                          platforms/gnode/chips/ccpacket/rxtx
+                          platforms/gnode/chips/ccpacket/packet
+                          platforms/gnode/chips/ccpacket/ack
+                          platforms/gnode/chips/ccpacket/hal
+                          platforms/gnode/chips/ccpacket/lpl
+                          platforms/gnode/chips/ccpacket/spi
+                          platforms/gnode/chips/ccpacket/am
+                          platforms/gnode/interfaces
+			  lib/printf
+			  platforms/gnode/lib/printf
+			  platforms/gnode/lib/assert
                           chips/msp430/
                           chips/msp430/pins chips/msp430/timer chips/msp430/dma
                           chips/msp430/usart chips/msp430/adc12
                           chips/msp430/sensors
                           chips/at45db/
-                          lib/timer lib/printf
+                          lib/timer
                           lib/serial/ lib/power/
                           interfaces types system"/>
-                  <!--platforms/lnode/chips/cc2500-->
-                  <!-- <property name="TOS_INCLUDES" value="sensorboards/none lib/printf lib/timer lib/serial lib/power interfaces types system ../../sownet-lib/Assert ../../sownet-lib/Assert/msp430 ../../sownet-lib/Reboot ../../sownet-lib/Reboot/msp430 ../../sownet-lib/Printf platforms/lnode/ platforms/lnode/lnode_msp2 platforms/lnode/lnode_custom platforms/lnode/lnode_custom/2417 platforms/lnode/lnode_custom/247 platforms/lnode/lnode_custom/1611 platforms/lnode/lnode_custom/include platforms/lnode/lnode_custom/2370 platforms/lnode/lnode_small platforms/lnode/lnode_test platforms/lnode/chips platforms/lnode/chips/cc1101 platforms/lnode/chips/msp430 platforms/lnode/chips/msp430/pins platforms/lnode/chips/msp430/timer platforms/lnode/chips/msp430/flash platforms/lnode/chips/msp430/usci platforms/lnode/chips/cc2500 platforms/lnode/chips/ccpacket platforms/lnode/chips/ccpacket/rxtx platforms/lnode/chips/ccpacket/packet platforms/lnode/chips/ccpacket/ack platforms/lnode/chips/ccpacket/hal platforms/lnode/chips/ccpacket/lpl platforms/lnode/chips/ccpacket/spi platforms/lnode/chips/ccpacket/am platforms/lnode/interfaces platforms/lnode/lnode_large platforms/lnode/lnode_tossim platforms/lnode/lnode_tossim/sim chips/msp430/ chips/msp430/pins chips/msp430/timer chips/msp430/dma chips/msp430/usart chips/msp430/adc12 chips/msp430/sensors "/> -->
 	  </case>
 	  <default>
 	    <echo message="The value of property TOS_PLATFORM is not set correctly; mica2, telosb, tnode, lnode" />
