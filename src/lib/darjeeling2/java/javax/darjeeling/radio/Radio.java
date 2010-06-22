@@ -19,7 +19,11 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+ 
+ 
 package javax.darjeeling.radio;
+
+import javax.darjeeling.Darjeeling;
 
 /**
  *
@@ -155,7 +159,8 @@ public class Radio
 		synchronized(receiveLock)
 		{
 			_waitForMessage();
-			return _readBytes();
+			byte[] data = _readBytes();
+			return data;
 		}		
 	}
 	

@@ -19,6 +19,7 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+ 
 #include <stdint.h>
 #include <string.h>
 
@@ -44,6 +45,7 @@ static short sendThreadId = -1, receiveThreadId = -1;
 // void javax.darjeeling.radio.Radio._waitForMessage()
 void javax_darjeeling_radio_Radio_void__waitForMessage()
 {
+
 	dj_thread * currentThread = dj_exec_getCurrentThread();
 
 	if (nesc_getNrMessages()==0)
@@ -184,6 +186,7 @@ void javax_darjeeling_radio_Radio_void__broadcast_byte__()
 		sendThreadId = currentThread->id;
 		dj_exec_breakExecution();
 	}
+
 }
 
 // boolean javax.darjeeling.radio.Radio._send(short, byte[])

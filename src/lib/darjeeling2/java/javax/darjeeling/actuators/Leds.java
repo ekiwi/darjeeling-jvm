@@ -19,8 +19,16 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+ 
+ 
 package javax.darjeeling.actuators;
 
+/**
+ * The Leds class provides an API to drive any leds on the device. 
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class Leds
 {
 	
