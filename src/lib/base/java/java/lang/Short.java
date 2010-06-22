@@ -36,6 +36,17 @@ public class Short
 		return new Short(s);
 	}
 	
+	public static String toString(short i)
+	{
+		// base 10 is default
+		return Integer.toString((int)i, 10);
+	}
+
+	public static String toString(short i, int base)
+	{
+		return Integer.toString((int)i, base);
+	}
+
 	public short shortValue()
 	{
 		return value;
