@@ -23,11 +23,14 @@
 #define __darjeeling_h__
 
 #include <stdint.h>
+#include "config.h"
 
 void dj_init();
-uint32_t dj_run();
+dj_time_t dj_run();
+
 void dj_notifyRadioSendDone();
 void dj_notifyRadioReceive();
-void dj_notifySerialSendDone();
+void dj_notifySerialReceive();
+void dj_notifyUartReceiveByte(uint8_t byte);
 
 #endif

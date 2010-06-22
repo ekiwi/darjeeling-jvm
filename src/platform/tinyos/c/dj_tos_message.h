@@ -19,12 +19,15 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+ 
 #ifndef __dj_tos_message__
 #define __dj_tos_message__
 
+#include "tosconfig.h"
+
 typedef nx_struct tos_message
 {
-  nx_uint8_t payload[24];
+  nx_uint8_t payload[TOS_RADIO_PAYLOADSIZE];
 } tos_message_t;
 
 enum {

@@ -19,18 +19,31 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+ 
 #ifndef __nesc_h__
 #define __nesc_h__
+
+#include "stdint.h"
+#include "config.h"
+
+// Standard output
 int nesc_printf(char * msg);
-uint32_t nesc_getTime();
+
+// Timer
+dj_time_t nesc_getTime();
+
+// Leds
 void nesc_setLed(int nr, int on);
 
+// Radio
 uint16_t nesc_getMaxPayloadLength();
 int nesc_send(const char * message, int16_t receiverId, uint16_t length);
 int nesc_wasAcked();
-
 uint16_t nesc_peekMessageLength();
 void * nesc_popMessageBuffer();
 int nesc_getNrMessages();
+
+// Serial
+void nesc_uartWriteByte(uint8_t byte);
 
 #endif

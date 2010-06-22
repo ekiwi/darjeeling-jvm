@@ -99,21 +99,20 @@
 			<arg value="-fnesc-target=${TOS_TARGET}"/>
 			<arg value="-fnesc-no-debug"/>
 			<arg value="-fsyntax-only"/>
-			<arg value="-fnesc-separator=__"/>
-
-
+			<arg value="-fnesc-separator=_S3P4R4T0R_"/>
 			
 			<arg value="-mmcu=${TOS_MCU}"/>
-                        <arg value="-DPLATFORM_${TOS_PLATFORM}"/>
-                        <!--arg value="-DDEFINED_TOS_AM_GROUP=0x7d"/-->
-                        <arg value="-DDEF_TOS_AM_GROUP=0x7d"/>
+            <arg value="-DPLATFORM_${TOS_PLATFORM}"/>
+            <!--arg value="-DDEFINED_TOS_AM_GROUP=0x7d"/-->
+            <arg value="-DDEF_TOS_AM_GROUP=0x7d"/>
 			<arg value="-DIDENT_APPNAME=DarjeelingAppC"/>
 			<!-- version of nescc -->
-			<arg value="-DNESC=130"/>
+			<arg value="-DNESC=131"/>
 
 			<arg value="-I${env.NESC_LIB}"/>
 			<arg value="-I${tinyos-c-src}"/>
 			<arg value="-I${nesc-src}"/>
+			<arg value="-I${platformpath}/../config/${configuration}/c"/>
 
 			<arg line="${tosincludepaths}"/>
 			<arg value="${nesc-src}/DarjeelingAppC.nc"/>

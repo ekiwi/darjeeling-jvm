@@ -19,7 +19,15 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-#define WITH_RADIO
+#define TOS_RADIO
 #define TOS_SERIAL
+// #define TOS_CC1000
+
+// Uncomment to remove support for leds (may be useful for some low-power testing).
 #define TOS_LEDS
 
+// Size of a Darjeeling radio packet.
+#define TOS_RADIO_PAYLOADSIZE 24
+
+// Size of the UART byte buffer.
+#define SERIAL_BUFFERSIZE 8
