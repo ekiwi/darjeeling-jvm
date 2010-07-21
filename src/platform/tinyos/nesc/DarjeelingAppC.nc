@@ -48,12 +48,14 @@ implementation
 	// Common radio stuff.
 #ifdef TOS_RADIO
 	components ActiveMessageC as Radio;
+        components ActiveMessageAddressC as AddressC;
 	
 	DarjeelingC.RadioReceive -> Radio.Receive[DJ_TOS_MESSAGE];
 	DarjeelingC.RadioSend -> Radio.AMSend[DJ_TOS_MESSAGE];
 	DarjeelingC.RadioPacket -> Radio;
 	DarjeelingC.RadioControl -> Radio;
 	DarjeelingC.PacketAcknowledgements -> Radio;
+        DarjeelingC.Address -> AddressC;
 
 #endif
 

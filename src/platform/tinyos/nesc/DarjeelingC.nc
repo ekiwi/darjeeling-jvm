@@ -64,6 +64,7 @@ module DarjeelingC
 		interface Packet as RadioPacket;
 		interface PacketAcknowledgements;
 		interface LowPowerListening;
+		interface ActiveMessageAddress as Address;
 #endif
 
 		// CC1000 transceiver specifics.
@@ -183,16 +184,23 @@ implementation
 	
 	event void RadioControl.startDone(error_t error)
 	{
+                am_group_t amGroup = call Address.amGroup();
 		// set the RF power to 1 - our test bed is very dense :)
 //		call CC1000.setRFPower(1);
 //		call CC1000.setRFPower(2U);
 //		call LowPowerListening.setLocalSleepInterval(85);
+                //amaddress could be different from TOS_NODE_ID, so force this
+                call Address.setAddress(amGroup,TOS_NODE_ID);
 		post run();
 	}
 
 	event void RadioControl.stopDone(error_t error)
 	{
 	}
+
+        async event void Address.changed()
+        {
+        }
 
 	event message_t* RadioReceive.receive(message_t * message, void * payload, uint8_t len)
 	{
@@ -256,6 +264,11 @@ implementation
 		return (dj_time_t)(call Timer.getNow());
 	}
 
+	int32_t nesc_getNodeId() @C() @spontaneous()
+	{
+		return TOS_NODE_ID;
+	}
+
 	/**
 	 * Prints a string to the standard output (serial port). Can be called from c (hence the @spontaneous).
 	 * @param msg null-terminated message string.
@@ -264,17 +277,15 @@ implementation
 	{
 #ifdef TOS_SERIAL
 
-		if (call UartStream.send(msg, strlen(msg)) == SUCCESS)
-			return 0;
+		//if (call UartStream.send(msg, strlen(msg)) == SUCCESS)
+		//	return 0;
 		
-		/*
 		//blocking send
 		while (*msg != 0)
 		{
 			call UartByte.send(*msg);
 			msg++;
 		}
-		*/
 #endif
 		return -1;
 	}
@@ -362,10 +373,4 @@ implementation
 		return 0;
 #endif		
 	}
-	
-	int nesc_getNodeId() @C() @spontaneous()
-	{
-		return 0;
-	}
-	
 }
