@@ -32,6 +32,7 @@
 void nesc_setLed(int nr, int on);
 int32_t nesc_getTime();
 int32_t nesc_getNodeId();
+void nesc_setChannel(uint8_t channel);
 uint16_t nesc_getMaxPayloadLength();
 int nesc_send(const char * message, int16_t receiverId, uint16_t length);
 uint16_t nesc_peekMessageLength();
@@ -140,7 +141,7 @@ void javax_darjeeling_radio_Radio_void_setChannel_short()
 {
 	int16_t channel = dj_exec_stackPopShort();
 	//TODO: implement
-	dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+	nesc_setChannel(channel);
 }
 
 // short javax.darjeeling.radio.Radio.getFirstChannel()

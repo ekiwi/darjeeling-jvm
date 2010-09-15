@@ -51,6 +51,7 @@
                           platforms/gnode/chips/ccpacket/lpl
                           platforms/gnode/chips/ccpacket/spi
                           platforms/gnode/chips/ccpacket/am
+			  platforms/gnode/chips/ccpacket/timesync
                           platforms/gnode/interfaces
 			  lib/printf
 			  platforms/gnode/lib/printf

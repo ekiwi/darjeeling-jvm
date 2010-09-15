@@ -29,5 +29,7 @@
 // Size of a Darjeeling radio packet.
 #define TOS_RADIO_PAYLOADSIZE 24
 
+#define TOS_CC1101
+
 // Size of the UART byte buffer.
 #define SERIAL_BUFFERSIZE 8

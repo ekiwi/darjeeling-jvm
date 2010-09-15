@@ -59,6 +59,10 @@ implementation
 
 #endif
 
+#ifdef TOS_CC1101
+	components HalChipconControlP as CC1101;
+	DarjeelingC.CC1101 -> CC1101;
+#endif
 	// Specifics for the CC1000 transceiver chip.
 #ifdef TOS_CC1000
 	components CC1000ControlP as CC1000;

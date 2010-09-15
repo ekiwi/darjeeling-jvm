@@ -67,6 +67,9 @@ module DarjeelingC
 		interface ActiveMessageAddress as Address;
 #endif
 
+#ifdef TOS_CC1101
+		interface HalChipconControl as CC1101;
+#endif
 		// CC1000 transceiver specifics.
 #ifdef TOS_CC1000
 		interface CC1000Control as CC1000;
@@ -202,6 +205,7 @@ implementation
         {
         }
 
+
 	event message_t* RadioReceive.receive(message_t * message, void * payload, uint8_t len)
 	{
 		// push message into the buffer
@@ -218,6 +222,18 @@ implementation
 
 		return message;
 	}
+
+#ifdef TOS_CC1101
+        event void CC1101.txDone(uint32_t timestamp, error_t error)
+	{}
+
+        event void CC1101.txStart(uint32_t timestamp)
+	{}
+
+        event void CC1101.rxWaiting(uint32_t timestamp)
+	{}
+#endif
+
 
 	event void RadioSend.sendDone(message_t* bufPtr, error_t error)
 	{
@@ -267,6 +283,14 @@ implementation
 	int32_t nesc_getNodeId() @C() @spontaneous()
 	{
 		return TOS_NODE_ID;
+	}
+
+	void nesc_setChannel(int8_t channel) @C() @spontaneous()
+	{
+		//set channel for the specific radio
+#ifdef TOS_CC1101
+		call CC1101.setChannel(channel);
+#endif
 	}
 
 	/**
