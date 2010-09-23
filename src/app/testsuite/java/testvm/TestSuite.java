@@ -23,6 +23,7 @@ package testvm;
 
 import javax.darjeeling.Darjeeling;
 
+import testvm.tests.AlignmentTest;
 import testvm.tests.ArithmeticTest;
 import testvm.tests.ArrayTest;
 import testvm.tests.BitManipulationTest;
@@ -31,7 +32,6 @@ import testvm.tests.CompareTest;
 import testvm.tests.ExceptionsTest;
 import testvm.tests.FieldTest;
 import testvm.tests.GarbageCollectionTest;
-import testvm.tests.InfusionTest;
 import testvm.tests.InheritanceTest;
 import testvm.tests.InitialiserTest;
 import testvm.tests.InvokeVirtualTest;
@@ -41,7 +41,6 @@ import testvm.tests.RuntimeExceptionsTest;
 import testvm.tests.StaticFieldsTest;
 import testvm.tests.SwitchTest;
 import testvm.tests.ThreadTest;
-import testvm.tests.AlignmentTest;
 
 public class TestSuite
 {
@@ -64,11 +63,11 @@ public class TestSuite
  		MD5Test.test(1300);
 		MethodOverloadingTest.test(1400);
 		RuntimeExceptionsTest.test(1500);
-		// InfusionTest.test(1600);
 		BitManipulationTest.test(1700);
-                AlignmentTest.test(1800);
+		AlignmentTest.test(1800);
+		// TryCatchTest.test(1900);
+		// InfusionTest.test(1900);
 		Darjeeling.print("All testsuites have passed succsessfuly.\n");
-//		TryCatchTest.test(1800);
 	}
 
 	public static void main(String[] args)

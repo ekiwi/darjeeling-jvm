@@ -83,6 +83,7 @@ public class ArithmeticTest
 		
 		Darjeeling.assertTrue(testBase + 21, (a + b) / c == 64);
 		Darjeeling.assertTrue(testBase + 22, (byte)((a+b) / c) == 64);
+		
 	}
 
 	private static void testShort(int testBase)
@@ -137,6 +138,20 @@ public class ArithmeticTest
 		Darjeeling.assertTrue(testBase + 21, (a + b) / c == 16384);
 		Darjeeling.assertTrue(testBase + 22, (short)((a+b) / c) == 16384);
 		
+		// Test ArithmeticException from division by zero
+		try
+		{
+			a = 1;
+			b = 0;
+			short d = (short)(a / b);
+			Darjeeling.assertTrue(testBase + 23, false);
+		} catch (ArithmeticException ex)
+		{
+			Darjeeling.assertTrue(testBase + 23, true);
+		} catch (Throwable t)
+		{
+			Darjeeling.assertTrue(testBase + 23, false);
+		}
 	}
 	
 	private static void testInt(int testBase)
@@ -205,6 +220,21 @@ public class ArithmeticTest
 		}
 		Darjeeling.assertTrue(testBase + 29, true);
 		
+		// Test ArithmeticException from division by zero
+		try
+		{
+			a = 1;
+			b = 0;
+			int d = a / b;
+			Darjeeling.assertTrue(testBase + 30, false);
+		} catch (ArithmeticException ex)
+		{
+			Darjeeling.assertTrue(testBase + 30, true);
+		} catch (Throwable t)
+		{
+			Darjeeling.assertTrue(testBase + 30, false);
+		}
+		
 	}
 	
 	private static void testLong(int testBase)
@@ -259,6 +289,22 @@ public class ArithmeticTest
 		Darjeeling.assertTrue(testBase+22, (a >>> 16) == 255);
 		a = 0xffffffff00000000L;
 		Darjeeling.assertTrue(testBase+23, (a >>> 24) == 0x000000ffffffff00L);
+		
+		// Test ArithmeticException from division by zero
+		try
+		{
+			a = 1;
+			b = 0;
+			long d = a / b;
+			Darjeeling.assertTrue(testBase + 24, false);
+		} catch (ArithmeticException ex)
+		{
+			Darjeeling.assertTrue(testBase + 24, true);
+		} catch (Throwable t)
+		{
+			Darjeeling.assertTrue(testBase + 24, false);
+		}
+		
 	}	
 
 	public static void test(int testBase)

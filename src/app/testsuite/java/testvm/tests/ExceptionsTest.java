@@ -24,8 +24,6 @@ package testvm.tests;
 import javax.darjeeling.Darjeeling;
 
 import testvm.classes.A;
-import testvm.classes.Sink;
-import testvm.classes.SinkList;
 
 public class ExceptionsTest
 {
@@ -148,6 +146,7 @@ public class ExceptionsTest
 		}
 
 		// hacky test
+		/*
 		try {
 			SinkList sinks = new SinkList();
 			sinks.add(new Sink((short)1));
@@ -157,6 +156,7 @@ public class ExceptionsTest
 		{
 			Darjeeling.assertTrue(testBase+70, false);
 		}
+		*/
 		
 		// hacky test
 		try {

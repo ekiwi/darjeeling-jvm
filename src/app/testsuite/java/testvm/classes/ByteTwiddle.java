@@ -20,7 +20,6 @@
  */
  
 package testvm.classes;
-import javax.darjeeling.Darjeeling;
 
 public class ByteTwiddle
 {

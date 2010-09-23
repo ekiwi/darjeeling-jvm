@@ -22,8 +22,6 @@
 package testvm.tests;
 
 import javax.darjeeling.Darjeeling;
-import javax.util.ArrayBag;
-import javax.util.Bag;
 
 import testvm.classes.A;
 import testvm.classes.AInterface;
@@ -46,7 +44,19 @@ public class ClassHierarchyTest
 	
 	private static Object stato;
 	
-	public static class Inner extends ArrayBag
+	public static class Super
+	{
+        
+        
+	}
+
+	public static class Sub extends Super
+	{
+        
+        
+	}
+
+	public static class Inner extends Sub
 	{
         
         
@@ -92,7 +102,7 @@ public class ClassHierarchyTest
 
 		// test if INSTANCEOF also works for inner classes (should be trivial)
 		// and across infusions (inner's parent is from the system infusion)
-		Darjeeling.assertTrue(testBase + 13, inner instanceof ArrayBag);
+		Darjeeling.assertTrue(testBase + 13, inner instanceof Sub);
 				
 		Darjeeling.assertTrue(testBase + 14, !(null instanceof A));
 		Darjeeling.assertTrue(testBase + 15, !(null instanceof Object));
@@ -184,7 +194,7 @@ public class ClassHierarchyTest
         Darjeeling.assertTrue(testBase + 13, !(d instanceof EInterface));
 
         // test if INSTANCEOF also works for interfaces across packages 
-        Darjeeling.assertTrue(testBase + 14, inner instanceof Bag);
+        Darjeeling.assertTrue(testBase + 14, inner instanceof Super);
         // Darjeeling.assertTrue(testBase + 15, inner instanceof Collection);
 	}
 
