@@ -1,3 +1,5 @@
+import javax.darjeeling.actuators.Leds;
+
 /*
  * Blink.java
  * 
@@ -19,15 +21,18 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-import javax.fleck.Leds;
 
-public class Blink {
-	public static void main(String args[]) {
+public class Blink
+{
+	public static void main(String args[])
+	{
 		boolean state = true;
-		while (true) {
-			for (short i = 0; i < 3; i++) {
-				Leds.setLed(i, state);
-				Thread.sleep(1000);
+		while (true)
+		{
+			for (short i = 0; i < Leds.getNrLeds(); i++)
+			{
+				Leds.set(i, state);
+				Thread.sleep(100);
 			}
 			state = !state;
 		}
