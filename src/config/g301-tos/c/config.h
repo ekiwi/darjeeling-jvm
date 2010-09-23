@@ -25,7 +25,7 @@
 // define heap size
 #define RUNSIZE 32
 //#define HEAPSIZE 2048
-#define HEAPSIZE 4096
+#define HEAPSIZE 6000
 
 // Don't pack but align. This is necessary for the crappy msp430-gcc compiler.
 // #define PACK_STRUCTS

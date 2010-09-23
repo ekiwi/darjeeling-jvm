@@ -3,8 +3,8 @@
 	<property name="configuration" value="g301-tos"/>
 	
 	<!-- include native code for libraries -->
-	<property name="libs" value="base,darjeeling,radio"/>
-        <property name="apps" value="testsuite"/>
+	<property name="libs" value="base, util, darjeeling2"/>
+	<property name="apps" value="blink"/>
 
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="tinyos"/>
