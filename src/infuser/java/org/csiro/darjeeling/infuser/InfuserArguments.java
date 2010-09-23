@@ -21,6 +21,8 @@
  
 
 package org.csiro.darjeeling.infuser;
+import static org.csiro.darjeeling.infuser.logging.Logging.VerboseOutputType.ARGUMENTS_PARSING;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static org.csiro.darjeeling.infuser.logging.Logging.VerboseOutputType.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,7 +62,7 @@ public class InfuserArguments
 	
 	// List of output file names. If any of these are left NULL no output will be generated 
 	// for the corresponding type. 
-	private String infusionOutputFile, headerOutputFile, cHeaderOutputFile, cCodeOutputFile;
+	private String infusionOutputFile, headerOutputFile, cHeaderOutputFile, cCodeOutputFile, debugOutputFile;
 	
 	// Lists of input files
 	private ArrayList<String> classFiles, headerFiles;
@@ -385,6 +386,16 @@ public class InfuserArguments
 	public String getNativeOutputFile()
 	{
 		return cCodeOutputFile;
+	}
+	
+	public void setDebugOutputFile(String debugOutputFile)
+	{
+		this.debugOutputFile = debugOutputFile;
+	}
+	
+	public String getDebugOutputFile()
+	{
+		return debugOutputFile;
 	}
 
 }

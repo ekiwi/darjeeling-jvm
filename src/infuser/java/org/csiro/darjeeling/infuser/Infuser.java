@@ -41,10 +41,12 @@ import javax.xml.transform.stream.StreamResult;
 import org.csiro.darjeeling.infuser.checkphase.ClassResolveVisitor;
 import org.csiro.darjeeling.infuser.checkphase.InstructionsImplementedCheckVisitor;
 import org.csiro.darjeeling.infuser.checkphase.JavaClassCheckVisitor;
+import org.csiro.darjeeling.infuser.checkphase.ListSizeLimitationsCheckVisitor;
 import org.csiro.darjeeling.infuser.logging.Logging;
 import org.csiro.darjeeling.infuser.outputphase.CFileVisitor;
 import org.csiro.darjeeling.infuser.outputphase.CHeaderVisitor;
 import org.csiro.darjeeling.infuser.outputphase.DIWriterVisitor;
+import org.csiro.darjeeling.infuser.outputphase.DebugVisitor;
 import org.csiro.darjeeling.infuser.outputphase.HeaderVisitor;
 import org.csiro.darjeeling.infuser.processingphase.ClassInitialiserResolutionVisitor;
 import org.csiro.darjeeling.infuser.processingphase.CodeBlockVisitor;
@@ -53,6 +55,7 @@ import org.csiro.darjeeling.infuser.processingphase.FindEntryPointVisitor;
 import org.csiro.darjeeling.infuser.processingphase.HeaderResolutionVisitor;
 import org.csiro.darjeeling.infuser.processingphase.IndexVisitor;
 import org.csiro.darjeeling.infuser.processingphase.InterfaceListFlattenVisitor;
+import org.csiro.darjeeling.infuser.processingphase.StringTableVisitor;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalInfusion;
 import org.w3c.dom.Document;
 
@@ -201,6 +204,33 @@ public class Infuser
 		}
 	}
 	
+	
+	/**
+	 * Creates an debug file (.debug)
+	 * @param infusion the Infusion to output
+	 * @throws InfuserException 
+	 */
+	private void createDebugFile(InternalInfusion infusion) throws InfuserException
+	{
+		// create native definitions file
+		String outFile = infuserArguments.getDebugOutputFile();
+		if (outFile != null)
+		{
+			Logging.instance.println("Writing debug: " + outFile);
+			try
+			{
+				FileOutputStream fout = new FileOutputStream(outFile);
+				PrintWriter writer = new PrintWriter(fout);
+				infusion.accept(new DebugVisitor(writer));
+				writer.close();
+				fout.close();
+			} catch (IOException ex)
+			{
+				throw new InfuserException("IO Error writing infusion file", ex);
+			}
+		}
+	}
+	
 	/**
 	 * Prepares the Infusion for processing. 
 	 * @param infusion
@@ -213,10 +243,13 @@ public class Infuser
 		// Check that the source version of the input class is 1.6
 		infusion.accept(new JavaClassCheckVisitor());
 		
-		// check if all the instructions in the input files are implemented by the VM
+		// Check if all the instructions in the input files are implemented by the VM.
 		infusion.accept(new InstructionsImplementedCheckVisitor());
 		
-		// resolved super class links between AbstractClassDefinition elements
+		// Check if the number of methods and classes does not exceed the maximum.
+		infusion.accept(new ListSizeLimitationsCheckVisitor());
+		
+		// Resolved super class links between AbstractClassDefinition elements.
 		infusion.accept(new ClassResolveVisitor(infusion));
 		
 		if (Logging.instance.getErrors()>0)
@@ -245,6 +278,7 @@ public class Infuser
 		infusion.accept(new FindEntryPointVisitor(infusion.getHeader()));
 		infusion.accept(new InterfaceListFlattenVisitor());
 		infusion.accept(new ClassInitialiserResolutionVisitor(infusion));
+		infusion.accept(new StringTableVisitor(infusion));
 		
 		// process bytecode
 		infusion.accept(new CodeBlockVisitor(infusion));
@@ -292,7 +326,9 @@ public class Infuser
 		
 		// create native file
 		createNativeFile(infusion);
-		
+
+		// debug
+		createDebugFile(infusion);
 	}
 
 

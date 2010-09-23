@@ -23,6 +23,7 @@ package org.csiro.darjeeling.infuser.structure.elements.internal;
 
 import org.apache.bcel.classfile.JavaClass;
 import org.csiro.darjeeling.infuser.structure.ElementVisitor;
+import org.csiro.darjeeling.infuser.structure.GlobalId;
 import org.csiro.darjeeling.infuser.structure.elements.AbstractClassDefinition;
 
 public class InternalClassDefinition extends AbstractClassDefinition
@@ -32,6 +33,8 @@ public class InternalClassDefinition extends AbstractClassDefinition
 	 * and is used to obtain a ConstantPool object for bytecode analysis.
 	 */
 	private JavaClass javaClass;
+	
+	private GlobalId nameId;
 	
 	// the <CINIT> method that initialises a class at infusion load time.
 	protected InternalMethodImplementation cInit;
@@ -89,6 +92,16 @@ public class InternalClassDefinition extends AbstractClassDefinition
 	public void accept(ElementVisitor visitor)
 	{
 		visitor.visit(this);
+	}
+	
+	public void setNameId(GlobalId nameId)
+	{
+		this.nameId = nameId;
+	}
+	
+	public GlobalId getNameId()
+	{
+		return nameId;
 	}
 
 }

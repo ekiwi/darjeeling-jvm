@@ -133,6 +133,13 @@ public abstract class AbstractClassDefinition extends ParentElement<AbstractMeth
 		this.superClass = superClass;
 	}
 	
+	public boolean inheritsFrom(AbstractClassDefinition superClass)
+	{
+		if (this.superClass==superClass) return true;
+		if (this.superClass!=null) return this.superClass.inheritsFrom(superClass);
+		return false;
+	}
+	
 	/**
 	 * @return field list.
 	 */

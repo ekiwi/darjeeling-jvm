@@ -155,6 +155,9 @@ public class DIWriterVisitor extends DescendingVisitor
 				out.writeUINT8(element.getCInit().getGlobalId().getEntityId());
 			else
 				out.writeUINT8(255);
+			
+			// Write name ID
+			writeLocalId(out, element.getNameId().resolve(rootInfusion));
 
 			// write interface list
 			out.writeUINT8(element.getInterfaces().size());

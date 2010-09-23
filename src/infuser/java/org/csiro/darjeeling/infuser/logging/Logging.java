@@ -154,6 +154,8 @@ public enum Logging
 			report("error", message);
 		else
 			report("error", currentFileName, message);
+
+		errors ++;
 	}
 
 	/**
@@ -167,6 +169,8 @@ public enum Logging
 			throw new IllegalStateException("Cannot report error, line number given but file name not set");
 		else
 			report("error", currentFileName, lineNumber, message);
+		
+		errors ++;
 	}
 	
 	/**
@@ -179,6 +183,8 @@ public enum Logging
 			report("warning", message);
 		else
 			report("warning", currentFileName, message);
+
+		warnings ++;
 	}
 
 	/**
@@ -192,6 +198,8 @@ public enum Logging
 			throw new IllegalStateException("Cannot report warning, line number given but file name not set");
 		else
 			report("warning", currentFileName, lineNumber, message);
+		
+		warnings ++;
 	}
 	
 	public void println(String message)
@@ -207,7 +215,7 @@ public enum Logging
 	
 	public void printResult()
 	{
-		out.println(String.format("%d warnings, %d errors", errors, warnings));
+		out.println(String.format("%d warnings, %d errors", warnings, errors));
 	}
 	
 }

@@ -162,4 +162,9 @@ public class InfuserTask extends Task
 		fileLists.add(filelist);
     }
 	
+	public void setDebugFile(String debug)
+	{
+		infuserArguments.setDebugOutputFile(debug);
+	}
+	
 }
