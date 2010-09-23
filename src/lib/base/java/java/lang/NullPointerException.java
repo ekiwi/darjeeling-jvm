@@ -1,37 +1,50 @@
 /*
- * NullPointerException.java
+ * Copyright (c) 2003 Sun Microsystems, Inc. All rights reserved.
+ * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  * 
- * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
- * 
- * This file is part of Darjeeling.
- * 
- * Darjeeling is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Darjeeling is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
 package java.lang;
 
+/**
+ * Thrown when an application attempts to use <code>null</code> in a case where
+ * an object is required. These include:
+ * <ul>
+ * <li>Calling the instance method of a <code>null</code> object.
+ * <li>Accessing or modifying the field of a <code>null</code> object.
+ * <li>Taking the length of <code>null</code> as if it were an array.
+ * <li>Accessing or modifying the slots of <code>null</code> as if it were an
+ * array.
+ * <li>Throwing <code>null</code> as if it were a <code>Throwable</code> value.
+ * </ul>
+ * <p>
+ * Applications should throw instances of this class to indicate other illegal
+ * uses of the <code>null</code> object.
+ * 
+ * @author unascribed
+ * @version 12/17/01 (CLDC 1.1)
+ * @since JDK1.0, CLDC 1.0
+ */
 public class NullPointerException extends RuntimeException
 {
-	
+
+	/**
+	 * Constructs a <code>NullPointerException</code> with no detail message.
+	 */
 	public NullPointerException()
 	{
 		super();
 	}
 
-	public String toString()
+	/**
+	 * Constructs a <code>NullPointerException</code> with the specified detail
+	 * message.
+	 * 
+	 * @param s
+	 *            the detail message.
+	 */
+	public NullPointerException(String s)
 	{
-		return "NullPointerException";
+		super(s);
 	}
 
 }

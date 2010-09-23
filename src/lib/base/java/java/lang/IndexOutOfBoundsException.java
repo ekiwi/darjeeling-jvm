@@ -1,37 +1,42 @@
 /*
- * IndexOutOfBoundsException.java
+ * Copyright (c) 2003 Sun Microsystems, Inc. All rights reserved.
+ * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  * 
- * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
- * 
- * This file is part of Darjeeling.
- * 
- * Darjeeling is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Darjeeling is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
 package java.lang;
 
+/**
+ * Thrown to indicate that an index of some sort (such as to an array, to a
+ * string, or to a vector) is out of range.
+ * <p>
+ * Applications can subclass this class to indicate similar exceptions.
+ * 
+ * @author Frank Yellin
+ * @version 12/17/01 (CLDC 1.1)
+ * @since JDK1.0, CLDC 1.0
+ */
 public class IndexOutOfBoundsException extends RuntimeException
 {
-	
+
+	/**
+	 * Constructs an <code>IndexOutOfBoundsException</code> with no detail
+	 * message.
+	 */
 	public IndexOutOfBoundsException()
 	{
 		super();
 	}
 
-	public String toString()
+	/**
+	 * Constructs an <code>IndexOutOfBoundsException</code> with the specified
+	 * detail message.
+	 * 
+	 * @param s
+	 *            the detail message.
+	 */
+	public IndexOutOfBoundsException(String s)
 	{
-		return "IndexOutOfBoundsException";
+		super(s);
 	}
-	
+
 }

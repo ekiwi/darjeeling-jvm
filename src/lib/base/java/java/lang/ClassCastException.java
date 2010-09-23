@@ -1,32 +1,34 @@
 /*
- * ClassCastException.java
+ * Copyright (c) 2003 Sun Microsystems, Inc. All rights reserved.
+ * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  * 
- * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
- * 
- * This file is part of Darjeeling.
- * 
- * Darjeeling is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * Darjeeling is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
 package java.lang;
 
-public class ClassCastException extends RuntimeException 
+/**
+ * Thrown when an application attempts to cast a reference to an Object of
+ * inappropriate type.
+ */
+public class ClassCastException extends RuntimeException
 {
 
-	public String toString()
+	/**
+	 * Constructs a <code>ClassCastException</code> with no detail message.
+	 */
+	public ClassCastException()
 	{
-		return "ClassCastException";
+		super();
 	}
 
+	/**
+	 * Constructs a <code>ClassCastException</code> with the specified detail
+	 * message.
+	 * 
+	 * @param s
+	 *            the detail message.
+	 */
+	public ClassCastException(String s)
+	{
+		super(s);
+	}
 }
