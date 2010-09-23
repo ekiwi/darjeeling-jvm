@@ -34,7 +34,6 @@ static inline void RETURN()
  */
 static inline void SRETURN()
 {
-
 	// pop return value off the stack
 	int16_t ret = popShort();
 
@@ -43,6 +42,7 @@ static inline void SRETURN()
 
 	// push return value on the runtime stack
 	pushShort(ret);
+
 }
 
 /**
@@ -134,14 +134,18 @@ static inline void INVOKEVIRTUAL()
 
 	dj_global_id resolvedMethodDefId = dj_global_id_resolve(dj_exec_getCurrentInfusion(), dj_local_id);
 
+	DEBUG_LOG(">>>>> invokevirtual METHOD DEF %x.%d\n", resolvedMethodDefId.infusion, resolvedMethodDefId.entity_id);
+
 	// lookup the virtual method
 	dj_global_id methodImplId = dj_global_id_lookupVirtualMethod(resolvedMethodDefId, object);
+
+	DEBUG_LOG(">>>>> invokevirtual METHOD IMPL %x.%d\n", methodImplId.infusion, methodImplId.entity_id);
 
 	// check if method not found, and throw an error if this is the case. else, invoke the method
 	if (methodImplId.infusion==NULL)
 	{
-//		dj_global_id id = dj_vm_getRuntimeClass(dj_exec_getVM(), dj_mem_getChunkId(object));
-		DEBUG_LOG("methodImplId.infusion is NULL at INVOKEVIRTUAL\n");
+		DEBUG_LOG("methodImplId.infusion is NULL at INVOKEVIRTUAL %x.%d\n", resolvedMethodDefId.infusion, resolvedMethodDefId.entity_id);
+
 		dj_exec_throwHere(dj_vm_createSysLibObject(dj_exec_getVM(), BASE_CDEF_java_lang_VirtualMachineError));
 	} else
 	{

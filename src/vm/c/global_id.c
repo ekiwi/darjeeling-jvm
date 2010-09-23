@@ -358,20 +358,31 @@ dj_global_id dj_global_id_lookupVirtualMethod(dj_global_id resolvedMethodDefId, 
 
 			dj_di_pointer methodTableEntry = dj_di_methodTable_getEntry(methodTable, i);
 
+			DEBUG_LOG("Method lookup: %d.%d ?= %d.%d\n",
+					dj_di_methodTableEntry_getDefinitionEntity(methodTableEntry),
+					dj_di_methodTableEntry_getDefinitionInfusion(methodTableEntry),
+					methodDefLocalId.entity_id, methodDefLocalId.infusion_id
+					);
+
 			if ( (dj_di_methodTableEntry_getDefinitionEntity(methodTableEntry)==methodDefLocalId.entity_id) &&
 				(dj_di_methodTableEntry_getDefinitionInfusion(methodTableEntry)==methodDefLocalId.infusion_id) )
 			{
+
 				// found method, resolve method definition
 				ret = dj_global_id_resolve(classId.infusion, dj_di_methodTableEntry_getImplementation(methodTableEntry));
 
+				DEBUG_LOG("Found %s %d\n", dj_di_header_getInfusionName(ret.infusion->header), ret.entity_id);
+
 				// no need to scan the rest of the table
-				continue;
+				break;
 			}
 		}
 
 		// if we found a method at this point, we don't need to keep looking in
 		// parent classes
 		if (ret.infusion!=NULL) break;
+
+		DEBUG_LOG("Checking parent ... \n", ret, ret.infusion);
 
 		// go into the parent class
 		if (dj_global_id_isJavaLangObject(classId))

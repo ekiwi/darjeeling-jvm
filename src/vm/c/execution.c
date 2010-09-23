@@ -365,7 +365,8 @@ static inline void pushRef(ref_t value) {
 /**
  * Pops a short (16 bit) from the runtime stack
  */
-static inline int16_t popShort() {
+static inline int16_t popShort()
+{
 	intStack--;
 	return *intStack;
 }
@@ -652,13 +653,13 @@ static inline void branch(int16_t offset) {
  * @param virtualCall indicates if the call is a virtual or static call. In the case of a virtual call the object
  * the method belongs to is on the stack and should be handled as an additional parameter. Should be either 1 or 0.
  */
-static inline void callMethod(dj_global_id methodImplId, int virtualCall) {
+static inline void callMethod(dj_global_id methodImplId, int virtualCall)
+{
 	dj_frame *frame;
 	dj_native_handler handler;
 
 	// get a pointer in program space to the method implementation block from the method's global id
-	dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(
-			methodImplId);
+	dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(methodImplId);
 
 	// check if the method is a native methods
 	if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_NATIVE) != 0)
@@ -675,11 +676,11 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall) {
 		{
 			DEBUG_LOG("No native method handler for this infusion! \n");
 			// there is no native handler for this method's infusion. Throw an exception
-			dj_exec_createAndThrow(
-					BASE_CDEF_javax_darjeeling_vm_NativeMethodNotImplementedError);
+			dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_NativeMethodNotImplementedError);
 		}
 
 	} else {
+
 		// create new frame for the function
 		frame = dj_frame_create(methodImplId);
 
@@ -705,6 +706,9 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall) {
 #ifdef DARJEELING_DEBUG_TRACE
 		callDepth++;
 #endif
+
+		DEBUG_LOG("Invoke done\n");
+
 	}
 
 }
@@ -756,7 +760,8 @@ static inline void returnFromMethod() {
  * For throwing exceptions that are not in the System class, create the object manually and throw it with dj_exec_throwHere.
  * @param exceptionId the class entity ID of the exception to throw. The exception class is assumed to be in the system library.
  */
-void dj_exec_createAndThrow(int exceptionId) {
+void dj_exec_createAndThrow(int exceptionId)
+{
 	dj_object *obj = dj_vm_createSysLibObject(vm, exceptionId);
 	// if we can't allocate the exception, we're really out of memory :(
 	// throw the last resort panic exception object we pre-allocated
@@ -930,7 +935,14 @@ int dj_exec_run(int nrOpcodes)
 		case JVM_SADD: SHORT_ARITHMETIC_OP(+); break;
 		case JVM_SSUB: SHORT_ARITHMETIC_OP(-); break;
 		case JVM_SMUL: SHORT_ARITHMETIC_OP(*); break;
-		case JVM_SDIV: SHORT_ARITHMETIC_OP(/); break;
+		case JVM_SDIV:
+			temp2 = popShort();
+			temp1 = popShort();
+			if (temp2 == 0)
+				dj_exec_createAndThrow(BASE_CDEF_java_lang_ArithmeticException);
+			else
+				pushShort(temp1 / temp2);
+			break;
 		case JVM_SNEG: pushShort(-popShort()); break;
 		case JVM_SSHR: SHORT_ARITHMETIC_OP(>>); break;
 		case JVM_SUSHR:
@@ -947,7 +959,15 @@ int dj_exec_run(int nrOpcodes)
 		case JVM_IADD: INT_ARITHMETIC_OP(+); break;
 		case JVM_ISUB: INT_ARITHMETIC_OP(-); break;
 		case JVM_IMUL: INT_ARITHMETIC_OP(*); break;
-		case JVM_IDIV: INT_ARITHMETIC_OP(/); break;
+		case JVM_IDIV:
+			temp2 = popInt();
+			temp1 = popInt();
+			if (temp2 == 0)
+				dj_exec_createAndThrow(BASE_CDEF_java_lang_ArithmeticException);
+			else
+				pushInt(temp1 / temp2);
+			break;
+
 		case JVM_INEG: pushInt(-popInt()); break;
 		case JVM_ISHR: INT_ARITHMETIC_OP(>>); break;
 		case JVM_IUSHR:
@@ -964,7 +984,14 @@ int dj_exec_run(int nrOpcodes)
 		case JVM_LADD: LONG_ARITHMETIC_OP(+); break;
 		case JVM_LSUB: LONG_ARITHMETIC_OP(-); break;
 		case JVM_LMUL: LONG_ARITHMETIC_OP(*); break;
-		case JVM_LDIV: LONG_ARITHMETIC_OP(/); break;
+		case JVM_LDIV:
+			temp2 = popLong();
+			temp1 = popLong();
+			if (temp2 == 0)
+				dj_exec_createAndThrow(BASE_CDEF_java_lang_ArithmeticException);
+			else
+				pushLong(temp1 / temp2);
+			break;
 		case JVM_LNEG: pushLong(-popLong()); break;
 		case JVM_LSHR: LONG_ARITHMETIC_OP(>>); break;
 		case JVM_LUSHR:
@@ -1358,7 +1385,6 @@ int dj_exec_run(int nrOpcodes)
 
 		// abuse this method to calculate nr_int_stack and nr_ref_stack for us
 		dj_exec_saveLocalState(current_frame);
-
 
 		ref_t *refStackStart = (ref_t*)((int)dj_frame_getStackEnd(current_frame) - current_frame->nr_ref_stack * sizeof(ref_t));
 		for (i=0; i<current_frame->nr_ref_stack; i++)

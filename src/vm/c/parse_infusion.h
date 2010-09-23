@@ -92,9 +92,10 @@ enum MethodImplementationFlags
 #define dj_di_classDefinition_getOffsetOfFirstReference(pointer) dj_di_getU8(pointer + 1)
 #define dj_di_classDefinition_getSuperClass(pointer) (dj_di_getLocalId(pointer+2))
 #define dj_di_classDefinition_getCLInit(pointer) (dj_di_getU8(pointer+4))
-#define dj_di_classDefinition_getNrInterfaces(pointer) dj_di_getU8(pointer + 5)
-#define dj_di_classDefinition_getInterface(pointer, index) (dj_di_getLocalId(pointer + 6 + index * 2))
-#define dj_di_classDefinition_getMethodTable(pointer) ((dj_di_pointer)(pointer) + 6 + dj_di_classDefinition_getNrInterfaces(pointer) * 2)
+#define dj_di_classDefinition_getClassName(pointer) (dj_di_getLocalId(pointer + 5))
+#define dj_di_classDefinition_getNrInterfaces(pointer) dj_di_getU8(pointer + 7)
+#define dj_di_classDefinition_getInterface(pointer, index) (dj_di_getLocalId(pointer + 8 + index * 2))
+#define dj_di_classDefinition_getMethodTable(pointer) ((dj_di_pointer)(pointer) + 8 + dj_di_classDefinition_getNrInterfaces(pointer) * 2)
 
 // method implementation getters
 #define dj_di_methodImplementation_getReferenceArgumentCount(pointer) dj_di_getU8(pointer + 0)

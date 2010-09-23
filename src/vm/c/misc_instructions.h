@@ -25,81 +25,25 @@
 
 #include <string.h>
 
+#include "jstring.h"
+
+#include "jlib_base.h"
+
 static inline void LDS()
 {
-	uint16_t i;
-
 	dj_object * string;
 
 	// fetch and resolve the string id
-	dj_local_id string_local_id = dj_fetchLocalId();
-	dj_global_id string_id = dj_global_id_resolve(dj_exec_getCurrentInfusion(), string_local_id);
+	dj_local_id localStringId = dj_fetchLocalId();
+	dj_global_id globalStringId = dj_global_id_resolve(dj_exec_getCurrentInfusion(), localStringId);
 
-	// get pointer to the ASCII string in program memory and the string length
-	dj_di_pointer stringBytes = dj_di_stringtable_getElementBytes(string_id.infusion->stringTable, string_id.entity_id);
-	uint16_t stringLength = dj_di_stringtable_getElementLength(string_id.infusion->stringTable, string_id.entity_id);
+	string = dj_jstring_createFromGlobalId(dj_exec_getVM(), globalStringId);
 
-	// create java String object
-	uint8_t runtime_id = dj_vm_getSysLibClassRuntimeId(dj_exec_getVM(), BASE_CDEF_java_lang_String);
-	dj_di_pointer classDef = dj_vm_getRuntimeClassDefinition(vm, runtime_id);
-	string = dj_object_create(runtime_id,
-			dj_di_classDefinition_getNrRefs(classDef),
-			dj_di_classDefinition_getOffsetOfFirstReference(classDef)
-			);
-
-	// throw OutOfMemoryError
-	if (string == NULL)
-	{
+	if (string==NULL)
 		dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
-		return;
-	}
-
-	// add the string pointer to the safe memory pool to avoid it becoming invalid in case dj_int_array_create triggers a GC
-	dj_mem_addSafePointer((void**)&string);
-
-	// create charArray
-	dj_int_array * charArray = dj_int_array_create(T_CHAR, stringLength);
-
-	// throw OutOfMemoryError
-	if (charArray == NULL)
-	{
-		dj_mem_free(string);
-		dj_exec_createAndThrow(BASE_CDEF_java_lang_OutOfMemoryError);
-	} else
-	{
-
-		// coppy ASCII from program space to the array
-		for (i = 0; i < stringLength; i++)
-			charArray->data.bytes[i] = dj_di_getU8(stringBytes++);
-
-		BASE_STRUCT_java_lang_String * stringObject = (BASE_STRUCT_java_lang_String*)string;
-
-		stringObject->offset = 0;
-		stringObject->stringLength = stringLength;
-		stringObject->stringStore = VOIDP_TO_REF(charArray);
-		/*
-		/// initialize object
-		char* stringP = (char*)string;
-		int refOffset = dj_di_classDefinition_getOffsetOfFirstReference(classDef);
-
-		// string.stringStore is the first reference field, assign it
-		ref_t* string_stringStore = (ref_t*)(stringP + refOffset);
-		*string_stringStore = VOIDP_TO_REF(charArray);
-
-		// string.offset is the first non-reference field (int), assign it
-		int32_t* string_offset = (int32_t*)stringP;
-		*string_offset = 0;
-
-		// string.offset is the second non-reference field (int), assign it
-		int32_t* string_stringLength = string_offset+1;
-		*string_stringLength = stringLength;
-		*/
-
+	else
 		pushRef(VOIDP_TO_REF(string));
-	}
 
-	// Remove the string object pointer from the safe memory pool.
-	dj_mem_removeSafePointer((void**)&string);
 }
 
 static inline void NEW()
