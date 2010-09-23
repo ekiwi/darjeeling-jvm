@@ -1,10 +1,10 @@
 <project default="all">
 
 	<!-- include native code for libraries -->
-	<property name="libs" value="base, darjeeling, radio"/>
+	<property name="libs" value="base, util, darjeeling2"/>
 
 	<!-- Compile these applications -->
-	<property name="apps" value="testsuite"/>
+	<property name="apps" value="helloworld"/>
 
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="posix"/>
