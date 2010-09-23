@@ -120,7 +120,8 @@ void javax_darjeeling_radio_Radio_byte____readBytes()
 // void javax.darjeeling.radio.Radio._init(int)
 void javax_darjeeling_radio_Radio_void__init_int()
 {
-	int flags = dj_exec_stackPopInt();
+	/*int flags = */dj_exec_stackPopInt();
+
 	//TODO: use flags to initialise the radio
 }
 
@@ -140,7 +141,7 @@ void javax_darjeeling_radio_Radio_boolean_hasRadio()
 void javax_darjeeling_radio_Radio_void_setChannel_short()
 {
 	int16_t channel = dj_exec_stackPopShort();
-	//TODO: implement
+
 	nesc_setChannel(channel);
 }
 
@@ -161,7 +162,7 @@ void javax_darjeeling_radio_Radio_short_getLastChannel()
 // void javax.darjeeling.radio.Radio.setOutputPower(short)
 void javax_darjeeling_radio_Radio_void_setOutputPower_short()
 {
-	int power = dj_exec_stackPopShort();
+	/*int power = */dj_exec_stackPopShort();
 	//TODO: implement
 	dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
 }

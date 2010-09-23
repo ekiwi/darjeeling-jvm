@@ -25,6 +25,8 @@
 #include "execution.h"
 #include "jlib_base.h"
 
+#include "avr.h"
+
 // void javax.darjeeling.io.Serial.setBaudRate(byte, int)
 void javax_darjeeling_io_Serial_void_setBaudRate_byte_int()
 {
@@ -69,5 +71,6 @@ void javax_darjeeling_io_SerialOutputStream_void__write_byte_int()
 {
 	int32_t b = dj_exec_stackPopShort();
 	dj_exec_stackPopShort();
-	printf("%c", b);
+
+	avr_serialWrite(b);
 }

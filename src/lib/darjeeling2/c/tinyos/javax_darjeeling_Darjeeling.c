@@ -46,11 +46,18 @@ void javax_darjeeling_Darjeeling_void_assertTrue_int_boolean()
 		DARJEELING_PRINTF("%c[32mASSERT[%3d] PASSED%c[0m\n", 0x1b, (int)id, 0x1b);
 }
 
-// void javax.darjeeling.Darjeeling.printBytesAsString(byte[])
-void javax_darjeeling_Darjeeling_void_printBytesAsString_byte__()
+void javax_darjeeling_Darjeeling_void__print_java_lang_String()
 {
-	dj_int_array* byteStr = REF_TO_VOIDP(dj_exec_stackPopRef());
-	DARJEELING_PRINTF("%s", byteStr->data.bytes);
+	int i;
+
+	// Pop string object from the stack.
+	BASE_STRUCT_java_lang_String * stringObject = (BASE_STRUCT_java_lang_String*)REF_TO_VOIDP(dj_exec_stackPopRef());
+
+	// Get byte array
+	dj_int_array * byteArray = (dj_int_array*)REF_TO_VOIDP(stringObject->value);
+
+	for (i=0; i<byteArray->array.length; i++)
+		DARJEELING_PRINTF("%c", byteArray->data.bytes[i]);
 }
 
 

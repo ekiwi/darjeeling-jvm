@@ -62,8 +62,8 @@ void notify_serial_receiveByte(byte)
 // void javax.darjeeling.io.Serial.setBaudRate(byte, int)
 void javax_darjeeling_io_Serial_void_setBaudRate_byte_int()
 {
-	int32_t rate = dj_exec_stackPopInt();
-	int16_t nr = dj_exec_stackPopShort();
+	/*int32_t rate = */dj_exec_stackPopInt();
+	/*int16_t nr = */dj_exec_stackPopShort();
 
 	// Do nothing.
 }
@@ -77,7 +77,7 @@ void javax_darjeeling_io_Serial_byte_getNrSerialPorts()
 // int javax.darjeeling.io.Serial.getDefaultBaudRate(byte)
 void javax_darjeeling_io_Serial_int_getDefaultBaudRate_byte()
 {
-	int16_t nr = dj_exec_stackPopShort();
+	/*int16_t nr = */dj_exec_stackPopShort();
 	dj_exec_stackPushShort(0);
 }
 
@@ -86,7 +86,7 @@ void javax_darjeeling_io_SerialInputStream_short__read_byte()
 {
 	// Pop arguments.
 	// nr is ignored, because a single UART is assumed.
-	int16_t nr = dj_exec_stackPopShort();
+	/*int16_t nr = */dj_exec_stackPopShort();
 
 	if (bufferSize>0)
 	{
@@ -104,7 +104,7 @@ void javax_darjeeling_io_SerialInputStream_void__waitForByte_byte()
 {
 	// Pop arguments.
 	// nr is ignored, because a single UART is assumed.
-	int16_t nr = dj_exec_stackPopShort();
+	/*int16_t nr = */dj_exec_stackPopShort();
 
 	if (bufferSize==0)
 	{
@@ -135,7 +135,7 @@ void javax_darjeeling_io_SerialOutputStream_void__write_byte_int()
 	// Pop arguments.
 	// nr is ignored, because a single UART is assumed.
 	int32_t b = dj_exec_stackPopInt();
-	int16_t nr = dj_exec_stackPopShort();
+	/*int16_t nr = */dj_exec_stackPopShort();
 
 	// Blocking write.
 	nesc_uartWriteByte((uint8_t)b);

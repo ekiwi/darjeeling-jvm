@@ -18,10 +18,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
 
 #include <stdio.h>
+#include <stdint.h>
 
 #include "array.h"
 #include "execution.h"
@@ -36,8 +35,8 @@ void javax_darjeeling_actuators_Servo_short_getNrServos()
 // void javax.darjeeling.actuators.Servo.set(short, short)
 void javax_darjeeling_actuators_Servo_void_set_short_short()
 {
-	int16_t value = dj_exec_stackPopShort();
-	int16_t nr = dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
 
 	// do nothing
 }
@@ -45,9 +44,9 @@ void javax_darjeeling_actuators_Servo_void_set_short_short()
 // void javax.darjeeling.actuators.Servo.setPulseRange(short, short, short)
 void javax_darjeeling_actuators_Servo_void_setPulseRange_short_short_short()
 {
-	int16_t max = dj_exec_stackPopShort();
-	int16_t min = dj_exec_stackPopShort();
-	int16_t nr = dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
 
 	// do nothing
 }

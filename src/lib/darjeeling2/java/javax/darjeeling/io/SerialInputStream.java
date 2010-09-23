@@ -22,11 +22,10 @@
  
 package javax.darjeeling.io;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * 
+ * InputStream implementation for serial ports (UART).
  * 
  * @author Niels Brouwers
  *
@@ -52,7 +51,7 @@ public class SerialInputStream extends InputStream
 		this.uartNr = uartNr;
 	}
 	
-	public int read() throws IOException
+	public int read()
 	{
 		synchronized(this)
 		{

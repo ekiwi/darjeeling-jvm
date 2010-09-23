@@ -22,9 +22,14 @@
  
 package javax.darjeeling.io;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * OutputStream implementation for serial ports (UART).
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class SerialOutputStream extends OutputStream
 {
 
@@ -38,7 +43,7 @@ public class SerialOutputStream extends OutputStream
 		this.uartNr = uartNr;
 	}
 
-	public void write(int b) throws IOException
+	public void write(int b)
 	{
 		_write(uartNr, b);
 	}

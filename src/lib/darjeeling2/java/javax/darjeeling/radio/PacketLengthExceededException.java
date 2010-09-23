@@ -19,10 +19,14 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
- 
 package javax.darjeeling.radio;
 
+/**
+ * Thrown when the application tries to send a packet that is larger than the maximum packet length.
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class PacketLengthExceededException extends RuntimeException
 {
 	

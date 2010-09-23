@@ -1,5 +1,5 @@
 /*
- * javax_fleck_TestBoard.c
+ * javax_darjeeling_actuators_Servo.c
  * 
  * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
@@ -18,24 +18,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
- 
-#include <stdint.h>
+
+#include <stdio.h>
 
 #include "array.h"
 #include "execution.h"
 #include "jlib_base.h"
 
-// void javax.fleck.TestBoard.init()
-void javax_fleck_TestBoard_void_init()
+// short javax.darjeeling.actuators.Servo.getNrServos()
+void javax_darjeeling_actuators_Servo_short_getNrServos()
 {
-	dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+	dj_exec_stackPushShort(0);
 }
 
-
-// byte javax.fleck.TestBoard.getButtonState(int)
-void javax_fleck_TestBoard_byte_getButtonState_int()
+// void javax.darjeeling.actuators.Servo.set(short, short)
+void javax_darjeeling_actuators_Servo_void_set_short_short()
 {
-	dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+	dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
+
+	// do nothing
+}
+
+// void javax.darjeeling.actuators.Servo.setPulseRange(short, short, short)
+void javax_darjeeling_actuators_Servo_void_setPulseRange_short_short_short()
+{
+	dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
+
+	// do nothing
 }

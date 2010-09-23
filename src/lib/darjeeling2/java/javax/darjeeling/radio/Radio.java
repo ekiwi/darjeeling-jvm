@@ -19,11 +19,7 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
- 
 package javax.darjeeling.radio;
-
-import javax.darjeeling.Darjeeling;
 
 /**
  *

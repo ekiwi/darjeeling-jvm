@@ -37,7 +37,7 @@ void javax_darjeeling_sensors_ADC_short_getNrADCs()
 // int javax.darjeeling.sensors.ADC.read(short)
 void javax_darjeeling_sensors_ADC_int_read_short()
 {
-	uint16_t nr = dj_exec_stackPopShort();
+	dj_exec_stackPopShort();
 
 	// No ADCs.
 	dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);

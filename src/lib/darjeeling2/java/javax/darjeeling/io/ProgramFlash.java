@@ -26,6 +26,8 @@ package javax.darjeeling.io;
  * The ProgramFlash class is a singleton that provides access to the program flash of the MCU where the Darjeeling infusion files are
  * stored.
  * 
+ * TODO WORK IN PROGRESS
+ * 
  * @author Niels Brouwers
  *
  */

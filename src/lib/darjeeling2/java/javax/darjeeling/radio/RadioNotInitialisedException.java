@@ -19,10 +19,14 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
- 
 package javax.darjeeling.radio;
 
+/**
+ * Thrown when the application tries to use the radio before it is initialised.
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class RadioNotInitialisedException extends RuntimeException
 {
 	

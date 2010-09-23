@@ -21,15 +21,31 @@
  
 package javax.darjeeling.io;
 
-public class FileSystem
+/**
+ * 
+ * The abstract FileSystem class represents a file sytem on top of a block device. 
+ * 
+ * TODO WORK IN PROGRESS
+ *
+ * @author Niels Brouwers
+ *
+ */
+public abstract class FileSystem
 {
 	
 	protected BlockDevice blockDevice;
 	
+	/**
+	 * Constructs a new FileSystem instance.
+	 * 
+	 * @param blockDevice block device. 
+	 */
 	public FileSystem(BlockDevice blockDevice)
 	{
 		this.blockDevice = blockDevice;
 	}
 	
+	public abstract void mount();
+	public abstract void unmount();
 
 }

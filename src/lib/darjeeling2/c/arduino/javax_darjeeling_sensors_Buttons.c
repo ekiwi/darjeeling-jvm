@@ -1,5 +1,5 @@
 /*
- * javax_fleck_Leds.c
+ * javax_darjeeling_sensors_Buttons.c
  * 
  * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
@@ -27,24 +27,26 @@
 #include "execution.h"
 #include "jlib_base.h"
 
-#include "dev/leds.h"
-
-// void javax.fleck.Leds.setLed(int, boolean)
-void javax_fleck_Leds_void_setLed_int_boolean()
+void javax_darjeeling_sensors_Buttons_short_getNrButtons()
 {
-	int16_t on = dj_exec_stackPopShort();
-	int32_t nr = dj_exec_stackPopInt();
-
-	switch (nr){
-		case 0:
-			if (on) leds_on(LEDS_BLUE); else leds_off(LEDS_BLUE);
-			break;
-		case 1:
-			if (on) leds_on(LEDS_GREEN); else leds_off(LEDS_GREEN);
-			break;
-		case 2:
-			if (on) leds_on(LEDS_RED); else leds_off(LEDS_RED);
-			break;
-	}
-
+	dj_exec_stackPushShort(0);
 }
+
+// boolean javax.darjeeling.sensors.Buttons.pressed(short)
+void javax_darjeeling_sensors_Buttons_boolean_pressed_short()
+{
+	dj_exec_stackPushShort(0);
+}
+
+// void javax.darjeeling.sensors.Buttons.waitForDown(short)
+void javax_darjeeling_sensors_Buttons_void_waitForDown_short()
+{
+	// Do nothing.
+}
+
+// void javax.darjeeling.sensors.Buttons.waitForUp(short)
+void javax_darjeeling_sensors_Buttons_void_waitForUp_short()
+{
+	// Do nothing.
+}
+

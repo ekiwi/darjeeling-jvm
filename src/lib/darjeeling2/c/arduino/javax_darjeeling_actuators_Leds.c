@@ -1,5 +1,5 @@
 /*
- * javax_fleck_Leds.c
+ * javax_darjeeling_actuators_Leds.c
  * 
  * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
@@ -19,26 +19,34 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
- 
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "array.h"
 #include "execution.h"
 #include "jlib_base.h"
-#include "heap.h"
-#include "types.h"
-#include "tossim.h"
-// void javax.fleck.Leds.setLed(int, boolean)
-void javax_fleck_Leds_void_setLed_int_boolean()
+
+#define NUM_LEDS 1
+
+//short javax.darjeeling.actuators.Leds.getNrLeds()
+void javax_darjeeling_actuators_Leds_short_getNrLeds()
 {
-	unsigned char on = dj_exec_stackPopShort();
-	unsigned int nr = dj_exec_stackPopInt();
-	char * tempStr = dj_mem_alloc(25, CHUNKID_REFARRAY);
-	snprintf(tempStr, 25, on?"LED %d ON(on/off=%d)\n":"LED %d OFF(on/off=%d)\n", nr, on);
-	tossim_printf(tempStr);
-	dj_mem_free(tempStr);
-	
+	dj_exec_stackPushShort(NUM_LEDS);
+}
+
+// void javax.darjeeling.actuators.Leds.set(short, boolean)
+void javax_darjeeling_actuators_Leds_void_set_short_boolean()
+{
+	uint16_t on = dj_exec_stackPopShort();
+
+	// Discard the led index argument
+	uint16_t nr = dj_exec_stackPopShort();
+
+	// set port B pin 7 to output
+	DDRB |= 128;
+
+	// turn the led on/off
+	if (on)
+		PORTB |= 128;
+	else
+		PORTB &= ~128;
 }

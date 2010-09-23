@@ -18,17 +18,44 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
+
 package javax.darjeeling.io;
 
+/**
+ * 
+ * The Serial class provides access to the serial ports of the device. 
+ * 
+ * @author Niels Brouwers
+ *
+ */
 public class Serial
 {
 	
+	/**
+	 * Sets the desired baud rate of a serial port. 
+	 * 
+	 * @param uartNr serial port number. Must be a valid number. Use getNrSerialPorts() to query the number of available uarts. Throws an IndexOutOfRangeException if the serial port does not exist.
+	 * @param baudRate desired baud rate. 
+	 */
+	// TODO figure out what should happen if the baud rate is not available
 	public static native void setBaudRate(byte uartNr, int baudRate);
+	
+	/**
+	 * @return number of available serial ports.
+	 */
 	public static native byte getNrSerialPorts();
+	
+	/**
+	 * @param uartNr uartNr serial port number. Must be a valid number. Use getNrSerialPorts() to query the number of available uarts. Throws an IndexOutOfRangeException if the serial port does not exist. 
+	 * @return default baud rate.
+	 */
 	public static native int getDefaultBaudRate(byte uartNr);
 	
+	/**
+	 * Gets an input stream for the given serial port. 
+	 * @param uartNr uartNr serial port number. Must be a valid number. Use getNrSerialPorts() to query the number of available uarts. Throws an IndexOutOfRangeException if the serial port does not exist. 
+	 * @return a SerialInputStream object that is connected to the given uart.
+	 */
 	public static SerialInputStream getInputStream(byte uartNr)
 	{
 		// Check that the uart number is in range.
@@ -38,6 +65,11 @@ public class Serial
 		return new SerialInputStream(uartNr);
 	}
 	
+	/**
+	 * Gets an output stream for the given serial port. 
+	 * @param uartNr uartNr serial port number. Must be a valid number. Use getNrSerialPorts() to query the number of available uarts. Throws an IndexOutOfRangeException if the serial port does not exist. 
+	 * @return a SerialOutputStream object that is connected to the given uart.
+	 */
 	public static SerialOutputStream getOutputStream(byte uartNr)
 	{
 		// Check that the uart number is in range.

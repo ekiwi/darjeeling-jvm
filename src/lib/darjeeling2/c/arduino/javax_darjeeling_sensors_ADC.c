@@ -1,5 +1,5 @@
 /*
- * javax_fleck_TestBoard.c
+ * javax_darjeeling_sensors_ADC.c
  * 
  * Copyright (c) 2008-2010 CSIRO, Delft University of Technology.
  * 
@@ -20,22 +20,32 @@
  */
  
  
- 
-#include <stdint.h>
+
+#include <stdio.h>
 
 #include "array.h"
 #include "execution.h"
 #include "jlib_base.h"
 
-// void javax.fleck.TestBoard.init()
-void javax_fleck_TestBoard_void_init()
+// short javax.darjeeling.sensors.ADC.getNrADCs()
+void javax_darjeeling_sensors_ADC_short_getNrADCs()
 {
-	dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+	// No ADCs.
+	dj_exec_stackPushShort(0);
 }
 
-
-// byte javax.fleck.TestBoard.getButtonState(int)
-void javax_fleck_TestBoard_byte_getButtonState_int()
+// int javax.darjeeling.sensors.ADC.read(short)
+void javax_darjeeling_sensors_ADC_int_read_short()
 {
-	dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+	dj_exec_stackPopShort();
+
+	// No ADCs.
+	dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
+}
+
+// byte javax.darjeeling.sensors.ADC.getResolution(short)
+void javax_darjeeling_sensors_ADC_byte_getResolution_short()
+{
+	// No ADCs.
+	dj_exec_createAndThrow(BASE_CDEF_java_lang_IndexOutOfBoundsException);
 }

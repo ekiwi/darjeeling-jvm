@@ -19,8 +19,6 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
- 
 package javax.darjeeling;
 
 /**
@@ -41,8 +39,7 @@ public class Darjeeling
 	 */
 	public static native void assertTrue(int testNr, boolean success);
 
-	// underlying function for print(String)
-	private static native void printBytesAsString(byte[] str);
+	private static native void _print(String string);
 
 	/**
 	 * Prints a String to the default console. 
@@ -50,7 +47,8 @@ public class Darjeeling
 	 */
 	public static void print(String str)
 	{
-		printBytesAsString(str.toZeroTerminatedByteArray());
+		if (str==null) throw new NullPointerException();
+		_print(str);
 	}
 
 	/**
