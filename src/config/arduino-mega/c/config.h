@@ -26,19 +26,20 @@
 #define RUNSIZE 128
 
 #define PACK_STRUCTS
-// #define ALIGN_16
+#define ALIGN_16
+
+typedef unsigned long long int dj_time_t;
 
 /* Please see common/debug.h */
 
-void serial_printf(char * format, ...);
-
+void avr_serialPrintf(char * format, ...);
 
 // #define DARJEELING_DEBUG
 // #define DARJEELING_DEBUG_TRACE
 // #define DARJEELING_DEBUG_CHECK_HEAP_SANITY
 // #define DARJEELING_DEBUG_PERFILE
-// #define DARJEELING_PRINTF serial_printf
-#define DARJEELING_PRINTF
+#define DARJEELING_PRINTF avr_serialPrintf
+// #define DARJEELING_PRINTF
 #define DARJEELING_PGMSPACE_MACRO
 
 #endif

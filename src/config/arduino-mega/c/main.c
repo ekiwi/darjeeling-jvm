@@ -35,15 +35,9 @@
 #include "execution.h"
 
 #include "jlib_base.h"
-#include "jlib_darjeeling.h"
+#include "jlib_darjeeling2.h"
 
 #include "pointerwidth.h"
-
-/*
-extern char * * _binary_infusions_start;
-extern char * * _binary_infusions_end;
-extern size_t * _binary_infusions_size;
-*/
 
 extern unsigned char di_archive_data[];
 extern size_t di_archive_size;
@@ -74,18 +68,20 @@ int main()
 	dj_exec_setVM(vm);
 
 	dj_named_native_handler handlers[] = {
-		{ PSTR("base"), &base_native_handler },
-		{ PSTR("darjeeling"), &darjeeling_native_handler }
-	};
+			{ "base", &base_native_handler },
+			{ "darjeeling2", &darjeeling2_native_handler },
+		};
 
 	int length = sizeof(handlers)/ sizeof(handlers[0]);
-        dj_archive archive;
-        archive.start = (dj_di_pointer)di_archive_data;
-        archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
+	dj_archive archive;
+	archive.start = (dj_di_pointer)di_archive_data;
+	archive.end = (dj_di_pointer)(di_archive_data + di_archive_size);
 
-        dj_vm_loadInfusionArchive(vm, &archive, handlers, length);
+	dj_vm_loadInfusionArchive(vm, &archive, handlers, length);	
 
-	// dj_vm_loadInfusionArchive(vm, (dj_di_pointer)&_binary_infusions_start, (dj_di_pointer)&_binary_infusions_end, handlers, 2);
+#ifdef DARJEELING_DEBUG
+	avr_serialPrintf("Darjeeling is go!\n\r");
+#endif
 
 	// start the main execution loop
 	while (dj_vm_countLiveThreads(vm)>0)
@@ -99,6 +95,10 @@ int main()
 		// yield
 
 	}
+
+#ifdef DARJEELING_DEBUG
+	avr_serialPrintf("All threads terminated.\n\r");
+#endif
 
 	return 0;
 
