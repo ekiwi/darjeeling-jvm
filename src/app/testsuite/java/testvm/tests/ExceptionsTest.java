@@ -199,7 +199,7 @@ public class ExceptionsTest
 
         int counterIntuitive = returnsMinusOne();
         Darjeeling.assertTrue(testBase+91,counterIntuitive == -1);
-   
+        
 	}
 
     //see http://www.cs.arizona.edu/projects/sumatra/hallofshame/
