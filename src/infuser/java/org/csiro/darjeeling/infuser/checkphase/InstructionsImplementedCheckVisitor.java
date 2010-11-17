@@ -28,7 +28,6 @@ import org.apache.bcel.generic.Instruction;
 import org.apache.bcel.generic.InstructionHandle;
 import org.apache.bcel.generic.InstructionList;
 import org.csiro.darjeeling.infuser.logging.Logging;
-import org.csiro.darjeeling.infuser.structure.BaseType;
 import org.csiro.darjeeling.infuser.structure.Element;
 import org.csiro.darjeeling.infuser.structure.elements.internal.InternalMethodImplementation;
 
@@ -85,6 +84,7 @@ public class InstructionsImplementedCheckVisitor extends CheckVisitor
 				case Constants.BIPUSH:
 				case Constants.SIPUSH:
 				case Constants.LDC:
+				case Constants.LDC_W:
 				case Constants.ISTORE:
 				case Constants.ISTORE_0:
 				case Constants.ISTORE_1:
