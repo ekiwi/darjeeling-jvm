@@ -63,14 +63,14 @@
 	</target>
 	
 	<!-- Compile the VM -->
-	<target name="compile-vm" depends="compile-libs">
+	<target name="compile-vm">
 		<subant inheritall="true">
 			<fileset includes="build.xml" dir="${configpath}/../vm/"/>
 		</subant>
 	</target>
 	
 	<!-- Compile the platform -->
-	<target name="compile-platform" depends="compile-libs">
+	<target name="compile-platform">
 		<subant inheritall="true">
 			<fileset includes="build.xml" dir="${configpath}/../platform/${platform}"/>
 		</subant>
@@ -111,7 +111,7 @@
 
 	<!-- Packs neccesairy .di files (libraries and applications) into a single archive using ar. Then it uses objcopy to create a .o file for 
 	inclusion in the final executable -->
-	<target name="packdi">
+	<target name="packdi" depends="compile-main">
 		<mkdir dir="${temp}/infusions"/>
 	
 		<!-- Construct a list of library .di files based on a comma separated list of libraries (ie 'base, darjeeling') -->
@@ -149,7 +149,7 @@
 	</target>
 	
 	<!-- Repack everything that's in the build dir into a single .a file -->
-	<target name="repack">
+	<target name="repack" depends="unpack">
 		<pathconvert property="objectfiles" pathsep=" ">
 			<fileset dir="${temp}" includes="**/*.o"/>
 		</pathconvert>
@@ -160,14 +160,13 @@
 	</target>
 	
 	<!-- Repack everything that's in the build dir into a single .a file -->
-	<target name="link">
+	<target name="link" depends="repack">
 		<platform-link outputfile="${executable}">
 			<link-elements>
 				<fileset includes="${outputfile}" dir="."/>
 			</link-elements>
 		</platform-link>
 	</target>
-	
 
 	<!-- Clean the build dir, the VM, and the libraries this configuration depends on -->
 	<target name="clean">

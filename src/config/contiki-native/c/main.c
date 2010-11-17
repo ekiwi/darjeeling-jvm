@@ -38,7 +38,7 @@
 #endif
 
 #include "jlib_base.h"
-#include "jlib_darjeeling.h"
+#include "jlib_darjeeling2.h"
 
 #include "pointerwidth.h"
 char * ref_t_base_address;
@@ -91,7 +91,7 @@ PROCESS_THREAD(blink_process, ev, data)
 
 	dj_named_native_handler handlers[] = {
 		{ "base", &base_native_handler },
-		{ "darjeeling", &darjeeling_native_handler }
+		{ "darjeeling2", &darjeeling2_native_handler }
 	};
 
 	/*

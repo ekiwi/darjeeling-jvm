@@ -7,8 +7,8 @@
 		#define WITH_RADIO
 		in ../../src/platform/tinyos/c/tosconfig.h
 	 -->
-	<property name="libs" value="base, darjeeling, radio"/>
-	<property name="apps" value="helloworld"/>
+	<property name="libs" value="base, darjeeling2, joystick"/>
+	<property name="apps" value="remote"/>
 
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="tinyos"/>
@@ -37,7 +37,7 @@
 		then you have to install nescc and edit env.sh to your appropriate
 		'nesc1' folder and nesc include lib files which contains nesc_nx.h 
 	-->
-	<target name="program-the-node" depends="all">
+	<target name="install" depends="all">
 		<exec executable="avr-objcopy">
 			<arg value="-R"/>
 			<arg value="-S"/>

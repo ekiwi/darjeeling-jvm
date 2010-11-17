@@ -18,10 +18,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+  
 #ifndef __config_h
 #define __config_h
-#include <sys/types.h>
+#include <stdint.h>
 
 // define heap size
 #define RUNSIZE 32
@@ -29,14 +29,19 @@
 
 // define wether to pack structs (this is fine on all AVR targets)
 #define PACK_STRUCTS
+	
 //Use 64-bit values to store time
 typedef int64_t dj_time_t;
 
 /* Please see common/debug.h */
-//#define DARJEELING_DEBUG
-//#define DARJEELING_DEBUG_TRACE
-//#define DARJEELING_DEBUG_CHECK_HEAP_SANITY
-//#define DARJEELING_DEBUG_PERFILE
+// Note that the TNODE platform only has 4k of memory. Enabling DEBUG 
+// causes a lot of that memory to be stuffed with debug strings, so you'll
+// have to free up memory by reducing HEAPSIZE to something like 512 bytes
+// if you want to see full debug traces on this platform.
+// #define DARJEELING_DEBUG
+// #define DARJEELING_DEBUG_TRACE
+// #define DARJEELING_DEBUG_CHECK_HEAP_SANITY
+// #define DARJEELING_DEBUG_PERFILE
 #define DARJEELING_PRINTF(...)
 #define DARJEELING_PGMSPACE_MACRO
 

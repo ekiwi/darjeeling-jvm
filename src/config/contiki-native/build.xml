@@ -1,8 +1,8 @@
 <project default="all">
 
 	<!-- include native code for libraries -->
-	<property name="libs" value="base, darjeeling"/>
-	<property name="apps" value="testsuite, blink"/>
+	<property name="libs" value="base, util, darjeeling2"/>
+	<property name="apps" value="testsuite"/>
 
 	<!-- Platform and architecture selection -->
 	<property name="platform" value="contiki"/>
