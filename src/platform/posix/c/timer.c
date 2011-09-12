@@ -19,15 +19,16 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
+#include <time.h>
+
 #include "types.h"
-#include "clock.h"
 
 void dj_timer_init()
 {
-	clockInit();
+
 }
 
 uint32_t dj_timer_getTimeMillis()
 {
-	return clockGetMillis();
+	return clock() / (CLOCKS_PER_SEC / 1000);
 }
