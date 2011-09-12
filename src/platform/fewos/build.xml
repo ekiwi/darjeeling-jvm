@@ -1,0 +1,29 @@
+<project default="all">
+
+	<import file="../platform.xml"/>
+
+	<target name="precompile">
+		<platform-compile objectfiles="${objectfiles}">
+			<compile-elements>
+				<defineset refid="platform-defines"/>
+
+				<!-- include directories -->
+				<includepath>
+					<path refid="platform-includes"/>
+				</includepath>
+
+				<!-- input files -->
+				<fileset dir="${platform-sources}">
+					<include name="**/conio.c"/>
+                    <include name="**/clock.c"/>
+                    <include name="**/faraccess.s"/>
+                    <include name="**/qbuffer.c"/>
+                    <include name="**/serialStream.c"/>
+                    <include name="**/uart.c"/>
+				</fileset>
+
+			</compile-elements>
+		</platform-compile>
+	</target>
+
+</project>
