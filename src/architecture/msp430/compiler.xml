@@ -4,6 +4,18 @@
 	
 	<import file="${compilerpath}/../../taskdefs.xml"/>
 
+    <condition property="compiler.standard"
+               value="-std=gnu99"
+               else="-mstrict-align">
+        <os family="windows"/>
+    </condition>
+    
+    <condition property="compiler.debug.format"
+               value="-gdwarf-2"
+               else="">
+        <os family="windows"/>
+    </condition>
+    
 	<macrodef name="platform-compile">
 		<attribute name="objectfiles"/>
 		<element name="compile-elements"/>
@@ -17,9 +29,13 @@
 					<compilerparam value="msp430" name="target"/>
 					<compilerarg value="-Wall"/>
 					<compilerarg value="-mmcu=${mcu}"/>
+                    <compilerarg value="-DPLATFORM=${platform}"/>
+                    <compilerarg value="-DARCHITECTURE=${architecture}"/>
+                    <compilerarg value="-DCONFIGURATION=${configuration}"/>
 					<compilerarg value="-Os"/>
 					<compilerarg value="-finline-limit-1"/>
-					<compilerarg value="-mstrict-align"/>
+                    <compilerarg value="${compiler.standard}"/>
+                    <compilerarg value="${compiler.debug.format}"/>
 				</compiler>
 
 				<compile-elements/>
@@ -41,6 +57,7 @@
 				<linker classname="net.sf.antcontrib.cpptasks.gcc.cross.GccLinker">
 					<linkerparam value="msp430" name="target"/>
 					<linkerarg value="-mmcu=${mcu}"/>
+                    <linkerarg value="-umain"/>
 				</linker>
 				
 				<link-elements/>
@@ -53,13 +70,19 @@
 	On some configurations the infusion files that need to be loaded at init are packaged into an archive and then
 	linked statically into the final executable.
 	-->
+    <condition property="objcopy.renamesection"
+               value="--rename-section .data=.fartext,alloc,load,readonly,data,contents"
+               else="">
+        <equals arg1="${platform}" arg2="fewos" casesensitive="false" />
+    </condition>
+	
 	<macrodef name="platform-objcopy">
 		<attribute name="inputfile"/>
 		<attribute name="outputfile"/>
 		<sequential>
-			<exec executable="msp430-objcopy">
-				<arg line="-I binary -O elf32-msp430 @{inputfile} @{outputfile}"/>
-			</exec>
+            <exec executable="msp430-objcopy">
+                <arg line="-I binary -O elf32-msp430 ${objcopy.renamesection} @{inputfile} @{outputfile}"/>
+            </exec>
 		</sequential>
 	</macrodef>
 
