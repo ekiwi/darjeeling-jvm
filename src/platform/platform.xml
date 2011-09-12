@@ -73,7 +73,7 @@
 	
 	<!-- clean target -->
 	<target name="clean">
-		<delete dir="build"/>	
+		<delete dir="${platformtargetpath}/build"/>	
 	</target>
 		
 </project>

@@ -23,24 +23,24 @@
 	libraries (ie 'base, darjeeling' -> 'base/build/base.a, darjeeling/build/darjeeling.a') -->
 	<pathconvert property="nativelibs" pathsep=" ">
 		<filelist dir="/" files="${libs}"/>
-		<regexpmapper from="/(.*)" to="\1/build/${configuration}/\1.a"/>
+		<regexpmapper from="\${file.separator}(.*)" to="\1/build/${configuration}/\1.a"/>
 	</pathconvert>
 
 	<!-- Construct a list of build files to execute to build the libs -->
 	<pathconvert property="libbuildfiles" pathsep=" ">
 		<filelist dir="/" files="${libs}"/>
-		<regexpmapper from="/(.*)" to="\1/build.xml"/>
+		<regexpmapper from="\${file.separator}(.*)" to="\1/build.xml"/>
 	</pathconvert>
 	
 	<!-- Construct a list of build files to execute to build the apps -->
 	<pathconvert property="appbuildfiles" pathsep=" ">
 		<filelist dir="/" files="${apps}"/>
-		<regexpmapper from="/(.*)" to="\1/build.xml"/>
+		<regexpmapper from="\${file.separator}(.*)" to="\1/build.xml"/>
 	</pathconvert>
 	
 	<pathconvert property="libincludes" pathsep=" ">
 		<filelist dir="/" files="${libs}"/>
-		<regexpmapper from="/(.*)" to="\1/build/"/>
+		<regexpmapper from="\${file.separator}(.*)" to="\1/build/"/>
 	</pathconvert>
 
 	<!-- Meta-targets -->
@@ -117,13 +117,15 @@
 		<!-- Construct a list of library .di files based on a comma separated list of libraries (ie 'base, darjeeling') -->
 		<pathconvert property="dilibs" pathsep=" ">
 			<filelist dir="/" files="${libs}"/>
-			<regexpmapper from="/(.*)" to="${configpath}/../lib/\1/build/\1.di"/>
+            <regexpmapper from="\${file.separator}(.*)" to="/../lib/\1/build/\1.di"/>
+			<map from="" to="${configpath}"/>
 		</pathconvert>
 
 		<!-- Construct a list of application .di files based on a comma separated list of applications (ie 'blink, hello world') -->
 		<pathconvert property="diapps" pathsep=" ">
 			<filelist dir="/" files="${apps}"/>
-			<regexpmapper from="/(.*)" to="${configpath}/../app/\1/build/\1.di"/>
+			<regexpmapper from="\${file.separator}(.*)" to="/../app/\1/build/\1.di"/>
+            <map from="" to="${configpath}"/>
 		</pathconvert>
 		
 		<!-- Archive the files using gnu ar -->
@@ -170,7 +172,7 @@
 
 	<!-- Clean the build dir, the VM, and the libraries this configuration depends on -->
 	<target name="clean">
-		<subant target="clean" inheritall="false">
+		<subant target="clean" inheritall="true">
 			<fileset includes="${libbuildfiles}" dir="${configpath}/../lib/"/>
 			<fileset includes="${appbuildfiles}" dir="${configpath}/../app/"/>
 			<fileset includes="build.xml" dir="${configpath}/../vm/"/>

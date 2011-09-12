@@ -23,13 +23,13 @@
 	<!-- Convert the comma separated list of library names (ie 'base, darjeeling') to a space separated list of .dih files off the library dir -->
 	<pathconvert property="infuser-headers" pathsep=" ">
 		<filelist dir="/" files="${lib-depends}"/>
-		<regexpmapper from="/(.*)" to="\1/build/\1.dih"/>
+		<regexpmapper from="\${file.separator}(.*)" to="\1/build/\1.dih"/>
 	</pathconvert>
 
 	<!-- Convert the comma separated list of library names (ie 'base, darjeeling') to a space separated list of .jar files off the library dir -->
 	<pathconvert property="javac-classpath" pathsep=" ">
 		<filelist dir="/" files="${lib-depends}"/>
-		<regexpmapper from="/(.*)" to="\1/build/\1.jar"/>
+		<regexpmapper from="\${file.separator}(.*)" to="\1/build/\1.jar"/>
 	</pathconvert>
 	
 	<!-- Meta-target -->
