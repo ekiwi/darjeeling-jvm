@@ -26,9 +26,18 @@
 
 typedef void * dj_di_pointer;
 
-#define DJ_DI_NOT_SET -1
-#define DJ_DI_NOT_FOUND -2
+#define DJ_DI_NOT_SET (dj_di_pointer)(-1)
+#define DJ_DI_NOT_FOUND (dj_di_pointer)(-2)
 
+#if (PLATFORM==fewos)
+
+#include "faraccess.h"
+#define dj_di_getU8(pointer)  xldb( (unsigned int)(pointer) )
+#define dj_di_getU16(pointer) xldb2( (unsigned int)(pointer) )
+#define dj_di_getU32(pointer) xldb4( (unsigned int)(pointer) )
+
+#else
+#error "no fewos?!"
 #define dj_di_getU8(pointer)  (*(uint8_t*) (pointer))
 #define dj_di_getU16(pointer) ( ((*(uint8_t*) (pointer+1))<<8) | (*(uint8_t*) (pointer)) )
 #define dj_di_getU32(pointer) (\
@@ -36,6 +45,9 @@ typedef void * dj_di_pointer;
 	((*(uint8_t*) (pointer+2))<<16) |\
 	((*(uint8_t*) (pointer+1))<<8) |\
 	(*(uint8_t*) (pointer)) )
+
+#endif
+
 #define dj_di_getLocalId(pointer) ((dj_local_id){dj_di_getU8(pointer),dj_di_getU8(pointer+1)})
 
 #endif
