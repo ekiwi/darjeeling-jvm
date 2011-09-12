@@ -1,10 +1,22 @@
 <project>
 
 	<property environment="env"/>
-
-	<path id="platform-includes"/>
+    <fail unless="env.FEWOS" message="FEWOS environment variable not set"/>
 	
-	<defineset id="platform-defines"/>
+	<path id="platform-includes">
+        <pathelement path="${env.FEWOS}"/>
+	</path>
+	
+    <property name="platform-sources" value="${env.FEWOS}"/>
+    
+	<defineset id="platform-defines">
+        <!--<define name="AUTOSTART_ENABLE"/>-->
+        <define name="DONTUSE_UART0"/>
+        <define name="DONTUSE_UART1"/>
+        <define name="DONTUSE_UART3"/>
+        <define name="CONSOLE_PORT" value="UART2"/>
+        <define name="CONSOLE_SMALL"/>
+    </defineset>    
 	
 		
 </project>
