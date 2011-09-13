@@ -47,6 +47,8 @@ extern const size_t di_archive_size;
 
 unsigned char mem[HEAPSIZE];
 
+void initLed();
+
 int main(int argc,char* argv[])
 {
 
@@ -54,6 +56,11 @@ int main(int argc,char* argv[])
 	dj_object * obj;
 
 	conio_init();
+
+	// initialise timer
+	dj_timer_init();
+
+	initLed();
 
 	// initialise memory manager
 	dj_mem_init(mem, HEAPSIZE);
