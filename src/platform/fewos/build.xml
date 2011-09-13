@@ -17,6 +17,7 @@
 					<include name="**/conio.c"/>
                     <include name="**/clock.c"/>
                     <include name="**/faraccess.s"/>
+                    <include name="**/gpio.c"/>
                     <include name="**/qbuffer.c"/>
                     <include name="**/serialStream.c"/>
                     <include name="**/uart.c"/>

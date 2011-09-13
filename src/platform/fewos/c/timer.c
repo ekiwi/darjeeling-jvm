@@ -27,7 +27,7 @@ void dj_timer_init()
 	clockInit();
 }
 
-uint32_t dj_timer_getTimeMillis()
+dj_time_t dj_timer_getTimeMillis()
 {
 	return clockGetMillis();
 }

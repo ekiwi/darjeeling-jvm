@@ -15,7 +15,8 @@
         <define name="DONTUSE_UART1"/>
         <define name="DONTUSE_UART3"/>
         <define name="CONSOLE_PORT" value="UART2"/>
-        <define name="CONSOLE_SMALL"/>
+        <define name="CONSOLE_FAST"/>
+        <define name="BOARD" value="MATRIXONE"/>
     </defineset>    
 	
 		
