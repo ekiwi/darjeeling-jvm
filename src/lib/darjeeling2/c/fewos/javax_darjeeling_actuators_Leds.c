@@ -49,47 +49,22 @@ static int portNum[] = {};
 static uint8_t bitNum[] = {};
 #endif
 
-void initIO( int nr ) {
-	int err;
-	uint8_t data;
-	// Set port select = I/O
-	data = gpioRead( portNum[nr], gpioPortSelection );
-	err = gpioWrite( portNum[nr], gpioPortSelection, data & ~bitNum[nr] );
-	// Set direction = output.
-	data = gpioRead( portNum[nr], gpioDirection );
-	err = gpioWrite( portNum[nr], gpioDirection, data | bitNum[nr] );
-	// Set drive strength = full.
-	data = gpioRead( portNum[nr], gpioDriveStrength );
-	err = gpioWrite( portNum[nr], gpioDriveStrength, data | bitNum[nr] );
-}
-
-void setIO( int nr, int on ) {
-	int err;
-	uint8_t data;
-	// Set LED on/off
-	data = gpioRead( portNum[nr], gpioOutput );
-	if( on ) {
-		err = gpioWrite( portNum[nr], gpioOutput, data | bitNum[nr] );
-	} else {
-		err = gpioWrite( portNum[nr], gpioOutput, data & ~bitNum[nr] );
-	}
-}
 
 void initLed() {
 	int idx=0;
 
 #if (BOARD==MATRIXONE)
-	initIO(LED_ENABLE_IDX);
-	initIO(LED_GROUP_SEL_IDX);
-	setIO(LED_ENABLE_IDX, 1);		// LED enable
-	setIO(LED_GROUP_SEL_IDX, 1);	// Group A = LED 1,3,5,7
+	gpioConfig( portNum[LED_ENABLE_IDX], bitNum[LED_ENABLE_IDX], gpioConfigOutputReduced );
+	gpioConfig( portNum[LED_GROUP_SEL_IDX], bitNum[LED_GROUP_SEL_IDX], gpioConfigOutputReduced );
+	gpioSetBits(portNum[LED_ENABLE_IDX], bitNum[LED_ENABLE_IDX]);		// LED enable
+	gpioSetBits(portNum[LED_GROUP_SEL_IDX], bitNum[LED_GROUP_SEL_IDX]);	// Group A = LED 1,3,5,7
 #endif
 
 	for( idx=0; idx < NUM_LEDS; idx++ ) {
-		initIO(idx);
+		gpioConfig( portNum[idx], bitNum[idx], gpioConfigOutputFull );
 	}
 	for( idx=0; idx < NUM_LEDS; idx++ ) {
-		setIO(idx, 0);
+		gpioClearBits(portNum[idx], bitNum[idx]);
 	}
 }
 
@@ -106,6 +81,10 @@ void javax_darjeeling_actuators_Leds_void_set_short_boolean()
 	// Get the led index argument
 	uint16_t nr = dj_exec_stackPopShort();
 	if( nr < NUM_LEDS ) {
-		setIO(nr, on);
+		if( on ) {
+			gpioSetBits( portNum[nr], bitNum[nr] );
+		} else {
+			gpioClearBits( portNum[nr], bitNum[nr] );
+		}
 	}
 }
