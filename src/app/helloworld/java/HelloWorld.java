@@ -19,12 +19,10 @@
  * along with Darjeeling.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-import javax.darjeeling.*;
-
 public class HelloWorld
 {
 	public static void main(String args[])
 	{
-		Darjeeling.print("Hello, world!");
+		System.out.println("Hello, world!");
 	}
 }

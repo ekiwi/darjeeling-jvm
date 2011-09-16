@@ -21,9 +21,13 @@
  
 package java.lang;
 
+import java.io.PrintStream;
+
 public class System 
 {
 	
+	public static PrintStream out = new PrintStream(null);
+
 	// no instance allowed
 	private System() {};
 	
@@ -35,6 +39,10 @@ public class System
     {
     	Runtime.getRuntime().gc();
     }
+
+//	public static void setOut(PrintStream printStream) {
+//		out = printStream;
+//	}
 
 
 }

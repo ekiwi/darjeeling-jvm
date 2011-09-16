@@ -26,29 +26,27 @@
 #include "jlib_base.h"
 #include "config.h"
 
-#define PROGFLASH_BLOCKSIZE 0
-#define PROGFLASH_BLOCKCOUNT 0
 
 // short javax.darjeeling.io.ProgramFlash.getBlockSize()
 void javax_darjeeling_io_ProgramFlash_short_getBlockSize()
 {
 	dj_exec_stackPushShort((uint16_t)PROGFLASH_BLOCKSIZE);
-	ref_t obj = dj_exec_stackPopRef();
+	/*ref_t obj = */dj_exec_stackPopRef();
 }
 
 // int javax.darjeeling.io.ProgramFlash.getBlockCount()
 void javax_darjeeling_io_ProgramFlash_int_getBlockCount()
 {
 	dj_exec_stackPushInt((uint32_t)PROGFLASH_BLOCKCOUNT);
-	ref_t obj = dj_exec_stackPopRef();
+	/*ref_t obj =*/ dj_exec_stackPopRef();
 }
 
 // byte[] javax.darjeeling.io.ProgramFlash.read(int)
 void javax_darjeeling_io_ProgramFlash_byte____read_int()
 {
 	// Pop arguments.
-	uint32_t index = dj_exec_stackPopInt();
-	ref_t obj = dj_exec_stackPopRef();
+	/*uint32_t index =*/ dj_exec_stackPopInt();
+	/*ref_t obj =*/ dj_exec_stackPopRef();
 
 	// Allocate byte array.
 	dj_int_array * arr = dj_int_array_create(T_BYTE, PROGFLASH_BLOCKSIZE);
@@ -65,9 +63,9 @@ void javax_darjeeling_io_ProgramFlash_byte____read_int()
 void javax_darjeeling_io_ProgramFlash_void__write_int_byte__()
 {
 	// Pop arguments.
-	dj_int_array * arr = REF_TO_VOIDP(dj_exec_stackPopRef());
-	uint32_t index = dj_exec_stackPopInt();
-	ref_t obj = dj_exec_stackPopRef();
+	/*dj_int_array * arr =*/ REF_TO_VOIDP(dj_exec_stackPopRef());
+	/*uint32_t index =*/ dj_exec_stackPopInt();
+	/*ref_t obj =*/ dj_exec_stackPopRef();
 
 	// Write data to 'program flash'.
 

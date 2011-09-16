@@ -21,6 +21,8 @@
  
 package javax.darjeeling;
 
+import java.io.PrintStream;
+
 /**
  * 
  * The Darjeeling class contains some general purpose methods such as printing to the default console, an assertion method for 
@@ -31,6 +33,9 @@ package javax.darjeeling;
  */
 public class Darjeeling
 {
+	static {
+		System.out = new PrintStream(new ConsoleOutputStream());
+	}
 	
 	/**
 	 * Assertion method for unit testing purposes. Prints the test nr and wether the test failed or passed.
