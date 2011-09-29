@@ -11,12 +11,13 @@
     
 	<defineset id="platform-defines">
         <!--<define name="AUTOSTART_ENABLE"/>-->
-        <define name="DONTUSE_UART0"/>
-        <define name="DONTUSE_UART1"/>
-        <define name="DONTUSE_UART3"/>
-        <define name="CONSOLE_PORT" value="UART2"/>
-        <define name="CONSOLE_FAST"/>
-        <define name="BOARD" value="MATRIXONE"/>
+        <!-- <define name="DONTUSE_UART0"/> -->
+        <!-- <define name="DONTUSE_UART2"/> -->
+        <!-- <define name="DONTUSE_UART3"/> -->
+        <define name="CONSOLE_PORT" value="UART1"/>
+        <define name="CONSOLE_SMALL"/>
+        <!-- <define name="BOARD" value="MATRIXONE"/> -->
+        <define name="BOARD" value="EXPERIMENTER"/>
     </defineset>    
 	
 		
