@@ -42,6 +42,8 @@ typedef int64_t dj_time_t;
 /* Please see common/debug.h */
 
 // #define DARJEELING_DEBUG
+// #define DARJEELING_DEBUG_FRAME
+// #define DARJEELING_DEBUG_MEM_TRACE
 // #define DARJEELING_DEBUG_TRACE
 // #define DARJEELING_DEBUG_CHECK_HEAP_SANITY
 // #define DARJEELING_DEBUG_PERFILE
