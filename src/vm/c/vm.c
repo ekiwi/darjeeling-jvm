@@ -1083,6 +1083,9 @@ inline dj_global_id dj_vm_getRuntimeClass(dj_vm *vm, runtime_id_t id)
 	// TODO raise error, class not found
 	DEBUG_LOG("error: class not found: %d\n", id);
 	DARJEELING_PRINTF("error: class not found: %d\n", id);
+#ifdef DARJEELING_DEBUG_FRAME
+	dj_exec_debugCurrentFrame();
+#endif
     dj_panic(DJ_PANIC_ILLEGAL_INTERNAL_STATE);
 
     // dead code to make compiler happy
