@@ -371,7 +371,12 @@ dj_global_id dj_global_id_lookupVirtualMethod(dj_global_id resolvedMethodDefId, 
 				// found method, resolve method definition
 				ret = dj_global_id_resolve(classId.infusion, dj_di_methodTableEntry_getImplementation(methodTableEntry));
 
-				DEBUG_LOG("Found %s %d\n", dj_di_header_getInfusionName(ret.infusion->header), ret.entity_id);
+#ifdef DARJEELING_DEBUG
+				char name[16];
+
+				dj_infusion_getName(ret.infusion, name, 16);
+				DEBUG_LOG("Found %s %d\n", name, ret.entity_id);
+#endif
 
 				// no need to scan the rest of the table
 				break;

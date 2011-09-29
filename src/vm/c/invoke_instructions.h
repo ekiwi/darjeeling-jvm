@@ -144,7 +144,7 @@ static inline void INVOKEVIRTUAL()
 	// check if method not found, and throw an error if this is the case. else, invoke the method
 	if (methodImplId.infusion==NULL)
 	{
-		DEBUG_LOG("methodImplId.infusion is NULL at INVOKEVIRTUAL %x.%d\n", resolvedMethodDefId.infusion, resolvedMethodDefId.entity_id);
+		DEBUG_LOG("methodImplId.infusion is NULL at INVOKEVIRTUAL %p.%d\n", resolvedMethodDefId.infusion, resolvedMethodDefId.entity_id);
 
 		dj_exec_throwHere(dj_vm_createSysLibObject(dj_exec_getVM(), BASE_CDEF_java_lang_VirtualMachineError));
 	} else
