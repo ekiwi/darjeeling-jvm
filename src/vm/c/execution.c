@@ -788,6 +788,9 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 {
 	dj_frame *frame;
 	dj_native_handler handler;
+	bool isReturnReference=false;
+	ref_t *oldRefStack, *refData;
+	int diffRefArgs;
 
 	// get a pointer in program space to the method implementation block from the method's global id
 	dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(methodImplId);
@@ -803,13 +806,43 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 		// the method is native, check if we have a native handler for the infusion the method is in
 		handler = methodImplId.infusion->native_handler;
 		if (handler != NULL) {
+			oldRefStack = refStack;
 			// we can execute the method by calling the infusion's native handler
 			handler(methodImplId);
-			// There is no special return handling afterwards
-			// So, don't forget to pop-off the object reference
-			// in case this was a virtual (== non-static) method:
+			// The reference stack needs right treatment now, so remember the
+			// contract for parameters and return values of native methods:
+			// 1. All parameters MUST be popped off the stack, regardless of
+			// whether they are actually used or not.
+			// 2. Non-static native methods MUST NOT (are not allowed to) pop
+			// off the object reference (last item). Use a peek instead.
+			// 3. Return values MUST be pushed back to the stack.
+			// For non-static methods, this means that the object reference is
+			// to be removed from the stack now afterwards.
 			if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_STATIC) == 0) {
-				popRef();
+				diffRefArgs = dj_di_methodImplementation_getReferenceArgumentCount(methodImpl)
+							  - (refStack - oldRefStack);
+				if( diffRefArgs==0 ) {	// Popped exactly all arguments
+					isReturnReference = false;
+				} else if( diffRefArgs==1 ) {  // Popped all arguments and pushed result
+					isReturnReference = true;
+				} else {
+					// Popped too few arguments or more references than arguments
+#ifdef DARJEELING_DEBUG_FRAME
+					DEBUG_LOG("Native method violates reference stack, diff=%d.\n", diffRefArgs);
+					dj_exec_debugCurrentFrame();
+#endif
+					dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+					return;
+				}
+				// If the method returns a reference, we have to peel off this
+				// result first....
+				refData = popRef();
+				if(isReturnReference) {
+					// ... now, pop-off the object reference ...
+					popRef();
+					// ... and push the result back afterwards.
+					pushRef(refData);
+				}
 			}
 		}
 		else

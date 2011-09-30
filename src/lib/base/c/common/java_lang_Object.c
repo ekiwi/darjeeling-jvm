@@ -36,8 +36,10 @@
 // void java.lang.Object.wait(int)
 void java_lang_Object_void_wait_int()
 {
-	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPopRef());
 	int32_t timeOut = dj_exec_stackPopInt();
+	// Don't pop, just peek the object reference off the runtime stack,
+	// because it's cleared by the VM's frame management.
+	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPeekRef());
 
 	dj_thread * thread = dj_exec_getCurrentThread();
 
@@ -48,7 +50,9 @@ void java_lang_Object_void_wait_int()
 // void java.lang.Object.wait()
 void java_lang_Object_void_wait()
 {
-	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPopRef());
+	// Don't pop, just peek the object reference off the runtime stack,
+	// because it's cleared by the VM's frame management.
+	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPeekRef());
 	dj_thread * thread = dj_exec_getCurrentThread();
 
 	dj_thread_wait(thread, object, 0);
@@ -58,7 +62,9 @@ void java_lang_Object_void_wait()
 // void java.lang.Object.notify()
 void java_lang_Object_void_notify()
 {
-	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPopRef());
+	// Don't pop, just peek the object reference off the runtime stack,
+	// because it's cleared by the VM's frame management.
+	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPeekRef());
 
 	// make sure the thread owns the lock
 	// TODO implement this check
@@ -69,14 +75,17 @@ void java_lang_Object_void_notify()
 // void java.lang.Object.notifyAll()
 void java_lang_Object_void_notifyAll()
 {
-	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPopRef());
+	// Don't pop, just peek the object reference off the runtime stack,
+	// because it's cleared by the VM's frame management.
+	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPeekRef());
 	dj_vm_notify(dj_exec_getVM(), object, false);
 }
 
 void java_lang_Object_java_lang_String_toString()
 {
-	// Pop object off the runtime stack
-	dj_object * obj = REF_TO_VOIDP(dj_exec_stackPopRef());
+	// Don't pop, just peek the object reference off the runtime stack,
+	// because it's cleared by the VM's frame management.
+	dj_object * obj = REF_TO_VOIDP(dj_exec_stackPeekRef());
 
 	// Get class definition
 	runtime_id_t classRuntimeId = dj_mem_getChunkId(obj);
@@ -98,7 +107,9 @@ void java_lang_Object_java_lang_String_toString()
 
 void java_lang_Object_int_hashCode()
 {
-	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPopRef());
+	// Don't pop, just peek the object reference off the runtime stack,
+	// because it's cleared by the VM's frame management.
+	dj_object * object = (dj_object*)REF_TO_VOIDP(dj_exec_stackPeekRef());
 
 	dj_exec_stackPushInt((int)object);
 }
