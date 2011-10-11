@@ -63,7 +63,10 @@ void dj_exec_updatePointers();
 
 #ifdef DARJEELING_DEBUG_FRAME
 void dj_exec_dumpFrame( dj_frame *frame );
-void dj_exec_debugFrame();
+void dj_exec_dumpFrameTrace( dj_frame *frame );
+dj_frame *dj_exec_dumpExecutionState();	// Returns current frame
+void dj_exec_debugCurrentFrame();
+void dj_exec_debugFrameTrace();
 #endif
 
 #endif

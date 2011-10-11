@@ -187,39 +187,52 @@ static inline void dj_exec_loadLocalState(dj_frame *frame) {
 	}
 }
 
-#ifdef DARJEELING_DEBUG_FRAME
-void dj_exec_debugInt16( const char *desc, int16_t *data, uint8_t num, int increment ) {
-	int idx;
-
-	DEBUG_LOG("%s: %p, %d values", desc, data, num);
-	if( (data!=NULL) && (num>0) ) {
-		DEBUG_LOG(" (");
-		for( idx=0; idx<num; idx++ ) {
-			if( idx>0 ) {
-				DEBUG_LOG(", ");
-			}
-			DEBUG_LOG("%#x", (increment<0 ? *(data-1-idx) : data[idx]) );
-		}
-		DEBUG_LOG(")");
+static dj_frame *getCurrentFrame() {
+	dj_frame *ret = NULL;
+	dj_thread *thread = dj_exec_getCurrentThread();
+	if( thread==NULL ) {
+		DEBUG_LOG_WHEREAMI();
+		DEBUG_LOG("Thread is NULL. Couldn't determine current frame.\n");
+	} else {
+		ret = thread->frameStack;
 	}
-	DEBUG_LOG(".\n");
+	return ret;
 }
 
-void dj_exec_debugRef( const char *desc, ref_t *data, uint8_t num ) {
+
+#ifdef DARJEELING_DEBUG_FRAME
+static void dj_exec_debugInt16( const char *desc, int16_t *data, uint8_t num, int increment ) {
 	int idx;
 
-	DEBUG_LOG("%s: %p, %d values", desc, data, num);
+	DARJEELING_PRINTF("%s: %p, %d values", desc, data, num);
 	if( (data!=NULL) && (num>0) ) {
-		DEBUG_LOG(" (");
+		DARJEELING_PRINTF(" (");
 		for( idx=0; idx<num; idx++ ) {
 			if( idx>0 ) {
-				DEBUG_LOG(", ");
+				DARJEELING_PRINTF(", ");
 			}
-			DEBUG_LOG("%p", data[idx] );
+			DARJEELING_PRINTF("%#x", (increment<0 ? *(data-1-idx) : data[idx]) );
 		}
-		DEBUG_LOG(")");
+		DARJEELING_PRINTF(")");
 	}
-	DEBUG_LOG(".\n");
+	DARJEELING_PRINTF(".\n");
+}
+
+static void dj_exec_debugRef( const char *desc, ref_t *data, uint8_t num ) {
+	int idx;
+
+	DARJEELING_PRINTF("%s: %p, %d values", desc, data, num);
+	if( (data!=NULL) && (num>0) ) {
+		DARJEELING_PRINTF(" (");
+		for( idx=0; idx<num; idx++ ) {
+			if( idx>0 ) {
+				DARJEELING_PRINTF(", ");
+			}
+			DARJEELING_PRINTF("%p", data[idx] );
+		}
+		DARJEELING_PRINTF(")");
+	}
+	DARJEELING_PRINTF(".\n");
 }
 
 void dj_exec_dumpFrame( dj_frame *frame ) {
@@ -228,12 +241,12 @@ void dj_exec_dumpFrame( dj_frame *frame ) {
 	int16_t *intParams;
 	ref_t *refParams;
 
-	DEBUG_LOG("Frame = %p.\n", frame);
+	DARJEELING_PRINTF("Frame = %p.\n", frame);
 	if( frame!=NULL ) {
-		DEBUG_LOG(" PC=%#x, NrIntStack=%d, NrRefStack=%d, Parent=%p\n",
+		DARJEELING_PRINTF(" PC=%#x, NrIntStack=%d, NrRefStack=%d, Parent=%p\n",
 					frame->pc, frame->nr_int_stack, frame->nr_ref_stack, frame->parent );
 		dj_infusion_getName(frame->method.infusion, name, 16);
-		DEBUG_LOG(" Method.infusion=%s, Method.id=%d\n", name, frame->method.entity_id);
+		DARJEELING_PRINTF(" Method.infusion=%s, Method.id=%d\n", name, frame->method.entity_id);
 
 		dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(frame->method);
 
@@ -246,11 +259,11 @@ void dj_exec_dumpFrame( dj_frame *frame ) {
 			sizeof(dj_frame) +
 			(dj_di_methodImplementation_getMaxStack(methodImpl) * sizeof(int16_t)) +
 			localVariablesSize;
-		DEBUG_LOG(" Size of struct: %d, max.stack: %d, local var's: %d bytes.\n",
+		DARJEELING_PRINTF(" Size of struct: %d, max.stack: %d, local var's: %d bytes.\n",
 				sizeof(dj_frame),
 				(dj_di_methodImplementation_getMaxStack(methodImpl) * sizeof(int16_t)),
 				localVariablesSize );
-		DEBUG_LOG(" Frame total size is %d bytes, so frame ends at %p.\n", size, ( ((void *)frame)+size) );
+		DARJEELING_PRINTF(" Frame total size is %d bytes, so frame ends at %p.\n", size, ( ((void *)frame)+size) );
 
 		dj_exec_debugInt16(" local int variables ",
 							dj_frame_getLocalIntegerVariables(frame),
@@ -274,45 +287,66 @@ void dj_exec_dumpFrame( dj_frame *frame ) {
 		dj_exec_debugInt16(" integer   parameters", intParams, numIntParams, 1);
 		dj_exec_debugRef(  " reference parameters", refParams, numRefParams);
 
-		DEBUG_LOG(" local int stack base: %p.\n", dj_frame_getStackStart(frame));
+		DARJEELING_PRINTF(" local int stack base: %p.\n", dj_frame_getStackStart(frame));
 		dj_exec_debugInt16(" local integer stack ",
 							dj_frame_getIntegerStack(frame), frame->nr_int_stack, -1);
 
-		DEBUG_LOG(" local ref stack base: %p.\n", dj_frame_getStackEnd(frame));
+		DARJEELING_PRINTF(" local ref stack base: %p.\n", dj_frame_getStackEnd(frame));
 		dj_exec_debugRef(  " local referenc stack",
 						  dj_frame_getReferenceStack(frame),
 						  frame->nr_ref_stack );
-
-		DEBUG_LOG("--- Parent frame follows ---\n");
-		dj_exec_dumpFrame(frame->parent);
 	}
 }
 
-void dj_exec_debugCurrentFrame() {
+void dj_exec_dumpFrameTrace( dj_frame *frame ) {
+	dj_exec_dumpFrame(frame);
+	if( frame!=NULL ) {
+		DARJEELING_PRINTF("--- Parent frame follows ---\n");
+		dj_exec_dumpFrameTrace(frame->parent);
+	}
+}
+
+dj_frame *dj_exec_dumpExecutionState() {
 	int16_t *orgIntStack;
 	ref_t *orgRefStack;
+	dj_frame *frame = getCurrentFrame();
 
-	DEBUG_LOG("---- Frame trace starts ----\n");
-	DEBUG_LOG_WHEREAMI();
-	dj_thread *thread = dj_exec_getCurrentThread();
-	if( thread==NULL ) {
-		DEBUG_LOG("Thread is NULL. Couldn't determine current frame.\n");
+	DARJEELING_PRINTF("--- Current execution state follows ---\n");
+	if( frame!=NULL ) {
+		orgIntStack = dj_frame_getStackStart(frame);
+		DARJEELING_PRINTF(" current int stack base: %p.\n", orgIntStack);
+		dj_exec_debugInt16(" current integer stack ", intStack, (intStack-orgIntStack), -1);
+
+		orgRefStack = dj_frame_getStackEnd(frame);
+		DARJEELING_PRINTF(" current ref stack base: %p.\n", orgRefStack);
+		dj_exec_debugRef(  " current referenc stack", refStack, (orgRefStack-refStack) );
 	} else {
-		dj_frame *frame = thread->frameStack;
-
-		if( frame!=NULL ) {
-			orgIntStack = dj_frame_getIntegerStack(frame);
-			DEBUG_LOG(" current int stack base: %p.\n", orgIntStack);
-			dj_exec_debugInt16(" current integer stack ", intStack, (intStack-orgIntStack), -1);
-
-			orgRefStack = dj_frame_getReferenceStack(frame);
-			DEBUG_LOG(" current ref stack base: %p.\n", orgRefStack);
-			dj_exec_debugRef(  " current referenc stack", refStack, (orgRefStack-refStack) );
-		}
-
-		dj_exec_dumpFrame( frame );
+		DARJEELING_PRINTF(" current integer stack : %p\n", intStack);
+		DARJEELING_PRINTF(" current referenc stack: %p\n", refStack);
+		DARJEELING_PRINTF(" Couldn't determine stack depths, because frame==NULL.\n");
 	}
-	DEBUG_LOG("---- End of frame trace ----\n");
+	DARJEELING_PRINTF(" local integer   variables: %p\n", localIntegerVariables);
+	DARJEELING_PRINTF(" local reference variables: %p\n", localReferenceVariables);
+	dj_exec_debugInt16(" integer   parameters", integerParameters, nrIntegerParameters, 1);
+	dj_exec_debugRef(  " reference parameters", referenceParameters, nrReferenceParameters);
+	DARJEELING_PRINTF(" PC:%#x  code:%p  this:%p  #OP-codes left:%d\n", pc, code, this, nrOpcodesLeft);
+
+	DARJEELING_PRINTF("--- Current execution state ends ---\n");
+	return frame;
+}
+
+void dj_exec_debugCurrentFrame() {
+	dj_frame *frame = dj_exec_dumpExecutionState();
+	DARJEELING_PRINTF("---- Current frame follows ----\n");
+	dj_exec_dumpFrame( frame );
+	DARJEELING_PRINTF("----  Current frame ends   ----\n\n");
+}
+
+void dj_exec_debugFrameTrace() {
+	dj_frame *frame = dj_exec_dumpExecutionState();
+	DARJEELING_PRINTF("---- Frame trace starts ----\n");
+	dj_exec_dumpFrameTrace( frame );
+	DARJEELING_PRINTF("---- End of frame trace ----\n\n");
 }
 #endif
 
@@ -326,8 +360,19 @@ void dj_exec_deactivateThread(dj_thread *thread) {
 	// store program counter and stack pointers
 	if (thread == NULL)
 		return;
+#if defined(DARJEELING_DEBUG_FRAME) && 0
+	DARJEELING_PRINTF("%s:%d\n", __FILE__, __LINE__ );
+	DARJEELING_PRINTF("---- Frame before 'save' follows ----\n");
+	dj_exec_dumpFrame( getCurrentFrame() );
+	DARJEELING_PRINTF("---- Frame before 'save' ends    ----\n");
+#endif
+
 	if (thread->frameStack != NULL)
 		dj_exec_saveLocalState(thread->frameStack);
+
+#if defined(DARJEELING_DEBUG_FRAME) && 0
+	dj_exec_debugCurrentFrame();
+#endif
 }
 
 /**
@@ -340,6 +385,7 @@ void dj_exec_activate_thread(dj_thread *thread) {
 
 	if (thread == NULL)
 		return;
+
 	vm->currentThread = thread;
 
 	if (thread->frameStack != NULL)
@@ -348,7 +394,10 @@ void dj_exec_activate_thread(dj_thread *thread) {
 		DARJEELING_PRINTF("Thread frame is NULL, thread cannot be activated\n");
 		dj_panic(DJ_PANIC_ILLEGAL_INTERNAL_STATE);
 	}
-
+#if defined(DARJEELING_DEBUG_FRAME) && 0
+	DARJEELING_PRINTF("%s:%d\n", __FILE__, __LINE__ );
+	dj_exec_debugCurrentFrame();
+#endif
 }
 
 void dj_exec_updatePointers() {
@@ -789,7 +838,7 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 	dj_frame *frame;
 	dj_native_handler handler;
 	bool isReturnReference=false;
-	ref_t *oldRefStack, *refData;
+	int oldNumRefStack, numRefStack;
 	int diffRefArgs;
 
 	// get a pointer in program space to the method implementation block from the method's global id
@@ -806,7 +855,9 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 		// the method is native, check if we have a native handler for the infusion the method is in
 		handler = methodImplId.infusion->native_handler;
 		if (handler != NULL) {
-			oldRefStack = refStack;
+			// Observe the number of reference elements on the ref. stack:
+			frame = getCurrentFrame();
+			oldNumRefStack = (ref_t *)dj_frame_getStackEnd(frame) - refStack;
 			// we can execute the method by calling the infusion's native handler
 			handler(methodImplId);
 			// The reference stack needs right treatment now, so remember the
@@ -818,9 +869,14 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 			// 3. Return values MUST be pushed back to the stack.
 			// For non-static methods, this means that the object reference is
 			// to be removed from the stack now afterwards.
+
+			// Again, compute number of reference elements on the ref. stack:
+			frame = getCurrentFrame();
+			numRefStack = (ref_t *)dj_frame_getStackEnd(frame) - refStack;
+			diffRefArgs = dj_di_methodImplementation_getReferenceArgumentCount(methodImpl)
+						  - (oldNumRefStack - numRefStack);
+
 			if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_STATIC) == 0) {
-				diffRefArgs = dj_di_methodImplementation_getReferenceArgumentCount(methodImpl)
-							  - (refStack - oldRefStack);
 				if( diffRefArgs==0 ) {	// Popped exactly all arguments
 					isReturnReference = false;
 				} else if( diffRefArgs==1 ) {  // Popped all arguments and pushed result
@@ -828,7 +884,10 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 				} else {
 					// Popped too few arguments or more references than arguments
 #ifdef DARJEELING_DEBUG_FRAME
-					DEBUG_LOG("Native method violates reference stack, diff=%d.\n", diffRefArgs);
+					DARJEELING_PRINTF("Native method violates reference stack.\n");
+					DARJEELING_PRINTF("#Arguments: %d, #Items before: %d, #Items now: %d, Diff=%d.\n",
+							dj_di_methodImplementation_getReferenceArgumentCount(methodImpl),
+							oldNumRefStack, numRefStack, diffRefArgs);
 					dj_exec_debugCurrentFrame();
 #endif
 					dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
@@ -836,7 +895,7 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 				}
 				// If the method returns a reference, we have to peel off this
 				// result first....
-				refData = popRef();
+				ref_t *refData = popRef();
 				if(isReturnReference) {
 					// ... now, pop-off the object reference ...
 					popRef();
