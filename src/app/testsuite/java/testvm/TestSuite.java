@@ -47,26 +47,31 @@ public class TestSuite
 	
 	public static void test()
 	{
-		ArithmeticTest.test(000);
-		ArrayTest.test(100);
-		CompareTest.test(200);
-		ClassHierarchyTest.test(300);
-		StaticFieldsTest.test(400);
-		FieldTest.test(500);
-		InitialiserTest.test(600);
-		InvokeVirtualTest.test(700);
-		GarbageCollectionTest.test(800);
-		SwitchTest.test(900);
-		ThreadTest.test(1000);
-		InheritanceTest.test(1100);
-		ExceptionsTest.test(1200);
- 		MD5Test.test(1300);
-		MethodOverloadingTest.test(1400);
-		RuntimeExceptionsTest.test(1500);
-		BitManipulationTest.test(1700);
-		AlignmentTest.test(1800);
-		// TryCatchTest.test(1900);
-		// InfusionTest.test(1900);
+		try {
+			ArithmeticTest.test(000);
+			ArrayTest.test(100);
+			CompareTest.test(200);
+			ClassHierarchyTest.test(300);
+			StaticFieldsTest.test(400);
+			FieldTest.test(500);
+			InitialiserTest.test(600);
+			InvokeVirtualTest.test(700);
+			GarbageCollectionTest.test(800);
+			SwitchTest.test(900);
+			ThreadTest.test(1000);
+			InheritanceTest.test(1100);
+			ExceptionsTest.test(1200);
+	 		MD5Test.test(1300);
+			MethodOverloadingTest.test(1400);
+			RuntimeExceptionsTest.test(1500);
+			BitManipulationTest.test(1700);
+			AlignmentTest.test(1800);
+//			TryCatchTest.test(1900);
+//			InfusionTest.test(2000);
+		} catch (Throwable t)
+		{
+			Darjeeling.print("Uncaught throwable: " + t.getMessage());
+		}
 		Darjeeling.print("All testsuites have passed succsessfuly.\n");
 	}
 

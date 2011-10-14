@@ -105,23 +105,24 @@ enum MethodImplementationFlags
 #define dj_di_methodImplementation_getParameterCount(pointer) dj_di_getU8(pointer + 4)
 #define dj_di_methodImplementation_getMaxStack(pointer) dj_di_getU8(pointer + 5)
 #define dj_di_methodImplementation_getFlags(pointer) dj_di_getU8(pointer + 6)
-#define dj_di_methodImplementation_getLength(pointer) dj_di_getU16(pointer + 7)
-#define dj_di_methodImplementation_getData(pointer) (pointer + 9)
+#define dj_di_methodImplementation_getReturnType(pointer) dj_di_getU8(pointer + 7)
+#define dj_di_methodImplementation_getLength(pointer) dj_di_getU16(pointer + 8)
+#define dj_di_methodImplementation_getData(pointer) (pointer + 10)
 
 #define dj_di_methodImplementation_getNrExceptionHandlers(pointer) \
-	dj_di_getU8((pointer + 9 + dj_di_getU16(pointer + 7)))
+	dj_di_getU8((pointer + 10 + dj_di_getU16(pointer + 8)))
 
 #define dj_di_methodImplementation_getExceptionHandlerType(pointer, i) \
-	dj_di_getLocalId((pointer + 10 + dj_di_getU16(pointer + 7) + i * 8))
+	dj_di_getLocalId((pointer + 11 + dj_di_getU16(pointer + 8) + i * 8))
 
 #define dj_di_methodImplementation_getExceptionHandlerStartPC(pointer, i) \
-	dj_di_getU16((pointer + 10 + dj_di_getU16(pointer + 7) + i * 8 + 2))
+	dj_di_getU16((pointer + 11 + dj_di_getU16(pointer + 8) + i * 8 + 2))
 
 #define dj_di_methodImplementation_getExceptionHandlerEndPC(pointer, i) \
-	dj_di_getU16((pointer + 10 + dj_di_getU16(pointer + 7) + i * 8 + 4))
+	dj_di_getU16((pointer + 11 + dj_di_getU16(pointer + 8) + i * 8 + 4))
 
 #define dj_di_methodImplementation_getExceptionHandlerCatchPC(pointer, i) \
-	dj_di_getU16((pointer + 10 + dj_di_getU16(pointer + 7) + i * 8 + 6))
+	dj_di_getU16((pointer + 11 + dj_di_getU16(pointer + 8) + i * 8 + 6))
 
 // string table getters
 #define dj_di_stringtable_getNrElements(pointer) dj_di_getU16(pointer + 1)

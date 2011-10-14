@@ -854,12 +854,15 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 
 		// the method is native, check if we have a native handler for the infusion the method is in
 		handler = methodImplId.infusion->native_handler;
-		if (handler != NULL) {
+		if (handler != NULL)
+		{
 			// Observe the number of reference elements on the ref. stack:
 			frame = getCurrentFrame();
 			oldNumRefStack = (ref_t *)dj_frame_getStackEnd(frame) - refStack;
+
 			// we can execute the method by calling the infusion's native handler
 			handler(methodImplId);
+
 			// The reference stack needs right treatment now, so remember the
 			// contract for parameters and return values of native methods:
 			// 1. All parameters MUST be popped off the stack, regardless of
@@ -877,6 +880,7 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 						  - (oldNumRefStack - numRefStack);
 
 			if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_STATIC) == 0) {
+							  
 				if( diffRefArgs==0 ) {	// Popped exactly all arguments
 					isReturnReference = false;
 				} else if( diffRefArgs==1 ) {  // Popped all arguments and pushed result
@@ -893,6 +897,7 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 					dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
 					return;
 				}
+
 				// If the method returns a reference, we have to peel off this
 				// result first....
 				ref_t *refData = popRef();

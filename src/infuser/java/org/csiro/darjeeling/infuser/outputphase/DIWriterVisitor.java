@@ -197,11 +197,14 @@ public class DIWriterVisitor extends DescendingVisitor
 			
 			CodeBlock code = element.getCodeBlock();
 
+			// Write flags
 			int flags = 0;
 			if (element.isNative()) flags |= 1;
 			if (element.isStatic()) flags |= 2;
-
 			out.writeUINT8(flags);
+			
+			// Write return type
+			out.writeUINT8(element.getMethodDefinition().getReturnType().getTType());
 			
 			// write code block
 			if (element.getCode()==null)
