@@ -1,20 +1,20 @@
 <project>
 
 	<property environment="env"/>
-    <fail unless="env.FEWOS" message="FEWOS environment variable not set"/>
+    <fail unless="env.OCAPI" message="OCAPI environment variable not set"/>
 	
 	<path id="platform-includes">
-        <pathelement path="${env.FEWOS}"/>
+        <pathelement path="${env.OCAPI}"/>
 	</path>
 	
-    <property name="platform-sources" value="${env.FEWOS}"/>
+    <property name="platform-sources" value="${env.OCAPI}"/>
     
 	<defineset id="platform-defines">
         <!--<define name="AUTOSTART_ENABLE"/>-->
-        <!-- <define name="DONTUSE_UART0"/> -->
-        <!-- <define name="DONTUSE_UART2"/> -->
-        <!-- <define name="DONTUSE_UART3"/> -->
-        <define name="CONSOLE_PORT" value="UART1"/>
+        <!-- <define name="DONTUSE_SERIAL0"/> -->
+        <!-- <define name="DONTUSE_SERIAL2"/> -->
+        <!-- <define name="DONTUSE_SERIAL3"/> -->
+        <define name="CONSOLE_PORT" value="SERIAL1"/>
         <define name="CONSOLE_SMALL"/>
         <!-- <define name="BOARD" value="MATRIXONE"/> -->
         <define name="BOARD" value="EXPERIMENTER"/>

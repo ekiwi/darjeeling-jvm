@@ -19,8 +19,8 @@
                     <include name="**/faraccess.s"/>
                     <include name="**/gpio.c"/>
                     <include name="**/qbuffer.c"/>
+                    <include name="**/serial.c"/>
                     <include name="**/serialStream.c"/>
-                    <include name="**/uart.c"/>
 				</fileset>
 
 			</compile-elements>
