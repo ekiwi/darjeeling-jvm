@@ -48,6 +48,7 @@ extern const size_t di_archive_size;
 unsigned char mem[HEAPSIZE];
 
 void initLed();
+void dj_timer_init();
 
 int main(int argc,char* argv[])
 {
