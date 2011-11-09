@@ -29,7 +29,7 @@ typedef void * dj_di_pointer;
 #define DJ_DI_NOT_SET (dj_di_pointer)(-1)
 #define DJ_DI_NOT_FOUND (dj_di_pointer)(-2)
 
-#if (PLATFORM==fewos)
+#if (PLATFORM==ocapi)
 
 #include "faraccess.h"
 #define dj_di_getU8(pointer)  xldb( (unsigned int)(pointer) )
@@ -37,7 +37,7 @@ typedef void * dj_di_pointer;
 #define dj_di_getU32(pointer) xldb4( (unsigned int)(pointer) )
 
 #else
-#error "no fewos?!"
+#error "No ocapi?!"
 #define dj_di_getU8(pointer)  (*(uint8_t*) (pointer))
 #define dj_di_getU16(pointer) ( ((*(uint8_t*) (pointer+1))<<8) | (*(uint8_t*) (pointer)) )
 #define dj_di_getU32(pointer) (\

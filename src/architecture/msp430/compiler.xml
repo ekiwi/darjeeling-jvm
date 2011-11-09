@@ -73,7 +73,7 @@
     <condition property="objcopy.renamesection"
                value="--rename-section .data=.fartext,alloc,load,readonly,data,contents"
                else="">
-        <equals arg1="${platform}" arg2="fewos" casesensitive="false" />
+        <equals arg1="${platform}" arg2="ocapi" casesensitive="false" />
     </condition>
 	
 	<macrodef name="platform-objcopy">

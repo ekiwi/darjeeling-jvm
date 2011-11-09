@@ -1,0 +1,17 @@
+<project default="all">
+
+	<!-- include native code for libraries -->
+	<property name="libs" value="base, darjeeling2"/>
+
+	<!-- Compile these applications -->
+    <property name="apps" value="benchmark"/>
+
+	<!-- Platform and architecture selection -->
+	<property name="platform" value="ocapi"/>
+	<property name="architecture" value="msp430"/>
+	<property name="configuration" value="msp430-ocapi"/>
+
+	<!-- Import the rest from config.xml (magic) -->
+	<import file="../config.xml"/>
+	
+</project>
