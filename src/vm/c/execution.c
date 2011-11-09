@@ -826,12 +826,15 @@ static inline void branch(int16_t offset) {
 }
 
 /**
- * Enters a method. The method may be either Java or native. If the method is native, the native handler of the
- * method's containg infusion will be called. If the method is not native, a new frame is created and a context
- * switch is performed.
+ * Enters a method. The method may be either Java or native. If the method is
+ * native, the native handler of the method's containing infusion will be
+ * called.
+ * If the method is not native, a new frame is created and a context switch is
+ * performed.
  * @param methodImplId a global id pointing to the method to be executed
- * @param virtualCall indicates if the call is a virtual or static call. In the case of a virtual call the object
- * the method belongs to is on the stack and should be handled as an additional parameter. Should be either 1 or 0.
+ * @param virtualCall indicates if the call is a virtual or static call. In the
+ * case of a virtual call the object the method belongs to is on the stack and
+ * should be handled as an additional parameter. Should be either 1 or 0.
  */
 static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 {
@@ -841,8 +844,10 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 	int oldNumRefStack, numRefStack;
 	int diffRefArgs;
 
-	// get a pointer in program space to the method implementation block from the method's global id
-	dj_di_pointer methodImpl = dj_global_id_getMethodImplementation(methodImplId);
+	// get a pointer in program space to the method implementation block
+	// from the method's global id
+	dj_di_pointer methodImpl;
+	methodImpl = dj_global_id_getMethodImplementation(methodImplId);
 
 	// check if the method is a native methods
 	if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_NATIVE) != 0)
@@ -852,7 +857,8 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 		DEBUG_LOG("Invoking native method ... \n");
 #endif
 
-		// the method is native, check if we have a native handler for the infusion the method is in
+		// the method is native, check if we have a native handler
+		// for the infusion the method is in
 		handler = methodImplId.infusion->native_handler;
 		if (handler != NULL)
 		{
@@ -860,7 +866,7 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 			frame = getCurrentFrame();
 			oldNumRefStack = (ref_t *)dj_frame_getStackEnd(frame) - refStack;
 
-			// we can execute the method by calling the infusion's native handler
+			// execute the method by calling the infusion's native handler
 			handler(methodImplId);
 
 			// The reference stack needs right treatment now, so remember the
@@ -876,31 +882,37 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 			// Again, compute number of reference elements on the ref. stack:
 			frame = getCurrentFrame();
 			numRefStack = (ref_t *)dj_frame_getStackEnd(frame) - refStack;
-			diffRefArgs = dj_di_methodImplementation_getReferenceArgumentCount(methodImpl)
+			diffRefArgs = dj_di_methodImplementation_getReferenceArgumentCount(
+																	methodImpl)
 						  - (oldNumRefStack - numRefStack);
 
-			if ((dj_di_methodImplementation_getFlags(methodImpl) & FLAGS_STATIC) == 0) {
-							  
-				if( diffRefArgs==0 ) {	// Popped exactly all arguments
-					isReturnReference = false;
-				} else if( diffRefArgs==1 ) {  // Popped all arguments and pushed result
-					isReturnReference = true;
-				} else {
-					// Popped too few arguments or more references than arguments
-#ifdef DARJEELING_DEBUG_FRAME
-					DARJEELING_PRINTF("Native method violates reference stack.\n");
-					DARJEELING_PRINTF("#Arguments: %d, #Items before: %d, #Items now: %d, Diff=%d.\n",
-							dj_di_methodImplementation_getReferenceArgumentCount(methodImpl),
-							oldNumRefStack, numRefStack, diffRefArgs);
-					dj_exec_debugCurrentFrame();
-#endif
-					dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
-					return;
-				}
+			if(dj_di_methodImplementation_getReturnType(methodImpl)==JTID_REF) {
+				diffRefArgs--;
+				isReturnReference = true;
+			}
 
-				// If the method returns a reference, we have to peel off this
-				// result first....
+			// Popped too few arguments or more references than arguments
+			if( diffRefArgs!=0 ) {
+#ifdef DARJEELING_DEBUG_FRAME
+				DARJEELING_PRINTF("Native method violates reference stack.\n");
+				DARJEELING_PRINTF("#Ref.Arguments: %d, return type: %d, ",
+						dj_di_methodImplementation_getReferenceArgumentCount(
+																	methodImpl),
+						dj_di_methodImplementation_getReturnType(methodImpl) );
+				DARJEELING_PRINTF("isReturnReference=%s\n",
+						(isReturnReference?"true":"false") );
+				DARJEELING_PRINTF("#before: %d, #after: %d, diff=%d.\n",
+						oldNumRefStack, numRefStack, diffRefArgs);
+				dj_exec_debugCurrentFrame();
+#endif
+				dj_exec_createAndThrow(BASE_CDEF_java_lang_VirtualMachineError);
+				return;
+			}
+
+			// If the method is non-static (virtual), pop the object reference
+			if (virtualCall) {
 				ref_t *refData = popRef();
+				// If the method returns a reference, we have to peel it off
 				if(isReturnReference) {
 					// ... now, pop-off the object reference ...
 					popRef();
@@ -912,8 +924,10 @@ static inline void callMethod(dj_global_id methodImplId, int virtualCall)
 		else
 		{
 			DEBUG_LOG("No native method handler for this infusion! \n");
-			// there is no native handler for this method's infusion. Throw an exception
-			dj_exec_createAndThrow(BASE_CDEF_javax_darjeeling_vm_NativeMethodNotImplementedError);
+			// there is no native handler for this method's infusion.
+			// Throw an exception
+			dj_exec_createAndThrow(
+				BASE_CDEF_javax_darjeeling_vm_NativeMethodNotImplementedError);
 		}
 
 	} else {

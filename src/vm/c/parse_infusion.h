@@ -42,6 +42,20 @@ enum MethodImplementationFlags
 	FLAGS_STATIC = 2
 };
 
+enum JavaTypeID
+{
+	JTID_VOID = 0,
+	JTID_BOOLEAN = 4,
+	JTID_CHAR = 5,
+	JTID_FLOAT = 6,
+	JTID_DOUBLE = 7,
+	JTID_BYTE = 8,
+	JTID_SHORT = 9,
+	JTID_INT = 10,
+	JTID_LONG = 11,
+	JTID_REF = 255
+};
+
 #define INTARRAY_INFUSION_ID 254
 
 #define dj_di_getListPointer(pointer, index) (dj_di_getU16( (dj_di_pointer)pointer + 1 + index * 2) )
