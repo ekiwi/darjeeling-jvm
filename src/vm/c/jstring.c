@@ -54,7 +54,7 @@ dj_object * dj_jstring_createFromStr(dj_vm *vm, char * str)
 	// Copy ASCII from program space to the array
 	for (i = 0; i < strlen(str); i++) charArray->data.bytes[i] = str[i];
 
-	return jstring;
+	return (dj_object *)jstring;
 }
 
 dj_object * dj_jstring_createFromGlobalId(dj_vm *vm, dj_global_id stringId)
@@ -72,5 +72,5 @@ dj_object * dj_jstring_createFromGlobalId(dj_vm *vm, dj_global_id stringId)
 	for (i = 0; i < stringLength; i++)
 		charArray->data.bytes[i] = dj_di_getU8(stringBytes++);
 
-	return jstring;
+	return (dj_object *)jstring;
 }
