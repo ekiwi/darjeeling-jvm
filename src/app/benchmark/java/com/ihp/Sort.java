@@ -30,10 +30,10 @@ public class Sort implements TestImplementation {
 		Runtime r = Runtime.getRuntime();
 		for (; times > 0; times--) {
 			Darjeeling.print(Integer.toString(times));
-			long free = r.freeMemory();
+//			long free = r.freeMemory();
 			Darjeeling.print(" - ");
-			String freeS = Long.toString(free);
-			Darjeeling.print(freeS);
+//			String freeS = Long.toString(free);
+//			Darjeeling.print(freeS);
 			Darjeeling.print("\n");
 			prepareSortTestField();
 //			Benchmark.synchronousGC();
