@@ -3,7 +3,6 @@
  */
 package com.ihp;
 
-import javax.darjeeling.Darjeeling;
 
 /**
  * @author Michael Maaser
@@ -11,7 +10,7 @@ import javax.darjeeling.Darjeeling;
  */
 public class Sort implements TestImplementation {
 
-	private short[] testfield;
+	protected short[] testfield = new short[(short) 253];
 
 	private short modpow(int i, int j, int length) {
 		short result = 1;
@@ -25,18 +24,8 @@ public class Sort implements TestImplementation {
 	 * @see com.ihp.TestImplementation#runTest(int)
 	 */
 	public void runTest(int times) {
-		testfield = new short[(short) 253];
-		Darjeeling.print("run\n");
-		Runtime r = Runtime.getRuntime();
 		for (; times > 0; times--) {
-			Darjeeling.print(Integer.toString(times));
-//			long free = r.freeMemory();
-			Darjeeling.print(" - ");
-//			String freeS = Long.toString(free);
-//			Darjeeling.print(freeS);
-			Darjeeling.print("\n");
 			prepareSortTestField();
-//			Benchmark.synchronousGC();
 		}
 	}
 

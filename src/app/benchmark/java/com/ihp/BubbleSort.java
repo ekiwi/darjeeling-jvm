@@ -14,10 +14,8 @@ public class BubbleSort extends Sort implements TestImplementation {
 	 */
 	public void runTest(int times) {
 		for (; times > 0; times--) {
-			short[] testfield = prepareSortTestField((short) 253);
-//			 dump(testfield);
-			bubbleSort(testfield);
-//			 dump(testfield);
+			prepareSortTestField();
+			bubbleSort();
 		}
 	}
 
@@ -28,7 +26,7 @@ public class BubbleSort extends Sort implements TestImplementation {
 		return "BubbleSort";
 	}
 
-	private void bubbleSort(short[] testfield) {
+	private void bubbleSort() {
 	
 		for (int i = 0; i < testfield.length; i++) {
 			for (int j = 0; j < testfield.length - i - 1; j++)

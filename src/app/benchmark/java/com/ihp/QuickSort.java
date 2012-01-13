@@ -10,10 +10,9 @@ package com.ihp;
 public class QuickSort extends Sort {
 
 	public void runTest(int times) {
-		short FIELDSIZE = 253;
-		short lastElement = (short) (FIELDSIZE - 1);
+		short lastElement = (short) (testfield.length-1);
 		for (; times > 0; times--) {
-			short[] testfield = prepareSortTestField(FIELDSIZE);
+			prepareSortTestField();
 			quickSort((short) 0, lastElement, testfield);
 		}
 	}
