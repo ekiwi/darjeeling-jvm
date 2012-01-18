@@ -58,7 +58,7 @@ public class BigInteger {
 		return new BigInteger(new int[] { val });
 	}
 
-	public BigInteger(byte[] val) {
+	/*public BigInteger(byte[] val) {
 		value = new int[(val.length + 7) >> 3];
 		int j = (val.length % 8)-8;
 		j = (j==-8)?0:j;
@@ -78,7 +78,7 @@ public class BigInteger {
 			}
 		}
 		value=trim(value);
-	}
+	}*/
 
 	public byte[] toByteArray() {
 		int j = 0;
@@ -719,15 +719,15 @@ public class BigInteger {
 	
 	public String toString() {
 		byte[] ba = toByteArray();
-		StringBuilder sb = new StringBuilder();
+		String s = "";
 		for (int i = 0; i < ba.length; i++) {
 			if ((ba[i] & 0xFF) < 16) {
-				sb.append('0');
+				s+='0';
 			}
-			sb.append(Integer.toHexString(ba[i] & 0xFF));
-			sb.append((ba.length - i)%4 ==1?'.':' ');
+			s+=Integer.toHexString(ba[i] & 0xFF);
+			s+=(ba.length - i)%4 ==1?'.':' ';
 		}
-		return sb.toString();
+		return s.toString();
 	}
 	
 	public BigInteger modInv(BigInteger modulus) {

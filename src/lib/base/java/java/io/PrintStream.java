@@ -27,9 +27,14 @@ public class PrintStream extends OutputStream {
 		}
 	}
 
-	public void println(String string) {
+	public void print(String string) {
 		write(string.getBytes());
-		write('\n');
 	}
 
+	public void println(String string) {
+		write(string.getBytes());
+		write((int)'\n');
+	}
+
+	
 }

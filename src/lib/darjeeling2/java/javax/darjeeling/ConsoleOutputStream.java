@@ -18,4 +18,8 @@ public class ConsoleOutputStream extends OutputStream {
 		Darjeeling.print(""+(char)b);
 	}
 
+	public void write(byte[] b)
+	{
+		Darjeeling.print(new String(b));
+	}
 }
