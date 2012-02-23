@@ -7,7 +7,7 @@ package com.ihp;
  * @author Michael Maaser
  *
  */
-public class QuickSort extends Sort {
+public class QuickSort extends Sort implements BenchmarkImplementation {
 
 	public void runTest(int times) {
 		short lastElement = (short) (testfield.length-1);

@@ -7,7 +7,7 @@ package com.ihp;
  * @author Michael Maaser
  *
  */
-public interface TestImplementation {
+public interface BenchmarkImplementation {
 
 	void runTest(int times);
 	

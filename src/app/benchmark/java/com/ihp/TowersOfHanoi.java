@@ -7,7 +7,7 @@ package com.ihp;
  * @author Michael Maaser
  *
  */
-public class TowersOfHanoi implements TestImplementation {
+public class TowersOfHanoi implements BenchmarkImplementation {
 
 	private static short[] left = new short[16];
 	private static short[] middle = new short[16];

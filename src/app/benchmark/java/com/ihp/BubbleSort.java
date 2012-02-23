@@ -7,7 +7,7 @@ package com.ihp;
  * @author Michael Maaser
  *
  */
-public class BubbleSort extends Sort implements TestImplementation {
+public class BubbleSort extends Sort implements BenchmarkImplementation {
 
 	/* (non-Javadoc)
 	 * @see com.ihp.TestImplementation#runTest()

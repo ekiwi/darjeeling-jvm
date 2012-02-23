@@ -11,13 +11,15 @@ public class MemoryWatcher extends Thread {
 
 	private boolean stopped = false;
 	private Runtime myRuntime;
-	private long maxFree;
-	private long minFree;
-	private long base;
+	private int maxFree;
+	private int minFree;
+	private int base;
 	private Object lock;
+	private int msBetweenSamples;
 
-	public MemoryWatcher() {
+	public MemoryWatcher(int msBetweenSamples) {
 		myRuntime = Runtime.getRuntime();
+		this.msBetweenSamples = msBetweenSamples;
 		lock = new Object();
 		reset();
 	}
@@ -26,7 +28,7 @@ public class MemoryWatcher extends Thread {
 		while (!stopped ) {
 			measure();
 			try {
-				Thread.sleep(40);
+				Thread.sleep(msBetweenSamples);
 			} catch (Exception e) {
 			}
 		}
@@ -34,11 +36,15 @@ public class MemoryWatcher extends Thread {
 	
 	public void explicitGC() {
 		myRuntime.gc();
+		try {
+			Thread.sleep(1000);
+		} catch (Exception e) {
+		}
 	}
 	
 	public void measure() {
 		synchronized(lock) {
-			long free = myRuntime.freeMemory();
+			int free = (int) myRuntime.freeMemory();
 			maxFree = Math.max(maxFree, free);
 			minFree = Math.min(minFree , free);
 		}
@@ -46,7 +52,8 @@ public class MemoryWatcher extends Thread {
 	
 	public void reset() {
 		synchronized(lock) {
-			base = myRuntime.freeMemory();
+			base = (int) myRuntime.freeMemory();
+//			System.out.println("Base FreeMem:"+base);
 			maxFree = base;
 			minFree = base;
 		}
