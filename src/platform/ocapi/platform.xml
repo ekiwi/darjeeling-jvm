@@ -15,7 +15,7 @@
         <!-- <define name="DONTUSE_SERIAL2"/> -->
         <!-- <define name="DONTUSE_SERIAL3"/> -->
         <define name="CONSOLE_PORT" value="SERIAL1"/>
-        <define name="CONSOLE_SMALL"/>
+        <define name="CONSOLE_FAST"/>
         <!-- <define name="BOARD" value="MATRIXONE"/> -->
         <define name="BOARD" value="EXPERIMENTER"/>
     </defineset>    
