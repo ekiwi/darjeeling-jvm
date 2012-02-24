@@ -228,9 +228,9 @@ public class WhetStoneFloat implements BenchmarkImplementation {
 		return "Whetstone (Float)";
 	}
 
-	public static void main(String[] args) {
-		BenchmarkImplementation test = new WhetStoneFloat();
-		test.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new WhetStoneFloat();
+//		test.runTest(1);
+//	}
 
 }

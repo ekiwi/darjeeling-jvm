@@ -28,9 +28,9 @@ public class CalculationInLoop implements BenchmarkImplementation {
 		return "Calculation 69! in a loop";
 	}
 
-	public static void main(String[] args) {
-		BenchmarkImplementation test = new CalculationInLoop();
-		test.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new CalculationInLoop();
+//		test.runTest(1);
+//	}
 	
 }

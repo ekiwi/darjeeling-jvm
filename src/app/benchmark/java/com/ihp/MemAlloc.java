@@ -11,10 +11,10 @@ public class MemAlloc implements BenchmarkImplementation {
 
 	private static final int NR_OF_MEM_BLOCKS = 50;
 
-	public static void main(String[] args) {
-		BenchmarkImplementation test = new MemAlloc();
-		test.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new MemAlloc();
+//		test.runTest(1);
+//	}
 	
 	/* (non-Javadoc)
 	 * @see com.ihp.TestImplementation#runTest(int)

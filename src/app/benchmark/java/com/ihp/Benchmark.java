@@ -16,34 +16,31 @@ public class Benchmark {
 	public static void main(String[] args) {
 		System.out.println();
 		System.out.println("Total RAM :" + Runtime.getRuntime().totalMemory());
-		try {
-			// Hello World!
-			test(new HelloWorld());
+		// Hello World!
+		test(new HelloWorld());
 
-			// Sorting
-			test(new Sort());// this prepares only the testfield
-			test(new BubbleSort());
-			test(new QuickSort());
-			test(new QuickSortIterativ());
+		// Sorting
+		test(new Sort());// this prepares only the testfield
+		test(new BubbleSort());
+		test(new QuickSort());
+		test(new QuickSortIterativ());
 
-			// Memory and garbage collection
-			test(new MemAlloc());
+		// Memory and garbage collection
+		test(new MemAlloc());
 
-			// Arithmetics
-			test(new CalculationInLoop());
-			test(new CalculationUnrolled());
+		// Arithmetics
+		test(new CalculationInLoop());
+		test(new CalculationUnrolled());
 
-			// Towers of Hanoi
-			test(new TowersOfHanoi((short) 10));
-			
-			// Additional stuff
-			test(new Ackermann());
-			test(new DhryStone());
-			test(new WhetStoneFloat());
-			test(new WhetStoneDouble());
-		} catch (Throwable e) {
-			System.out.println(e + e.getMessage());
-		}
+		// Towers of Hanoi
+		test(new TowersOfHanoi((short) 10));
+		
+		// Additional stuff
+		test(new Ackermann());
+		test(new DhryStone());
+//		test(new WhetStoneFloat());
+//		test(new WhetStoneDouble());
+
 		System.out.println("All tests done.");
 		System.out.println();
 	}

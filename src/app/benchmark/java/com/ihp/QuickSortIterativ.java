@@ -73,8 +73,8 @@ public class QuickSortIterativ extends Sort implements BenchmarkImplementation {
 		return "QuickSortIterativ";
 	}
 	
-	public static void main(String[] args) {
-		Sort srt = new QuickSortIterativ();
-		srt.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		Sort srt = new QuickSortIterativ();
+//		srt.runTest(1);
+//	}
 }

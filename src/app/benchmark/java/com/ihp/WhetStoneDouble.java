@@ -228,9 +228,9 @@ public class WhetStoneDouble implements BenchmarkImplementation {
 		return "Whetstone (Double)";
 	}
 
-	public static void main(String[] args) {
-		BenchmarkImplementation test = new WhetStoneDouble();
-		test.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new WhetStoneDouble();
+//		test.runTest(1);
+//	}
 
 }

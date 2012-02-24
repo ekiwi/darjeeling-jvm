@@ -18,4 +18,9 @@ public class HelloWorld implements BenchmarkImplementation {
 		return "HelloWorld";
 	}
 
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new HelloWorld();
+//		test.runTest(1);
+//	}
+	
 }

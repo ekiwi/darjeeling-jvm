@@ -9,10 +9,10 @@ package com.ihp;
  */
 public class Ackermann implements BenchmarkImplementation {
 
-	public static void main(String[] args) {
-		BenchmarkImplementation test = new Ackermann();
-		test.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new Ackermann();
+//		test.runTest(1);
+//	}
 	
 	/* (non-Javadoc)
 	 * @see com.ihp.TestImplementation#runTest(int)

@@ -110,10 +110,10 @@ public class DhryStone implements BenchmarkImplementation {
 	private static final byte Ident4 = 3;
 	private static final byte Ident5 = 4;
 
-	public static void main(String[] args) {
-		BenchmarkImplementation test = new DhryStone();
-		test.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new DhryStone();
+//		test.runTest(1);
+//	}
 	
 	public void runTest(int times) {
 		PointerGlob = new RecordType1();

@@ -94,9 +94,9 @@ public class CalculationUnrolled implements BenchmarkImplementation {
 		return "Calculation 69! unrolled";
 	}
 
-	public static void main(String[] args) {
-		BenchmarkImplementation test = new CalculationUnrolled();
-		test.runTest(1);
-	}
+//	public static void main(String[] args) {
+//		BenchmarkImplementation test = new CalculationUnrolled();
+//		test.runTest(1);
+//	}
 	
 }
