@@ -19,6 +19,8 @@
 
 	<!-- If lib-depends hasn't been defined yet, default to none -->
 	<property name="lib-depends" value=""/>
+    <!-- ... the same to java-src-include -->
+    <property name="java-src-include" value=""/>
 
 	<!-- Convert the comma separated list of library names (ie 'base, darjeeling') to a space separated list of .dih files off the library dir -->
 	<pathconvert property="infuser-headers" pathsep=" ">
@@ -50,6 +52,8 @@
 			debug="true"
 			encoding="iso-8859-1"		
 			bootclasspath="${bootclasspath}"
+            includes="${java-src-include}"
+			excludes="${java-src-exclude}"
 		>
 			<classpath>
 				<filelist files="${javac-classpath}" dir="${apppath}/../lib/"/>
