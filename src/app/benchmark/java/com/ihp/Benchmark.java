@@ -37,7 +37,7 @@ public class Benchmark {
 		
 		// Additional stuff
 		test(new Ackermann());
-		test(new DhryStone());
+//		test(new DhryStone());
 //		test(new WhetStoneFloat());
 //		test(new WhetStoneDouble());
 
