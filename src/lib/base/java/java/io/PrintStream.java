@@ -36,5 +36,7 @@ public class PrintStream extends OutputStream {
 		write((int)'\n');
 	}
 
-	
+	public void println() {
+		write((int)'\n');
+	}	
 }
