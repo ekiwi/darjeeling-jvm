@@ -1,0 +1,11 @@
+build/
+*.a
+*.elf
+
+# gedit
+*~
+
+# darjeeling specific stuff
+temp.c
+infusions
+history.xml
