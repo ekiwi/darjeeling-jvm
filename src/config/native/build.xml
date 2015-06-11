@@ -1,7 +1,7 @@
 <project default="all">
 
 	<!-- include native code for libraries -->
-	<property name="libs" value="base, util, darjeeling2"/>
+	<property name="libs" value="base, darjeeling2"/>
 
 	<!-- Compile these applications -->
 	<property name="apps" value="testsuite"/>
